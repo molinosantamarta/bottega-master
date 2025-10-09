@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Master</title>
+  <style>
+    html,body{height:100%;margin:0}
+    :root{
+      --main:#770505; --fg:#f5f5f7; --radius:14px;
+    }
+    body{background:var(--main);color:var(--fg);font:16px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+
+    /* ===== Header con loghi ===== */
+    header{
+      background:var(--main);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:20px;
+      padding:12px 0 8px;
+    }
+    header img{
+      height:52px;
+      width:auto;
+      display:block;
+    }
+
+    /* ===== Top Tabs ===== */
+    nav[role="tablist"]{
+      position:sticky;top:0;z-index:20;
+      background:var(--main);
+      display:flex;justify-content:center;gap:8px;
+      padding:12px 8px 16px;
+    }
+    .tab{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.25);
+      background:transparent;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+      letter-spacing:.2px;
+      transition:transform .05s ease,background .2s,color .2s,border-color .2s;
+    }
+    .tab:hover{background:rgba(255,255,255,.15)}
+    .tab:active{transform:scale(.98)}
+    .tab[aria-selected="true"]{background:#fff;color:var(--main);border-color:#fff}
+
+    main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
+    [data-view]{display:none;width:100%;height:100%;}
+    [data-view].active{display:flex;animation:fade .18s ease-out;}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    .panel{
+      flex:1;
+      background:#fff;
+      color:#000;
+      border-radius:var(--radius);
+      min-height:70vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:32px;
+      font-weight:700;
+      box-shadow:0 0 20px rgba(0,0,0,.3);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="svg-molino.png" alt="Molino" />
+    <img src="svg-bottega.png" alt="Bottega" />
+    <img src="svg-cascina.png" alt="Cascina" />
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Navigazione viste">
+    <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
+    <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
+    <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
+    <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
+    <button class="tab" role="tab" data-tab="trua" aria-selected="false">Truà</button>
+  </nav>
+
+  <main>
+    <section id="view-inserisci" data-view class="active" aria-labelledby="tab-inserisci">
+      <div class="panel">"Inserisci"</div>
+    </section>
+    <section id="view-gestisci" data-view aria-labelledby="tab-gestisci">
+      <div class="panel">"Gestisci"</div>
+    </section>
+    <section id="view-stoc" data-view aria-labelledby="tab-stoc">
+      <div class="panel">"Stòc"</div>
+    </section>
+    <section id="view-ocapi" data-view aria-labelledby="tab-ocapi">
+      <div class="panel">"Ocapì"</div>
+    </section>
+    <section id="view-trua" data-view aria-labelledby="tab-trua">
+      <div class="panel">"Truà"</div>
+    </section>
+  </main>
+
+  <script>
+    const VIEWS=["inserisci","gestisci","stoc","ocapi","trua"];
+    const $$=(s)=>Array.from(document.querySelectorAll(s));
+
+    function activate(view){
+      if(!VIEWS.includes(view)) view='inserisci';
+      VIEWS.forEach(v=>{
+        const el=document.getElementById('view-'+v);
+        if(!el) return;
+        el.classList.toggle('active',v===view);
+      });
+      $$('.tab').forEach(btn=>btn.setAttribute('aria-selected',btn.dataset.tab===view?'true':'false'));
+    }
+
+    document.querySelector('[role="tablist"]').addEventListener('click',e=>{
+      const b=e.target.closest('.tab');
+      if(!b) return;
+      const v=b.dataset.tab;
+      activate(v);
+    });
+
+    activate('inserisci');
+  </script>
+</body>
+</html>
