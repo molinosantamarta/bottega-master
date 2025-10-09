@@ -7,38 +7,42 @@
   <style>
     html,body{height:100%;margin:0}
     :root{
-      --main:#770505;
-      --fg:#f5f5f7;
-      --radius:22px; /* bordi più morbidi */
+      --main:#770505; --fg:#f5f5f7; --radius:38px;
     }
     body{
       background:var(--main);
       color:var(--fg);
       font:16px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
+      display:flex;flex-direction:column;min-height:100vh;
     }
 
-    header{
-      background:var(--main);
-      height:20px;
-    }
+    header{ background:var(--main); height:20px; }
 
+    /* ===== Barra selettori con PILL iOS-style ===== */
     nav[role="tablist"]{
-      position:sticky;
-      top:0;
-      z-index:20;
+      position:sticky; top:0; z-index:20;
       background:var(--main);
-      display:flex;
-      justify-content:center;
-      gap:8px;
+      display:flex; justify-content:center;
       padding:12px 8px 16px;
     }
+    .tabs-pill{
+      display:flex; gap:8px; align-items:center; justify-content:center;
+      padding:6px;
+      border-radius:9999px;
+      /* “liquid glass” translucido */
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.35);
+      -webkit-backdrop-filter:saturate(180%) blur(14px);
+      backdrop-filter:saturate(180%) blur(14px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        0 8px 20px rgba(0,0,0,.12);
+    }
+
     .tab{
       appearance:none;
-      border:1px solid rgba(255,255,255,.25);
-      background:transparent;
+      border:1px solid rgba(255,255,255,.28);
+      background:rgba(255,255,255,.08);
       color:#fff;
       padding:10px 14px;
       border-radius:999px;
@@ -46,46 +50,61 @@
       font-weight:700;
       font-size:13px;
       letter-spacing:.2px;
-      transition:transform .05s ease,background .2s,color .2s,border-color .2s;
+      transition:transform .05s ease, background .2s, color .2s, border-color .2s;
     }
-    .tab:hover{background:rgba(255,255,255,.15)}
-    .tab:active{transform:scale(.98)}
+    .tab:hover{ background:rgba(255,255,255,.16) }
+    .tab:active{ transform:scale(.98) }
     .tab[aria-selected="true"]{
       background:#fff;
       color:var(--main);
       border-color:#fff;
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
     }
 
-    main{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
+    main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
     [data-view]{display:none;width:100%;height:100%;}
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
+    /* ===== Pannello “liquid glass” (stesse misure) ===== */
     .panel{
       flex:none;
-      height:960px; /* altezza fissa per iMac 21.5" */
+      max-height:960px;          /* invariato: scende al massimo a 960px */
       width:100%;
-      max-width:1400px;
-      background:#fff;
+      background:rgba(255,255,255,.66); /* white frosted */
       color:#000;
       border-radius:var(--radius);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:32px;
-      font-weight:700;
+      border:1px solid rgba(255,255,255,.65);
+      display:flex; align-items:center; justify-content:center;
+      font-size:32px; font-weight:700;
       overflow:hidden;
+
+      /* glow chiaro + highlight interno leggero */
+      box-shadow:
+        0 16px 40px rgba(255,255,255,.20),
+        0 2px 8px rgba(0,0,0,.08),
+        inset 0 1px 0 rgba(255,255,255,.65);
+
+      /* vetro: sfocatura e saturazione */
+      -webkit-backdrop-filter:saturate(180%) blur(18px);
+      backdrop-filter:saturate(180%) blur(18px);
+      position:relative;
     }
+    /* riflesso morbido “a specchio” in alto */
+    .panel::before{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(to bottom, rgba(255,255,255,.40), rgba(255,255,255,0) 30%);
+      mix-blend-mode:screen;
+    }
+
     .panel iframe{
       width:100%;
       height:100%;
       border:0;
+      background:transparent;
     }
   </style>
 </head>
@@ -93,11 +112,13 @@
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste">
-    <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
-    <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
-    <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
-    <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
-    <button class="tab" role="tab" data-tab="trua" aria-selected="false">Truà</button>
+    <div class="tabs-pill">
+      <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
+      <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
+      <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
+      <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
+      <button class="tab" role="tab" data-tab="trua" aria-selected="false">Truà</button>
+    </div>
   </nav>
 
   <main>
