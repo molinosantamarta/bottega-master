@@ -7,29 +7,43 @@
   <style>
     html,body{height:100%;margin:0}
     :root{
-      --main:#770505; --fg:#f5f5f7; --radius:38px;
+      --main:#770505;
+      --fg:#f5f5f7;
+      --radius:38px;
+      --tabs-h:0px;             /* aggiornato via JS */
+      --clock-size:32px;        /* dimensione orario */
+      --date-size:22px;         /* dimensione data */
     }
+
     body{
       background:var(--main);
       color:var(--fg);
       font:16px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      display:flex;flex-direction:column;min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
 
-    header{ background:var(--main); height:20px; }
+    header{background:var(--main);height:20px;}
 
-    /* ===== Barra selettori con PILL iOS-style ===== */
     nav[role="tablist"]{
-      position:sticky; top:0; z-index:20;
+      position:sticky;
+      top:0;
+      z-index:20;
       background:var(--main);
-      display:flex; justify-content:center;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
       padding:12px 8px 16px;
     }
+
     .tabs-pill{
-      display:flex; gap:8px; align-items:center; justify-content:center;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
       padding:6px;
       border-radius:9999px;
-      /* “liquid glass” translucido */
       background:rgba(255,255,255,.14);
       border:1px solid rgba(255,255,255,.35);
       -webkit-backdrop-filter:saturate(180%) blur(14px);
@@ -37,6 +51,8 @@
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.35),
         0 8px 20px rgba(0,0,0,.12);
+      position:relative;
+      z-index:1;
     }
 
     .tab{
@@ -52,8 +68,8 @@
       letter-spacing:.2px;
       transition:transform .05s ease, background .2s, color .2s, border-color .2s;
     }
-    .tab:hover{ background:rgba(255,255,255,.16) }
-    .tab:active{ transform:scale(.98) }
+    .tab:hover{background:rgba(255,255,255,.16)}
+    .tab:active{transform:scale(.98)}
     .tab[aria-selected="true"]{
       background:#fff;
       color:var(--main);
@@ -61,45 +77,78 @@
       box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
     }
 
+    /* === HUD Data e Ora === */
+    .hud{
+      position:absolute;
+      bottom:16px;
+      white-space:nowrap;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+      font-weight:800;
+      line-height:1;
+      display:none;
+      align-items:center;
+      height:var(--tabs-h);
+      letter-spacing:.2px;
+      user-select:none;
+    }
+    @media (min-width:900px){
+      .hud{display:flex;}
+    }
+
+    .hud-date{
+      left:12px;
+      font-size:var(--date-size);
+      transform:translateX(30px);
+    }
+    .hud-clock{
+      right:12px;
+      font-size:var(--clock-size);
+      text-align:right;
+      transform:translateX(-40px);
+    }
+
+    .hud-clock .blink{
+      display:inline-block;
+      transition:opacity .12s linear;
+    }
+    .hud-clock .blink.off{opacity:0;}
+
     main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
     [data-view]{display:none;width:100%;height:100%;}
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* ===== Pannello “liquid glass” (stesse misure) ===== */
     .panel{
       flex:none;
-      max-height:960px;          /* invariato: scende al massimo a 960px */
+      max-height:960px;
       width:100%;
-      background:rgba(255,255,255,.66); /* white frosted */
+      background:rgba(255,255,255,.66);
       color:#000;
       border-radius:var(--radius);
       border:1px solid rgba(255,255,255,.65);
-      display:flex; align-items:center; justify-content:center;
-      font-size:32px; font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:32px;
+      font-weight:700;
       overflow:hidden;
-
-      /* glow chiaro + highlight interno leggero */
       box-shadow:
         0 16px 40px rgba(255,255,255,.20),
         0 2px 8px rgba(0,0,0,.08),
         inset 0 1px 0 rgba(255,255,255,.65);
-
-      /* vetro: sfocatura e saturazione */
       -webkit-backdrop-filter:saturate(180%) blur(18px);
       backdrop-filter:saturate(180%) blur(18px);
       position:relative;
     }
-    /* riflesso morbido “a specchio” in alto */
     .panel::before{
       content:"";
-      position:absolute; inset:0;
+      position:absolute;
+      inset:0;
       pointer-events:none;
-      background:
-        linear-gradient(to bottom, rgba(255,255,255,.40), rgba(255,255,255,0) 30%);
+      background:linear-gradient(to bottom, rgba(255,255,255,.40), rgba(255,255,255,0) 30%);
       mix-blend-mode:screen;
     }
-
     .panel iframe{
       width:100%;
       height:100%;
@@ -111,42 +160,40 @@
 <body>
   <header></header>
 
-  <nav class="tabs" role="tablist" aria-label="Navigazione viste">
-    <div class="tabs-pill">
+  <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
+    <div class="hud hud-date" id="hud-date">Lunedì, 3 Ottobre</div>
+
+    <div class="tabs-pill" id="tabs-pill">
       <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
       <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
       <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
       <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
       <button class="tab" role="tab" data-tab="trua" aria-selected="false">Truà</button>
     </div>
+
+    <div class="hud hud-clock" id="hud-clock">
+      <span id="hh">00</span><span class="blink" id="colon">:</span><span id="mm">00</span>
+    </div>
   </nav>
 
   <main>
-    <section id="view-inserisci" data-view class="active" aria-labelledby="tab-inserisci">
+    <section id="view-inserisci" data-view class="active">
       <div class="panel">
         <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
       </div>
     </section>
-    <section id="view-gestisci" data-view aria-labelledby="tab-gestisci">
+    <section id="view-gestisci" data-view>
       <div class="panel">
         <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0"></iframe>
       </div>
     </section>
-   <section id="view-stoc" data-view aria-labelledby="tab-stoc">
-  <div class="panel">
-    <iframe
-      src="https://molinosantamarta.github.io/bottega-sso/"
-      title="Stòc – App Bottega"
-      allowfullscreen>
-    </iframe>
-  </div>
-</section>
-    <section id="view-ocapi" data-view aria-labelledby="tab-ocapi">
-      <div class="panel">"Ocapì"</div>
+    <section id="view-stoc" data-view>
+      <div class="panel">
+        <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega" allowfullscreen></iframe>
+      </div>
     </section>
-    <section id="view-trua" data-view aria-labelledby="tab-trua">
-      <div class="panel">"Truà"</div>
-    </section>
+    <section id="view-ocapi" data-view><div class="panel">"Ocapì"</div></section>
+    <section id="view-trua" data-view><div class="panel">"Truà"</div></section>
   </main>
 
   <script>
@@ -157,8 +204,7 @@
       if(!VIEWS.includes(view)) view='inserisci';
       VIEWS.forEach(v=>{
         const el=document.getElementById('view-'+v);
-        if(!el) return;
-        el.classList.toggle('active',v===view);
+        if(el) el.classList.toggle('active',v===view);
       });
       $$('.tab').forEach(btn=>btn.setAttribute('aria-selected',btn.dataset.tab===view?'true':'false'));
     }
@@ -166,11 +212,54 @@
     document.querySelector('[role="tablist"]').addEventListener('click',e=>{
       const b=e.target.closest('.tab');
       if(!b) return;
-      const v=b.dataset.tab;
-      activate(v);
+      activate(b.dataset.tab);
     });
-
     activate('inserisci');
+
+    const pill=document.getElementById('tabs-pill');
+    const hudDate=document.getElementById('hud-date');
+    const hudClock=document.getElementById('hud-clock');
+    const hh=document.getElementById('hh');
+    const mm=document.getElementById('mm');
+    const colon=document.getElementById('colon');
+
+    function syncTabs(){
+      const h=pill.offsetHeight;
+      document.documentElement.style.setProperty('--tabs-h',h+'px');
+    }
+
+    function pad2(n){return n<10?'0'+n:n;}
+    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+    function formatItalianDate(d){
+      const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
+      const p=fmt.formatToParts(d);
+      let w='',day='',m='';
+      p.forEach(x=>{
+        if(x.type==='weekday') w=capFirst(x.value);
+        if(x.type==='day') day=x.value;
+        if(x.type==='month') m=capFirst(x.value);
+      });
+      return `${w}, ${day} ${m}`;
+    }
+
+    function updateClock(){
+      const n=new Date();
+      hh.textContent=pad2(n.getHours());
+      mm.textContent=pad2(n.getMinutes());
+    }
+    function updateDate(){hudDate.textContent=formatItalianDate(new Date());}
+
+    let blink=true;
+    function tick(){updateClock();blink=!blink;colon.classList.toggle('off',!blink);}
+
+    updateDate();
+    updateClock();
+    syncTabs();
+
+    setInterval(tick,1000);
+    setInterval(updateDate,60000);
+    window.addEventListener('resize',syncTabs);
+    new ResizeObserver(syncTabs).observe(pill);
   </script>
 </body>
 </html>
