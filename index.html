@@ -9,10 +9,10 @@
     :root{
       --main:#770505;
       --fg:#f5f5f7;
-      --radius:38px;
-      --tabs-h:0px;             /* aggiornato via JS */
-      --clock-size:32px;        /* dimensione orario */
-      --date-size:22px;         /* dimensione data */
+      --radius:40px;
+      --tabs-h:0px;
+      --clock-size:35px;
+      --date-size:22px;
     }
 
     body{
@@ -92,9 +92,7 @@
       letter-spacing:.2px;
       user-select:none;
     }
-    @media (min-width:900px){
-      .hud{display:flex;}
-    }
+    @media (min-width:900px){ .hud{display:flex;} }
 
     .hud-date{
       left:12px;
@@ -119,36 +117,26 @@
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
+    /* === PANEL: vetroso con ombra nera === */
     .panel{
       flex:none;
       max-height:960px;
       width:100%;
-      background:rgba(255,255,255,.66);
+      background:rgba(255,255,255,.14);
       color:#000;
       border-radius:var(--radius);
-      border:1px solid rgba(255,255,255,.65);
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:32px;
       font-weight:700;
       overflow:hidden;
-      box-shadow:
-        0 16px 40px rgba(255,255,255,.20),
-        0 2px 8px rgba(0,0,0,.08),
-        inset 0 1px 0 rgba(255,255,255,.65);
-      -webkit-backdrop-filter:saturate(180%) blur(18px);
-      backdrop-filter:saturate(180%) blur(18px);
       position:relative;
+      -webkit-backdrop-filter:saturate(180%) blur(14px);
+      backdrop-filter:saturate(180%) blur(14px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.55);
     }
-    .panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:linear-gradient(to bottom, rgba(255,255,255,.40), rgba(255,255,255,0) 30%);
-      mix-blend-mode:screen;
-    }
+
     .panel iframe{
       width:100%;
       height:100%;
@@ -168,7 +156,7 @@
       <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
       <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
       <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
-      <button class="tab" role="tab" data-tab="trua" aria-selected="false">Truà</button>
+      <button class="tab" role="tab" data-tab="bottega" aria-selected="false">Bottega</button>
     </div>
 
     <div class="hud hud-clock" id="hud-clock">
@@ -182,22 +170,34 @@
         <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
       </div>
     </section>
+
     <section id="view-gestisci" data-view>
       <div class="panel">
         <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0"></iframe>
       </div>
     </section>
+
     <section id="view-stoc" data-view>
       <div class="panel">
         <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega" allowfullscreen></iframe>
       </div>
     </section>
-    <section id="view-ocapi" data-view><div class="panel">"Ocapì"</div></section>
-    <section id="view-trua" data-view><div class="panel">"Truà"</div></section>
+
+    <section id="view-ocapi" data-view>
+      <div class="panel">
+        <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli"></iframe>
+      </div>
+    </section>
+
+    <section id="view-bottega" data-view>
+      <div class="panel">
+        <iframe src="https://www.molinosantamarta.it/labottegadicasterno" title="La Bottega di Casterno"></iframe>
+      </div>
+    </section>
   </main>
 
   <script>
-    const VIEWS=["inserisci","gestisci","stoc","ocapi","trua"];
+    const VIEWS=["inserisci","gestisci","stoc","ocapi","bottega"];
     const $$=(s)=>Array.from(document.querySelectorAll(s));
 
     function activate(view){
@@ -217,11 +217,10 @@
     activate('inserisci');
 
     const pill=document.getElementById('tabs-pill');
-    const hudDate=document.getElementById('hud-date');
-    const hudClock=document.getElementById('hud-clock');
     const hh=document.getElementById('hh');
     const mm=document.getElementById('mm');
     const colon=document.getElementById('colon');
+    const hudDate=document.getElementById('hud-date');
 
     function syncTabs(){
       const h=pill.offsetHeight;
