@@ -13,6 +13,10 @@
       --tabs-h:0px;
       --clock-size:35px;
       --date-size:22px;
+      --glass-bg:rgba(255,255,255,.14);
+      --glass-bd:rgba(255,255,255,.35);
+      --glass-inset:rgba(255,255,255,.35);
+      --nav-h:84px; /* aggiornato via JS */
     }
 
     body{
@@ -35,6 +39,7 @@
       justify-content:center;
       align-items:flex-start;
       padding:12px 8px 16px;
+      gap:14px;
     }
 
     .tabs-pill{
@@ -44,12 +49,12 @@
       justify-content:center;
       padding:6px;
       border-radius:9999px;
-      background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.35);
+      background:var(--glass-bg);
+      border:1px solid var(--glass-bd);
       -webkit-backdrop-filter:saturate(180%) blur(14px);
       backdrop-filter:saturate(180%) blur(14px);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.35),
+        inset 0 1px 0 var(--glass-inset),
         0 8px 20px rgba(0,0,0,.12);
       position:relative;
       z-index:1;
@@ -67,6 +72,7 @@
       font-size:13px;
       letter-spacing:.2px;
       transition:transform .05s ease, background .2s, color .2s, border-color .2s;
+      white-space:nowrap;
     }
     .tab:hover{background:rgba(255,255,255,.16)}
     .tab:active{transform:scale(.98)}
@@ -77,7 +83,36 @@
       box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
     }
 
-    /* === HUD Data e Ora === */
+    /* Dock app (Stòc / Ocapì) */
+    .apps-dock{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:6px 8px;
+      border-radius:9999px;
+      background:var(--glass-bg);
+      border:1px solid var(--glass-bd);
+      -webkit-backdrop-filter:saturate(180%) blur(14px);
+      backdrop-filter:saturate(180%) blur(14px);
+      box-shadow: inset 0 1px 0 var(--glass-inset), 0 8px 20px rgba(0,0,0,.12);
+    }
+    .app-icon{
+      width:38px; height:38px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.35);
+      overflow:hidden;
+      display:inline-grid; place-items:center;
+      background:rgba(255,255,255,.12);
+      cursor:pointer;
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .app-icon:hover{transform:translateY(-1px)}
+    .app-icon:active{transform:translateY(0) scale(.98)}
+    .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
+    .app-icon.fallback{font-weight:800; font-size:11px; letter-spacing:.2px}
+    .app-icon[aria-current="page"]{outline:2px solid #fff; outline-offset:2px}
+
+    /* HUD (data/ora) */
     .hud{
       position:absolute;
       bottom:16px;
@@ -105,11 +140,7 @@
       text-align:right;
       transform:translateX(-40px);
     }
-
-    .hud-clock .blink{
-      display:inline-block;
-      transition:opacity .12s linear;
-    }
+    .hud-clock .blink{display:inline-block; transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
 
     main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -117,32 +148,46 @@
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* === PANEL: vetroso con ombra nera === */
+    /* Pannello vetroso per pagine desktop */
     .panel{
-      flex:none;
-      max-height:960px;
-      width:100%;
-      background:rgba(255,255,255,.14);
-      color:#000;
-      border-radius:var(--radius);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:32px;
-      font-weight:700;
-      overflow:hidden;
-      position:relative;
-      -webkit-backdrop-filter:saturate(180%) blur(14px);
-      backdrop-filter:saturate(180%) blur(14px);
+      flex:none; max-height:960px; width:100%;
+      background:rgba(255,255,255,.14); color:#000; border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center;
+      font-size:32px; font-weight:700; overflow:hidden; position:relative;
+      -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
       box-shadow: 0 12px 32px rgba(0,0,0,.55);
     }
+    .panel iframe{width:100%; height:100%; border:0; background:transparent;}
 
-    .panel iframe{
+    /* Pagine APP: solo telefono centrato, senza pannello */
+    .app-stage{
       width:100%;
-      height:100%;
-      border:0;
-      background:transparent;
+      min-height:calc(100vh - var(--nav-h) - 20px);
+      display:grid; place-items:center;
     }
+
+    /* ====== MOCKUP DISPOSITIVO INLINE SVG ====== */
+    .phone-mockup{
+      position:relative;
+      height:960px;             /* limite massimo richiesto */
+      max-height:960px;
+      aspect-ratio:9/19.5;      /* proporzione realistica */
+      display:block;
+    }
+    .phone-mockup .frame{
+      position:absolute; inset:0; z-index:2; pointer-events:none;
+    }
+    .phone-mockup .screen{
+      position:absolute; z-index:1;
+      /* Inset calibrato per far vedere bene la cornice */
+      top:18px; left:20px; right:20px; bottom:28px;
+      border-radius:46px; overflow:hidden; background:#111;
+      box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
+    }
+    .phone-mockup .screen iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
+
+    /* Riduci dock su schermi stretti */
+    @media (max-width:980px){ .apps-dock{display:none} }
   </style>
 </head>
 <body>
@@ -154,9 +199,16 @@
     <div class="tabs-pill" id="tabs-pill">
       <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
       <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
-      <button class="tab" role="tab" data-tab="stoc" aria-selected="false">Stòc</button>
-      <button class="tab" role="tab" data-tab="ocapi" aria-selected="false">Ocapì</button>
-      <button class="tab" role="tab" data-tab="bottega" aria-selected="false">Bottega</button>
+      <button class="tab" role="tab" data-tab="visualizza" aria-selected="false">Visualizza</button>
+    </div>
+
+    <div class="apps-dock" id="apps-dock" aria-label="App veloci">
+      <button class="app-icon" data-app="stoc" title="Apri Stòc">
+        <img src="img/stoc-logo.png" alt="Stòc" onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Stòc';">
+      </button>
+      <button class="app-icon" data-app="ocapi" title="Apri Ocapì">
+        <img src="img/ocapi-logo.png" alt="Ocapì" onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Ocapì';">
+      </button>
     </div>
 
     <div class="hud hud-clock" id="hud-clock">
@@ -165,39 +217,103 @@
   </nav>
 
   <main>
+    <!-- Tab: Inserisci -->
     <section id="view-inserisci" data-view class="active">
       <div class="panel">
         <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
       </div>
     </section>
 
+    <!-- Tab: Gestisci -->
     <section id="view-gestisci" data-view>
       <div class="panel">
-        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0"></iframe>
+        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Gestisci – Google Sheets"></iframe>
       </div>
     </section>
 
+    <!-- Tab: Visualizza (placeholder) -->
+    <section id="view-visualizza" data-view>
+      <div class="panel" style="color:#fff; font-size:18px; font-weight:600; letter-spacing:.2px;">
+        (Area “Visualizza”: qui una dashboard o vista read-only)
+      </div>
+    </section>
+
+    <!-- Pagina: Stòc (solo telefono centrato con frame SVG inline) -->
     <section id="view-stoc" data-view>
-      <div class="panel">
-        <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega" allowfullscreen></iframe>
+      <div class="app-stage" aria-label="Anteprima mobile Stòc">
+        <div class="phone-mockup">
+          <!-- FRAME SVG INLINE: premium senza notch -->
+          <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Scocca esterna -->
+            <defs>
+              <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+                <stop offset="40%" stop-color="#888888" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+              </linearGradient>
+              <radialGradient id="sheen" cx="0.1" cy="0.0" r="1.2">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+                <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect x="0.5" y="0.5" width="447" height="959" rx="58" fill="#0a0a0a"/>
+            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#metalGrad)" opacity="0.9"/>
+            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#sheen)"/>
+            <!-- Bordo lucido interno -->
+            <rect x="10" y="10" width="428" height="940" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="10"/>
+            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12"/>
+            <!-- Tasti laterali (decorativi) -->
+            <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
+            <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
+            <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
+          </svg>
+
+          <!-- Area schermo (match inset CSS) -->
+          <div class="screen">
+            <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Pagina: Ocapì (solo telefono centrato con frame SVG inline) -->
     <section id="view-ocapi" data-view>
-      <div class="panel">
-        <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli"></iframe>
-      </div>
-    </section>
+      <div class="app-stage" aria-label="Anteprima mobile Ocapì">
+        <div class="phone-mockup">
+          <!-- FRAME SVG INLINE: premium senza notch -->
+          <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="metalGrad2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+                <stop offset="40%" stop-color="#888888" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+              </linearGradient>
+              <radialGradient id="sheen2" cx="0.1" cy="0.0" r="1.2">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+                <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect x="0.5" y="0.5" width="447" height="959" rx="58" fill="#0a0a0a"/>
+            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#metalGrad2)" opacity="0.9"/>
+            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#sheen2)"/>
+            <rect x="10" y="10" width="428" height="940" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="10"/>
+            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12"/>
+            <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
+            <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
+            <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
+          </svg>
 
-    <section id="view-bottega" data-view>
-      <div class="panel">
-        <iframe src="https://www.molinosantamarta.it/labottegadicasterno" title="La Bottega di Casterno"></iframe>
+          <div class="screen">
+            <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <script>
-    const VIEWS=["inserisci","gestisci","stoc","ocapi","bottega"];
+    // Viste: 3 tab + 2 pagine app
+    const VIEWS=["inserisci","gestisci","visualizza","stoc","ocapi"];
     const $$=(s)=>Array.from(document.querySelectorAll(s));
 
     function activate(view){
@@ -206,17 +322,28 @@
         const el=document.getElementById('view-'+v);
         if(el) el.classList.toggle('active',v===view);
       });
-      $$('.tab').forEach(btn=>btn.setAttribute('aria-selected',btn.dataset.tab===view?'true':'false'));
+      $$('.tab').forEach(btn=>{
+        btn.setAttribute('aria-selected', btn.dataset.tab===view ? 'true' : 'false');
+      });
+      $$('.app-icon').forEach(i=>{
+        i.setAttribute('aria-current', i.dataset.app===view ? 'page' : 'false');
+      });
     }
 
+    // Click su tab
     document.querySelector('[role="tablist"]').addEventListener('click',e=>{
-      const b=e.target.closest('.tab');
-      if(!b) return;
-      activate(b.dataset.tab);
+      const b=e.target.closest('.tab'); if(!b) return; activate(b.dataset.tab);
     });
-    activate('inserisci');
 
+    // Click su icone app
+    document.getElementById('apps-dock').addEventListener('click', (e)=>{
+      const icon = e.target.closest('.app-icon'); if(!icon) return;
+      activate(icon.dataset.app);
+    });
+
+    // HUD + sync nav height
     const pill=document.getElementById('tabs-pill');
+    const nav=document.getElementById('tabs-nav');
     const hh=document.getElementById('hh');
     const mm=document.getElementById('mm');
     const colon=document.getElementById('colon');
@@ -225,8 +352,9 @@
     function syncTabs(){
       const h=pill.offsetHeight;
       document.documentElement.style.setProperty('--tabs-h',h+'px');
+      const nh = nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h', nh+'px');
     }
-
     function pad2(n){return n<10?'0'+n:n;}
     function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}
     function formatItalianDate(d){
@@ -240,21 +368,18 @@
       });
       return `${w}, ${day} ${m}`;
     }
-
     function updateClock(){
       const n=new Date();
       hh.textContent=pad2(n.getHours());
       mm.textContent=pad2(n.getMinutes());
     }
     function updateDate(){hudDate.textContent=formatItalianDate(new Date());}
-
     let blink=true;
     function tick(){updateClock();blink=!blink;colon.classList.toggle('off',!blink);}
 
-    updateDate();
-    updateClock();
-    syncTabs();
-
+    // Init
+    activate('inserisci');
+    updateDate(); updateClock(); syncTabs();
     setInterval(tick,1000);
     setInterval(updateDate,60000);
     window.addEventListener('resize',syncTabs);
