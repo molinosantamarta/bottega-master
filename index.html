@@ -23,14 +23,12 @@
       background:var(--main);
       color:var(--fg);
       font:16px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
+      display:flex; flex-direction:column; min-height:100vh;
     }
 
     header{background:var(--main);height:20px;}
 
-    /* NAV molto compatta per ridurre spazio sopra il telefono */
+    /* NAV compatta */
     nav[role="tablist"]{
       position:sticky; top:0; z-index:20;
       background:var(--main);
@@ -60,7 +58,7 @@
     .tab:active{transform:scale(.98)}
     .tab[aria-selected="true"]{background:#fff; color:var(--main); border-color:#fff; box-shadow:0 1px 0 rgba(255,255,255,.8) inset;}
 
-    /* Dock app (Stòc / Ocapì) */
+    /* Dock app */
     .apps-dock{
       display:flex; gap:10px; align-items:center;
       padding:5px 7px; border-radius:9999px;
@@ -70,19 +68,26 @@
       box-shadow: inset 0 1px 0 var(--glass-inset), 0 8px 20px rgba(0,0,0,.12);
     }
     .app-icon{
-      width:36px; height:36px; border-radius:10px;
-      border:1px solid rgba(255,255,255,.35);
+      width:36px; height:36px; aspect-ratio:1/1;
+      border-radius:10px; border:1px solid rgba(255,255,255,.35);
       overflow:hidden; display:inline-grid; place-items:center;
-      background:rgba(255,255,255,.12); cursor:pointer;
-      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+      background:rgba(255,255,255,.12);
+      cursor:pointer; transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
     }
     .app-icon:hover{transform:translateY(-1px)}
     .app-icon:active{transform:translateY(0) scale(.98)}
-    .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
+    .app-icon img{
+      width:100%; height:100%;
+      object-fit:contain;       /* niente crop */
+      padding:4px;              /* respiro attorno al logo */
+      image-rendering:auto;
+      display:block;
+      background:transparent;
+    }
     .app-icon.fallback{font-weight:800; font-size:11px; letter-spacing:.2px}
     .app-icon[aria-current="page"]{outline:2px solid #fff; outline-offset:2px}
 
-    /* HUD (data/ora) */
+    /* HUD (data/ora) – opzionale su schermi larghi */
     .hud{position:absolute;bottom:10px;white-space:nowrap;color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
@@ -92,8 +97,8 @@
     .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
 
-    /* meno spazio sopra i contenuti */
-    main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:8px 10px 12px;}
+    /* Contenuti vicini alla navbar */
+    main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:6px 10px 12px;}
     [data-view]{display:none;width:100%;height:100%;}
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -113,23 +118,24 @@
     .app-stage{
       width:100%;
       display:grid; place-items:center;
-      margin-top:-10px; /* tira su il telefono vicino alla navbar */
+      margin-top:-12px; /* avvicina il device alla navbar */
     }
 
-    /* ====== MOCKUP DISPOSITIVO INLINE SVG ====== */
+    /* ====== MOCKUP DISPOSITIVO INLINE SVG (foro più piccolo, schermo più grande) ====== */
     .phone-mockup{
       position:relative;
-      height:820px;            /* <= 960px come richiesto */
-      max-height:820px;
+      height:820px; max-height:820px; /* <= 960px */
       aspect-ratio:9/19.5;
       display:block;
     }
     .phone-mockup .frame{position:absolute; inset:0; z-index:2; pointer-events:none;}
     .phone-mockup .screen{
       position:absolute; z-index:1;
-      top:14px; left:16px; right:16px; bottom:22px;  /* schermo leggermente più in alto */
-      border-radius:42px; overflow:hidden; background:#111;
+      /* schermo leggermente PIÙ GRANDE del foro del frame per evitare “spiragli” */
+      top:12px; left:14px; right:14px; bottom:20px;
+      border-radius:46px; overflow:hidden; background:#111;
       box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
+      will-change:transform;
     }
     .phone-mockup .screen iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
 
@@ -150,12 +156,10 @@
 
     <div class="apps-dock" id="apps-dock" aria-label="App veloci">
       <button class="app-icon" data-app="stoc" title="Apri Stòc">
-        <!-- icona nella STESSA cartella dell’index -->
         <img src="stoc-logo.png" alt="Stòc"
              onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Stòc';">
       </button>
       <button class="app-icon" data-app="ocapi" title="Apri Ocapì">
-        <!-- icona nella STESSA cartella dell’index -->
         <img src="ocapi-logo.png" alt="Ocapì"
              onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Ocapì';">
       </button>
@@ -188,63 +192,68 @@
       </div>
     </section>
 
-    <!-- Pagina: Stòc (solo telefono centrato con frame SVG inline) -->
+    <!-- Pagina: Stòc -->
     <section id="view-stoc" data-view>
       <div class="app-stage" aria-label="Anteprima mobile Stòc">
         <div class="phone-mockup">
-          <!-- FRAME SVG INLINE (premium senza notch) -->
+          <!-- FRAME SVG con foro leggermente più piccolo della screen -->
           <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
-              <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
-                <stop offset="40%" stop-color="#888888" stop-opacity="0.10"/>
-                <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+              <!-- bianco = visibile, nero = buco -->
+              <mask id="frameHole">
+                <rect x="0" y="0" width="448" height="960" fill="white"/>
+                <!-- foro più piccolo: schermo sotto “sborda” di ~2px per lato -->
+                <rect x="15.5" y="13.5" width="417" height="926" rx="44" fill="black"/>
+              </mask>
+              <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+                <stop offset="40%" stop-color="#888888" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
               </linearGradient>
-              <radialGradient id="sheen" cx="0.1" cy="0.0" r="1.2">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
-                <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
-              </radialGradient>
             </defs>
-            <rect x="0.5" y="0.5" width="447" height="959" rx="58" fill="#0a0a0a"/>
-            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#metalGrad)" opacity="0.9"/>
-            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#sheen)"/>
-            <rect x="10" y="10" width="428" height="940" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="10"/>
-            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12"/>
+            <rect x="0" y="0" width="448" height="960" rx="58" fill="#0a0a0a" mask="url(#frameHole)"/>
+            <rect x="0" y="0" width="448" height="960" rx="58" fill="url(#rim)" opacity="0.9" mask="url(#frameHole)"/>
+            <rect x="9" y="9" width="430" height="942" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="10" mask="url(#frameHole)"/>
+            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12" mask="url(#frameHole)"/>
+            <!-- pulsanti laterali decorativi -->
             <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
           </svg>
-          <div class="screen"><iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe></div>
+          <div class="screen">
+            <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Pagina: Ocapì (solo telefono centrato con frame SVG inline) -->
+    <!-- Pagina: Ocapì -->
     <section id="view-ocapi" data-view>
       <div class="app-stage" aria-label="Anteprima mobile Ocapì">
         <div class="phone-mockup">
           <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
-              <linearGradient id="metalGrad2" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
-                <stop offset="40%" stop-color="#888888" stop-opacity="0.10"/>
-                <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+              <mask id="frameHole2">
+                <rect x="0" y="0" width="448" height="960" fill="white"/>
+                <rect x="15.5" y="13.5" width="417" height="926" rx="44" fill="black"/>
+              </mask>
+              <linearGradient id="rim2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+                <stop offset="40%" stop-color="#888888" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
               </linearGradient>
-              <radialGradient id="sheen2" cx="0.1" cy="0.0" r="1.2">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
-                <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
-              </radialGradient>
             </defs>
-            <rect x="0.5" y="0.5" width="447" height="959" rx="58" fill="#0a0a0a"/>
-            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#metalGrad2)" opacity="0.9"/>
-            <rect x="1" y="1" width="446" height="958" rx="58" fill="url(#sheen2)"/>
-            <rect x="10" y="10" width="428" height="940" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="10"/>
-            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12"/>
+            <rect x="0" y="0" width="448" height="960" rx="58" fill="#0a0a0a" mask="url(#frameHole2)"/>
+            <rect x="0" y="0" width="448" height="960" rx="58" fill="url(#rim2)" opacity="0.9" mask="url(#frameHole2)"/>
+            <rect x="9" y="9" width="430" height="942" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="10" mask="url(#frameHole2)"/>
+            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12" mask="url(#frameHole2)"/>
             <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
           </svg>
-          <div class="screen"><iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe></div>
+          <div class="screen">
+            <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+          </div>
         </div>
       </div>
     </section>
