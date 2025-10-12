@@ -68,22 +68,15 @@
       box-shadow: inset 0 1px 0 var(--glass-inset), 0 8px 20px rgba(0,0,0,.12);
     }
     .app-icon{
-      width:36px; height:36px; aspect-ratio:1/1;
-      border-radius:10px; border:1px solid rgba(255,255,255,.35);
+      width:36px; height:36px; border-radius:10px;
+      border:1px solid rgba(255,255,255,.35);
       overflow:hidden; display:inline-grid; place-items:center;
-      background:rgba(255,255,255,.12);
-      cursor:pointer; transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+      background:rgba(255,255,255,.12); cursor:pointer;
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
     }
     .app-icon:hover{transform:translateY(-1px)}
     .app-icon:active{transform:translateY(0) scale(.98)}
-    .app-icon img{
-      width:100%; height:100%;
-      object-fit:contain;       /* niente crop */
-      padding:4px;              /* respiro attorno al logo */
-      image-rendering:auto;
-      display:block;
-      background:transparent;
-    }
+    .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
     .app-icon.fallback{font-weight:800; font-size:11px; letter-spacing:.2px}
     .app-icon[aria-current="page"]{outline:2px solid #fff; outline-offset:2px}
 
@@ -121,7 +114,7 @@
       margin-top:-12px; /* avvicina il device alla navbar */
     }
 
-    /* ====== MOCKUP DISPOSITIVO INLINE SVG (foro più piccolo, schermo più grande) ====== */
+    /* ====== MOCKUP DISPOSITIVO INLINE SVG (con foro centrale!) ====== */
     .phone-mockup{
       position:relative;
       height:820px; max-height:820px; /* <= 960px */
@@ -131,11 +124,9 @@
     .phone-mockup .frame{position:absolute; inset:0; z-index:2; pointer-events:none;}
     .phone-mockup .screen{
       position:absolute; z-index:1;
-      /* schermo leggermente PIÙ GRANDE del foro del frame per evitare “spiragli” */
-      top:12px; left:14px; right:14px; bottom:20px;
-      border-radius:46px; overflow:hidden; background:#111;
+      top:14px; left:16px; right:16px; bottom:22px;
+      border-radius:42px; overflow:hidden; background:#111;
       box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
-      will-change:transform;
     }
     .phone-mockup .screen iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
 
@@ -196,14 +187,14 @@
     <section id="view-stoc" data-view>
       <div class="app-stage" aria-label="Anteprima mobile Stòc">
         <div class="phone-mockup">
-          <!-- FRAME SVG con foro leggermente più piccolo della screen -->
+          <!-- FRAME SVG con mask per il foro interno -->
           <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
-              <!-- bianco = visibile, nero = buco -->
+              <!-- foro: bianco = visibile (frame), nero = ritaglio (buco) -->
               <mask id="frameHole">
                 <rect x="0" y="0" width="448" height="960" fill="white"/>
-                <!-- foro più piccolo: schermo sotto “sborda” di ~2px per lato -->
-                <rect x="15.5" y="13.5" width="417" height="926" rx="44" fill="black"/>
+                <!-- area schermo da ritagliare (match con .screen inset/radius) -->
+                <rect x="16" y="14" width="416" height="924" rx="42" fill="black"/>
               </mask>
               <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
@@ -211,11 +202,13 @@
                 <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
               </linearGradient>
             </defs>
+            <!-- scocca con buco centrale -->
             <rect x="0" y="0" width="448" height="960" rx="58" fill="#0a0a0a" mask="url(#frameHole)"/>
             <rect x="0" y="0" width="448" height="960" rx="58" fill="url(#rim)" opacity="0.9" mask="url(#frameHole)"/>
+            <!-- bordini interni lucidi -->
             <rect x="9" y="9" width="430" height="942" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="10" mask="url(#frameHole)"/>
             <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12" mask="url(#frameHole)"/>
-            <!-- pulsanti laterali decorativi -->
+            <!-- pulsanti laterali decorativi (fuori dallo schermo) -->
             <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
             <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
@@ -235,7 +228,7 @@
             <defs>
               <mask id="frameHole2">
                 <rect x="0" y="0" width="448" height="960" fill="white"/>
-                <rect x="15.5" y="13.5" width="417" height="926" rx="44" fill="black"/>
+                <rect x="16" y="14" width="416" height="924" rx="42" fill="black"/>
               </mask>
               <linearGradient id="rim2" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
