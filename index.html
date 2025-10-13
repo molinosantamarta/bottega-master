@@ -16,7 +16,7 @@
       --glass-bg:rgba(255,255,255,.14);
       --glass-bd:rgba(255,255,255,.35);
       --glass-inset:rgba(255,255,255,.35);
-      --nav-h:84px; /* aggiornato via JS */
+      --nav-h:84px;
     }
 
     body{
@@ -28,7 +28,6 @@
 
     header{background:var(--main);height:20px;}
 
-    /* NAV compatta */
     nav[role="tablist"]{
       position:sticky; top:0; z-index:20;
       background:var(--main);
@@ -36,13 +35,15 @@
       padding:4px 8px 6px; gap:12px;
     }
 
+    /* Selettore (tabs-pill) con gradiente come i pannelli */
     .tabs-pill{
       display:flex; gap:8px; align-items:center; justify-content:center;
-      padding:6px; border-radius:9999px;
-      background:var(--glass-bg); border:1px solid var(--glass-bd);
+      padding:6px 8px; border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.10));
+      border:1px solid rgba(255,255,255,.35);
       -webkit-backdrop-filter:saturate(180%) blur(14px);
       backdrop-filter:saturate(180%) blur(14px);
-      box-shadow: inset 0 1px 0 var(--glass-inset), 0 8px 20px rgba(0,0,0,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.15);
       position:relative; z-index:1;
     }
 
@@ -58,79 +59,54 @@
     .tab:active{transform:scale(.98)}
     .tab[aria-selected="true"]{background:#fff; color:var(--main); border-color:#fff; box-shadow:0 1px 0 rgba(255,255,255,.8) inset;}
 
-    /* Dock app */
     .apps-dock{
       display:flex; gap:10px; align-items:center;
-      padding:5px 7px; border-radius:9999px;
-      background:var(--glass-bg); border:1px solid var(--glass-bd);
-      -webkit-backdrop-filter:saturate(180%) blur(14px);
-      backdrop-filter:saturate(180%) blur(14px);
-      box-shadow: inset 0 1px 0 var(--glass-inset), 0 8px 20px rgba(0,0,0,.12);
+      margin-left:12px;
+      padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
     }
+
     .app-icon{
-      width:36px; height:36px; border-radius:10px;
-      border:1px solid rgba(255,255,255,.35);
-      overflow:hidden; display:inline-grid; place-items:center;
-      background:rgba(255,255,255,.12); cursor:pointer;
+      height:var(--tabs-h); max-height:var(--tabs-h);
+      aspect-ratio:1/1; border-radius:14px; flex:0 0 auto;
+      border:1px solid rgba(119,5,5,.18);
+      overflow:hidden; display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.02); cursor:pointer;
       transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
     }
-    .app-icon:hover{transform:translateY(-1px)}
-    .app-icon:active{transform:translateY(0) scale(.98)}
-    .app-icon img{width:100%; height:100%; object-fit:contain; display:block}
-    .app-icon.fallback{font-weight:800; font-size:11px; letter-spacing:.2px}
-    .app-icon[aria-current="page"]{outline:2px solid #fff; outline-offset:2px}
+    .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
+    .app-icon.fallback{font-weight:800; font-size:12px; letter-spacing:.2px; color:var(--main); background:#fff;}
 
-    /* HUD (data/ora) – opzionale su schermi larghi */
     .hud{position:absolute;bottom:10px;white-space:nowrap;color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
     @media (min-width:900px){ .hud{display:flex;} }
-    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(12px);}
-    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-20px);}
+    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(12px);} 
+    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-20px);} 
     .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
 
-    /* Contenuti vicini alla navbar */
     main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:6px 10px 12px;}
     [data-view]{display:none;width:100%;height:100%;}
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* Pannello vetroso per pagine desktop */
+    /* Pannelli con sfondo bianco */
     .panel{
       flex:none; max-height:960px; width:100%;
-      background:rgba(255,255,255,.14); color:#000; border-radius:var(--radius);
+      background:#fff; color:#000; border-radius:var(--radius);
       display:flex; align-items:center; justify-content:center;
       font-size:32px; font-weight:700; overflow:hidden; position:relative;
       -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
-      box-shadow: 0 12px 32px rgba(0,0,0,.55);
+      box-shadow: 0 12px 32px rgba(0,0,0,.25);
     }
     .panel iframe{width:100%; height:100%; border:0; background:transparent;}
 
-    /* Pagine APP: telefono vicino al selettore */
-    .app-stage{
-      width:100%;
-      display:grid; place-items:center;
-      margin-top:-12px; /* avvicina il device alla navbar */
-    }
-
-    /* ====== MOCKUP DISPOSITIVO INLINE SVG (con foro centrale!) ====== */
-    .phone-mockup{
-      position:relative;
-      height:820px; max-height:820px; /* <= 960px */
-      aspect-ratio:9/19.5;
-      display:block;
-    }
-    .phone-mockup .frame{position:absolute; inset:0; z-index:2; pointer-events:none;}
-    .phone-mockup .screen{
-      position:absolute; z-index:1;
-      top:14px; left:16px; right:16px; bottom:22px;
-      border-radius:42px; overflow:hidden; background:#111;
-      box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
-    }
-    .phone-mockup .screen iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
-
-    @media (max-width:980px){ .apps-dock{display:none} }
+    .phone-stage{width:100%; display:grid; place-items:center; margin-top:-12px;}
+    .phone-mockup{position:relative; height:820px; max-height:820px; aspect-ratio:9/19.5; display:block;}
+    .phone-mockup .screen{position:absolute; inset:0; padding:14px 16px 22px 16px;}
+    .phone-mockup .screen > .screen-clip{position:absolute; top:14px; left:16px; right:16px; bottom:22px; border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;}
+    .phone-mockup iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
+    .phone-mockup .frame-img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none;}
   </style>
 </head>
 <body>
@@ -141,18 +117,16 @@
 
     <div class="tabs-pill" id="tabs-pill">
       <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
-      <button class="tab" role="tab" data-tab="gestisci" aria-selected="false">Gestisci</button>
-      <button class="tab" role="tab" data-tab="visualizza" aria-selected="false">Visualizza</button>
+      <button class="tab" role="tab" data-tab="modifica" aria-selected="false">Modifica &amp; Stampa</button>
+      <button class="tab" role="tab" data-tab="cerca" aria-selected="false">Cerca</button>
     </div>
 
-    <div class="apps-dock" id="apps-dock" aria-label="App veloci">
+    <div class="apps-dock" id="apps-dock">
       <button class="app-icon" data-app="stoc" title="Apri Stòc">
-        <img src="stoc-logo.png" alt="Stòc"
-             onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Stòc';">
+        <img src="stoc-logo.png" alt="Stòc" onerror="imgFallback(this,'Stòc')">
       </button>
       <button class="app-icon" data-app="ocapi" title="Apri Ocapì">
-        <img src="ocapi-logo.png" alt="Ocapì"
-             onerror="this.parentElement.classList.add('fallback'); this.remove(); this.parentElement.textContent='Ocapì';">
+        <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')">
       </button>
     </div>
 
@@ -162,129 +136,59 @@
   </nav>
 
   <main>
-    <!-- Tab: Inserisci -->
     <section id="view-inserisci" data-view class="active">
       <div class="panel">
         <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
       </div>
     </section>
 
-    <!-- Tab: Gestisci -->
-    <section id="view-gestisci" data-view>
+    <section id="view-modifica" data-view>
       <div class="panel">
-        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Gestisci – Google Sheets"></iframe>
+        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets"></iframe>
       </div>
     </section>
 
-    <!-- Tab: Visualizza (placeholder) -->
-    <section id="view-visualizza" data-view>
-      <div class="panel" style="color:#fff; font-size:18px; font-weight:600; letter-spacing:.2px;">
-        (Area “Visualizza”: dashboard o vista read-only)
+    <section id="view-cerca" data-view>
+      <div class="panel" style="color:#000; font-size:18px; font-weight:600; letter-spacing:.2px;">
+        (Area “Cerca”: ricerca rapida ordini / filtri)
       </div>
     </section>
 
-    <!-- Pagina: Stòc -->
     <section id="view-stoc" data-view>
-      <div class="app-stage" aria-label="Anteprima mobile Stòc">
+      <div class="phone-stage" aria-label="Anteprima mobile Stòc">
         <div class="phone-mockup">
-          <!-- FRAME SVG con mask per il foro interno -->
-          <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <!-- foro: bianco = visibile (frame), nero = ritaglio (buco) -->
-              <mask id="frameHole">
-                <rect x="0" y="0" width="448" height="960" fill="white"/>
-                <!-- area schermo da ritagliare (match con .screen inset/radius) -->
-                <rect x="16" y="14" width="416" height="924" rx="42" fill="black"/>
-              </mask>
-              <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
-                <stop offset="40%" stop-color="#888888" stop-opacity="0.12"/>
-                <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
-              </linearGradient>
-            </defs>
-            <!-- scocca con buco centrale -->
-            <rect x="0" y="0" width="448" height="960" rx="58" fill="#0a0a0a" mask="url(#frameHole)"/>
-            <rect x="0" y="0" width="448" height="960" rx="58" fill="url(#rim)" opacity="0.9" mask="url(#frameHole)"/>
-            <!-- bordini interni lucidi -->
-            <rect x="9" y="9" width="430" height="942" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="10" mask="url(#frameHole)"/>
-            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12" mask="url(#frameHole)"/>
-            <!-- pulsanti laterali decorativi (fuori dallo schermo) -->
-            <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
-            <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
-            <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
-          </svg>
           <div class="screen">
-            <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+            <div class="screen-clip">
+              <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+            </div>
           </div>
+          <img class="frame-img" src="https://static.vecteezy.com/system/resources/thumbnails/008/530/138/small_2x/hand-holding-and-using-phone-mockup-cutout-file-png.png" alt="Device frame" onerror="this.style.display='none'">
         </div>
       </div>
     </section>
 
-    <!-- Pagina: Ocapì -->
     <section id="view-ocapi" data-view>
-      <div class="app-stage" aria-label="Anteprima mobile Ocapì">
+      <div class="phone-stage" aria-label="Anteprima mobile Ocapì">
         <div class="phone-mockup">
-          <svg class="frame" viewBox="0 0 448 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <mask id="frameHole2">
-                <rect x="0" y="0" width="448" height="960" fill="white"/>
-                <rect x="16" y="14" width="416" height="924" rx="42" fill="black"/>
-              </mask>
-              <linearGradient id="rim2" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
-                <stop offset="40%" stop-color="#888888" stop-opacity="0.12"/>
-                <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="448" height="960" rx="58" fill="#0a0a0a" mask="url(#frameHole2)"/>
-            <rect x="0" y="0" width="448" height="960" rx="58" fill="url(#rim2)" opacity="0.9" mask="url(#frameHole2)"/>
-            <rect x="9" y="9" width="430" height="942" rx="52" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="10" mask="url(#frameHole2)"/>
-            <rect x="18" y="18" width="412" height="924" rx="50" fill="none" stroke="#000000" stroke-opacity="0.46" stroke-width="12" mask="url(#frameHole2)"/>
-            <rect x="-1" y="210" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
-            <rect x="-1" y="276" width="5" height="52" rx="3" fill="#1e1e1f" opacity="0.95"/>
-            <rect x="444" y="170" width="5" height="74" rx="3" fill="#1e1e1f" opacity="0.95"/>
-          </svg>
           <div class="screen">
-            <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+            <div class="screen-clip">
+              <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+            </div>
           </div>
+          <img class="frame-img" src="https://static.vecteezy.com/system/resources/thumbnails/008/530/138/small_2x/hand-holding-and-using-phone-mockup-cutout-file-png.png" alt="Device frame" onerror="this.style.display='none'">
         </div>
       </div>
     </section>
   </main>
 
   <script>
-    // Viste: 3 tab + 2 pagine app
-    const VIEWS=["inserisci","gestisci","visualizza","stoc","ocapi"];
+    function imgFallback(img,label){try{const p=img.parentElement;if(!p)return;p.classList.add('fallback');img.remove();if(!p.textContent.trim())p.textContent=label;}catch(e){console.debug(e);}}
+    const VIEWS=["inserisci","modifica","cerca","stoc","ocapi"];
     const $$=(s)=>Array.from(document.querySelectorAll(s));
+    function activate(v){if(!VIEWS.includes(v))v='inserisci';VIEWS.forEach(x=>{const el=document.getElementById('view-'+x);if(el)el.classList.toggle('active',x===v);});$$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v?'true':'false'));$$('.app-icon').forEach(i=>i.setAttribute('aria-current',i.dataset.app===v?'page':'false'));}
+    document.querySelector('[role="tablist"]').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;activate(b.dataset.tab);});
+    document.getElementById('apps-dock').addEventListener('click',e=>{const i=e.target.closest('.app-icon');if(!i)return;activate(i.dataset.app);});
 
-    function activate(view){
-      if(!VIEWS.includes(view)) view='inserisci';
-      VIEWS.forEach(v=>{
-        const el=document.getElementById('view-'+v);
-        if(el) el.classList.toggle('active',v===view);
-      });
-      // stato tab
-      $$('.tab').forEach(btn=>{
-        btn.setAttribute('aria-selected', btn.dataset.tab===view ? 'true' : 'false');
-      });
-      // stato icone app
-      $$('.app-icon').forEach(i=>{
-        i.setAttribute('aria-current', i.dataset.app===view ? 'page' : 'false');
-      });
-    }
-
-    // Click su tab
-    document.querySelector('[role="tablist"]').addEventListener('click',e=>{
-      const b=e.target.closest('.tab'); if(!b) return; activate(b.dataset.tab);
-    });
-
-    // Click su icone app
-    document.getElementById('apps-dock').addEventListener('click', (e)=>{
-      const icon = e.target.closest('.app-icon'); if(!icon) return;
-      activate(icon.dataset.app);
-    });
-
-    // HUD + sync nav height
     const pill=document.getElementById('tabs-pill');
     const nav=document.getElementById('tabs-nav');
     const hh=document.getElementById('hh');
@@ -292,30 +196,15 @@
     const colon=document.getElementById('colon');
     const hudDate=document.getElementById('hud-date');
 
-    function syncTabs(){
-      const h=pill.offsetHeight; document.documentElement.style.setProperty('--tabs-h',h+'px');
-      const nh = nav.getBoundingClientRect().height; document.documentElement.style.setProperty('--nav-h', nh+'px');
-    }
+    function syncTabs(){const h=pill.offsetHeight;document.documentElement.style.setProperty('--tabs-h',h+'px');const nh=nav.getBoundingClientRect().height;document.documentElement.style.setProperty('--nav-h',nh+'px');}
     function pad2(n){return n<10?'0'+n:n;}
-    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}    
-    function formatItalianDate(d){
-      const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
-      const p=fmt.formatToParts(d);
-      let w='',day='',m='';
-      p.forEach(x=>{ if(x.type==='weekday') w=capFirst(x.value); if(x.type==='day') day=x.value; if(x.type==='month') m=capFirst(x.value); });
-      return `${w}, ${day} ${m}`;
-    }
-    function updateClock(){ const n=new Date(); hh.textContent=pad2(n.getHours()); mm.textContent=pad2(n.getMinutes()); }
-    function updateDate(){ hudDate.textContent=formatItalianDate(new Date()); }
-    let blink=true; function tick(){ updateClock(); blink=!blink; colon.classList.toggle('off',!blink); }
+    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+    function formatItalianDate(d){const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});const p=fmt.formatToParts(d);let w='',day='',m='';p.forEach(x=>{if(x.type==='weekday')w=capFirst(x.value);if(x.type==='day')day=x.value;if(x.type==='month')m=capFirst(x.value);});return `${w}, ${day} ${m}`;}
+    function updateClock(){const n=new Date();hh.textContent=pad2(n.getHours());mm.textContent=pad2(n.getMinutes());}
+    function updateDate(){hudDate.textContent=formatItalianDate(new Date());}
+    let blink=true;function tick(){updateClock();blink=!blink;colon.classList.toggle('off',!blink);}
 
-    // Init
-    activate('inserisci');
-    updateDate(); updateClock(); syncTabs();
-    setInterval(tick,1000);
-    setInterval(updateDate,60000);
-    window.addEventListener('resize',syncTabs);
-    new ResizeObserver(syncTabs).observe(pill);
+    activate('inserisci');updateDate();updateClock();syncTabs();setInterval(tick,1000);setInterval(updateDate,60000);window.addEventListener('resize',syncTabs);new ResizeObserver(syncTabs).observe(pill);
   </script>
 </body>
 </html>
