@@ -12,7 +12,7 @@
       --radius:40px;
       --tabs-h:0px;
       --clock-size:35px;
-      --date-size:22px;
+      --date-size:25px;
       --glass-bg:rgba(255,255,255,.14);
       --glass-bd:rgba(255,255,255,.35);
       --glass-inset:rgba(255,255,255,.35);
@@ -35,7 +35,6 @@
       padding:4px 8px 6px; gap:12px;
     }
 
-    /* Selettore (tabs-pill) con gradiente come i pannelli */
     .tabs-pill{
       display:flex; gap:8px; align-items:center; justify-content:center;
       padding:6px 8px; border-radius:var(--radius);
@@ -60,8 +59,8 @@
     .tab[aria-selected="true"]{background:#fff; color:var(--main); border-color:#fff; box-shadow:0 1px 0 rgba(255,255,255,.8) inset;}
 
     .apps-dock{
-      display:flex; gap:10px; align-items:center;
-      margin-left:12px;
+      display:flex; gap:12px; align-items:center;
+      margin-left:40px;
       padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
     }
 
@@ -76,7 +75,7 @@
     .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
     .app-icon.fallback{font-weight:800; font-size:12px; letter-spacing:.2px; color:var(--main); background:#fff;}
 
-    .hud{position:absolute;bottom:10px;white-space:nowrap;color:#fff;
+    .hud{position:absolute;white-space:nowrap;color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
     @media (min-width:900px){ .hud{display:flex;} }
@@ -90,7 +89,6 @@
     [data-view].active{display:flex;animation:fade .18s ease-out;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* Pannelli con sfondo bianco */
     .panel{
       flex:none; max-height:960px; width:100%;
       background:#fff; color:#000; border-radius:var(--radius);
@@ -106,7 +104,6 @@
     .phone-mockup .screen{position:absolute; inset:0; padding:14px 16px 22px 16px;}
     .phone-mockup .screen > .screen-clip{position:absolute; top:14px; left:16px; right:16px; bottom:22px; border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;}
     .phone-mockup iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
-    .phone-mockup .frame-img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none;}
   </style>
 </head>
 <body>
@@ -150,7 +147,7 @@
 
     <section id="view-cerca" data-view>
       <div class="panel" style="color:#000; font-size:18px; font-weight:600; letter-spacing:.2px;">
-        (Area “Cerca”: ricerca rapida ordini / filtri)
+        “Cerca”: ricerca rapida ordini / filtri
       </div>
     </section>
 
@@ -162,7 +159,6 @@
               <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
             </div>
           </div>
-          <img class="frame-img" src="https://static.vecteezy.com/system/resources/thumbnails/008/530/138/small_2x/hand-holding-and-using-phone-mockup-cutout-file-png.png" alt="Device frame" onerror="this.style.display='none'">
         </div>
       </div>
     </section>
@@ -175,7 +171,6 @@
               <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
             </div>
           </div>
-          <img class="frame-img" src="https://static.vecteezy.com/system/resources/thumbnails/008/530/138/small_2x/hand-holding-and-using-phone-mockup-cutout-file-png.png" alt="Device frame" onerror="this.style.display='none'">
         </div>
       </div>
     </section>
