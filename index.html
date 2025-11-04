@@ -27,7 +27,7 @@
     html, body { height: 100%; margin: 0; }
     :root{
       --main:#770505; --fg:#f5f5f7; --radius:40px;
-      --tabs-h:0px; --clock-size:35px; --date-size:25px;
+      --tabs-h:0px; --clock-size:45px; --date-size:25px;
       --nav-h:84px;
 
       /* Dimensioni QR e tipografia */
@@ -96,8 +96,8 @@
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
     @media (min-width:900px){ .hud{display:flex;} }
-    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(12px);}
-    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-20px);}
+    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(40px);}
+    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-40px);}
     .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
 
