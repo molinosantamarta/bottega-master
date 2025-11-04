@@ -17,6 +17,7 @@
       --glass-bd:rgba(255,255,255,.35);
       --glass-inset:rgba(255,255,255,.35);
       --nav-h:84px;
+      --icon-pad:6px; /* padding interno per evitare crop delle icone */
     }
 
     body{
@@ -32,7 +33,7 @@
       position:sticky; top:0; z-index:20;
       background:var(--main);
       display:flex; justify-content:center; align-items:flex-start;
-      padding:4px 8px 6px; gap:12px;
+      padding:calc(4px + env(safe-area-inset-top)) 8px 6px; gap:12px;
     }
 
     .tabs-pill{
@@ -57,11 +58,13 @@
     .tab:hover{background:rgba(255,255,255,.16)}
     .tab:active{transform:scale(.98)}
     .tab[aria-selected="true"]{background:#fff; color:var(--main); border-color:#fff; box-shadow:0 1px 0 rgba(255,255,255,.8) inset;}
+    .tab:focus-visible{outline:2px solid #fff; outline-offset:2px}
 
     .apps-dock{
       display:flex; gap:12px; align-items:center;
       margin-left:40px;
       padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
+      flex-wrap:wrap; /* evita overflow su schermi stretti */
     }
 
     .app-icon{
@@ -71,8 +74,9 @@
       overflow:hidden; display:flex; align-items:center; justify-content:center;
       background:rgba(255,255,255,.02); cursor:pointer;
       transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+      padding:var(--icon-pad); /* margine visivo per non tagliare i bordi dell'immagine */
     }
-    .app-icon img{width:100%; height:100%; object-fit:cover; display:block}
+    .app-icon img{width:100%; height:100%; object-fit:contain; object-position:center; display:block; image-rendering:auto}
     .app-icon.fallback{font-weight:800; font-size:12px; letter-spacing:.2px; color:var(--main); background:#fff;}
 
     .hud{position:absolute;white-space:nowrap;color:#fff;
@@ -104,71 +108,76 @@
     .phone-mockup .screen{position:absolute; inset:0; padding:14px 16px 22px 16px;}
     .phone-mockup .screen > .screen-clip{position:absolute; top:14px; left:16px; right:16px; bottom:22px; border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;}
     .phone-mockup iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important}
+      .tabs-pill{-webkit-backdrop-filter:none; backdrop-filter:none}
+    }
   </style>
 </head>
 <body>
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
-    <div class="hud hud-date" id="hud-date">Lunedì, 3 Ottobre</div>
+    <div class="hud hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
 
     <div class="tabs-pill" id="tabs-pill">
-      <button class="tab" role="tab" data-tab="inserisci" aria-selected="true">Inserisci</button>
-      <button class="tab" role="tab" data-tab="modifica" aria-selected="false">Modifica &amp; Stampa</button>
-      <button class="tab" role="tab" data-tab="cerca" aria-selected="false">Cerca</button>
+      <button type="button" class="tab" role="tab" id="tab-inserisci" data-tab="inserisci" aria-controls="view-inserisci" aria-selected="true">Inserisci</button>
+      <button type="button" class="tab" role="tab" id="tab-modifica" data-tab="modifica" aria-controls="view-modifica" aria-selected="false">Modifica &amp; Stampa</button>
+      <button type="button" class="tab" role="tab" id="tab-cerca" data-tab="cerca" aria-controls="view-cerca" aria-selected="false">Cerca</button>
     </div>
 
     <div class="apps-dock" id="apps-dock">
-      <button class="app-icon" data-app="stoc" title="Apri Stòc">
+      <button type="button" class="app-icon" data-app="stoc" title="Apri Stòc" aria-label="Apri Stòc" aria-current="false">
         <img src="stoc-logo.png" alt="Stòc" onerror="imgFallback(this,'Stòc')">
       </button>
-      <button class="app-icon" data-app="ocapi" title="Apri Ocapì">
+      <button type="button" class="app-icon" data-app="ocapi" title="Apri Ocapì" aria-label="Apri Ocapì" aria-current="false">
         <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')">
       </button>
     </div>
 
-    <div class="hud hud-clock" id="hud-clock">
+    <div class="hud hud-clock" id="hud-clock" aria-live="off">
       <span id="hh">00</span><span class="blink" id="colon">:</span><span id="mm">00</span>
     </div>
   </nav>
 
   <main>
-    <section id="view-inserisci" data-view class="active">
+    <section id="view-inserisci" data-view class="active" role="tabpanel" aria-labelledby="tab-inserisci" aria-hidden="false">
       <div class="panel">
-        <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
+        <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta" loading="eager"></iframe>
       </div>
     </section>
 
-    <section id="view-modifica" data-view>
+    <section id="view-modifica" data-view role="tabpanel" aria-labelledby="tab-modifica" aria-hidden="true">
       <div class="panel">
-        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets"></iframe>
+        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets" loading="lazy" referrerpolicy="no-referrer"></iframe>
       </div>
     </section>
 
-    <section id="view-cerca" data-view>
+    <section id="view-cerca" data-view role="tabpanel" aria-labelledby="tab-cerca" aria-hidden="true">
       <div class="panel" style="color:#000; font-size:18px; font-weight:600; letter-spacing:.2px;">
         “Cerca”: ricerca rapida ordini / filtri
       </div>
     </section>
 
-    <section id="view-stoc" data-view>
+    <section id="view-stoc" data-view role="tabpanel" aria-labelledby="tab-stoc" aria-hidden="true">
       <div class="phone-stage" aria-label="Anteprima mobile Stòc">
         <div class="phone-mockup">
           <div class="screen">
             <div class="screen-clip">
-              <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+              <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)" loading="lazy"></iframe>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="view-ocapi" data-view>
+    <section id="view-ocapi" data-view role="tabpanel" aria-labelledby="tab-ocapi" aria-hidden="true">
       <div class="phone-stage" aria-label="Anteprima mobile Ocapì">
         <div class="phone-mockup">
           <div class="screen">
             <div class="screen-clip">
-              <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+              <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)" loading="lazy"></iframe>
             </div>
           </div>
         </div>
@@ -177,13 +186,63 @@
   </main>
 
   <script>
-    function imgFallback(img,label){try{const p=img.parentElement;if(!p)return;p.classList.add('fallback');img.remove();if(!p.textContent.trim())p.textContent=label;}catch(e){console.debug(e);}}
+    // Fallback immagine icona
+    function imgFallback(img,label){
+      try{const p=img.parentElement;if(!p)return; p.classList.add('fallback'); img.remove(); if(!p.textContent.trim()) p.textContent=label;}catch(e){console.debug(e);} }
+
     const VIEWS=["inserisci","modifica","cerca","stoc","ocapi"];
     const $$=(s)=>Array.from(document.querySelectorAll(s));
-    function activate(v){if(!VIEWS.includes(v))v='inserisci';VIEWS.forEach(x=>{const el=document.getElementById('view-'+x);if(el)el.classList.toggle('active',x===v);});$$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v?'true':'false'));$$('.app-icon').forEach(i=>i.setAttribute('aria-current',i.dataset.app===v?'page':'false'));}
-    document.querySelector('[role="tablist"]').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;activate(b.dataset.tab);});
-    document.getElementById('apps-dock').addEventListener('click',e=>{const i=e.target.closest('.app-icon');if(!i)return;activate(i.dataset.app);});
 
+    const tabs = $$('.tab');
+    const tabByView = Object.fromEntries(tabs.map(t=>[t.dataset.tab,t]));
+
+    function setAriaForPanels(view, active){
+      const panel = document.getElementById('view-'+view);
+      if(!panel) return;
+      panel.classList.toggle('active', active);
+      panel.setAttribute('aria-hidden', String(!active));
+      panel.toggleAttribute('hidden', !active);
+    }
+
+    function activate(v,{focusTab=true,updateUrl=true}={}){
+      if(!VIEWS.includes(v)) v='inserisci';
+      VIEWS.forEach(x=> setAriaForPanels(x, x===v));
+      tabs.forEach(b=> b.setAttribute('aria-selected', String(b.dataset.tab===v)));
+      $$('.app-icon').forEach(i=> i.setAttribute('aria-current', i.dataset.app===v ? 'page' : 'false'));
+      if(focusTab && tabByView[v]) tabByView[v].focus({preventScroll:true});
+      if(updateUrl){
+        try{ localStorage.setItem('activeView', v); }catch{ }
+        try{ if(location.hash !== '#'+v) history.replaceState(null, '', '#'+v); }catch{ }
+      }
+    }
+
+    // Click: tabs + app icons
+    document.querySelector('[role="tablist"]').addEventListener('click',e=>{
+      const b=e.target.closest('.tab');
+      if(b){ activate(b.dataset.tab); return; }
+    });
+    document.getElementById('apps-dock').addEventListener('click',e=>{
+      const i=e.target.closest('.app-icon'); if(!i) return; activate(i.dataset.app);
+    });
+
+    // Tastiera per i tab (ArrowLeft/Right, Home/End)
+    document.getElementById('tabs-pill').addEventListener('keydown', e=>{
+      const idx = tabs.findIndex(t=>t===document.activeElement);
+      if(idx===-1) return;
+      let nextIdx = idx;
+      switch(e.key){
+        case 'ArrowRight': nextIdx = (idx+1)%tabs.length; break;
+        case 'ArrowLeft': nextIdx = (idx-1+tabs.length)%tabs.length; break;
+        case 'Home': nextIdx = 0; break;
+        case 'End': nextIdx = tabs.length-1; break;
+        case 'Enter': case ' ': activate(tabs[idx].dataset.tab); e.preventDefault(); return;
+        default: return;
+      }
+      tabs[nextIdx].focus();
+      e.preventDefault();
+    });
+
+    // HUD clock & date
     const pill=document.getElementById('tabs-pill');
     const nav=document.getElementById('tabs-nav');
     const hh=document.getElementById('hh');
@@ -191,15 +250,56 @@
     const colon=document.getElementById('colon');
     const hudDate=document.getElementById('hud-date');
 
-    function syncTabs(){const h=pill.offsetHeight;document.documentElement.style.setProperty('--tabs-h',h+'px');const nh=nav.getBoundingClientRect().height;document.documentElement.style.setProperty('--nav-h',nh+'px');}
+    function syncTabs(){
+      const h=pill.offsetHeight;
+      document.documentElement.style.setProperty('--tabs-h',h+'px');
+      const nh=nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h',nh+'px');
+    }
     function pad2(n){return n<10?'0'+n:n;}
-    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-    function formatItalianDate(d){const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});const p=fmt.formatToParts(d);let w='',day='',m='';p.forEach(x=>{if(x.type==='weekday')w=capFirst(x.value);if(x.type==='day')day=x.value;if(x.type==='month')m=capFirst(x.value);});return `${w}, ${day} ${m}`;}
-    function updateClock(){const n=new Date();hh.textContent=pad2(n.getHours());mm.textContent=pad2(n.getMinutes());}
-    function updateDate(){hudDate.textContent=formatItalianDate(new Date());}
-    let blink=true;function tick(){updateClock();blink=!blink;colon.classList.toggle('off',!blink);}
+    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}    
+    function formatItalianDate(d){
+      const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
+      const p=fmt.formatToParts(d);
+      let w='',day='',m='';
+      p.forEach(x=>{ if(x.type==='weekday') w=capFirst(x.value); if(x.type==='day') day=x.value; if(x.type==='month') m=capFirst(x.value); });
+      return `${w}, ${day} ${m}`;
+    }
+    function updateClock(){
+      const n=new Date();
+      hh.textContent=pad2(n.getHours());
+      mm.textContent=pad2(n.getMinutes());
+    }
+    function updateDate(){ hudDate.textContent=formatItalianDate(new Date()); }
+    let blink=true; function tick(){ updateClock(); blink=!blink; colon.classList.toggle('off',!blink); }
 
-    activate('inserisci');updateDate();updateClock();syncTabs();setInterval(tick,1000);setInterval(updateDate,60000);window.addEventListener('resize',syncTabs);new ResizeObserver(syncTabs).observe(pill);
+    // Deep-link / restore stato
+    function initialView(){
+      const fromHash = location.hash && location.hash.slice(1);
+      if(VIEWS.includes(fromHash)) return fromHash;
+      try{
+        const stored = localStorage.getItem('activeView');
+        if(VIEWS.includes(stored)) return stored;
+      }catch{}
+      return 'inserisci';
+    }
+
+    // Init
+    activate(initialView(),{focusTab:false,updateUrl:true});
+    updateDate();
+    updateClock();
+    syncTabs();
+
+    const clockInterval = setInterval(tick,1000);
+    const dateInterval = setInterval(updateDate,60000);
+    window.addEventListener('resize', syncTabs, {passive:true});
+    if('ResizeObserver' in window){ new ResizeObserver(syncTabs).observe(pill); }
+
+    // Aggiorna vista se cambia hash esternamente
+    window.addEventListener('hashchange',()=>{
+      const v = location.hash.slice(1);
+      if(VIEWS.includes(v)) activate(v,{focusTab:false,updateUrl:false});
+    });
   </script>
 </body>
 </html>
