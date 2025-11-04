@@ -4,37 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Master</title>
+
+  <!-- Preconnect per risorse esterne -->
+  <link rel="preconnect" href="https://api.qrserver.com">
+  <link rel="dns-prefetch" href="https://www.molinosantamarta.it">
+  <link rel="dns-prefetch" href="https://docs.google.com">
+
+  <!-- imgFallback disponibile subito -->
+  <script>
+    window.imgFallback = function imgFallback(img, label) {
+      try {
+        const p = img?.parentElement;
+        if (!p) return;
+        p.classList?.add('fallback');
+        img.remove?.();
+        if (!p.textContent?.trim()) p.textContent = label || 'App';
+      } catch(e) { console.debug(e); }
+    };
+  </script>
+
   <style>
-    html,body{height:100%;margin:0}
+    html, body { height: 100%; margin: 0; }
     :root{
-      --main:#770505;
-      --fg:#f5f5f7;
-      --radius:40px;
-      --tabs-h:0px;
-      --clock-size:35px;
-      --date-size:25px;
-      --glass-bg:rgba(255,255,255,.14);
-      --glass-bd:rgba(255,255,255,.35);
-      --glass-inset:rgba(255,255,255,.35);
-      --nav-h:84px;
+      --main:#770505; --fg:#f5f5f7; --radius:40px;
+      --tabs-h:0px; --clock-size:35px; --date-size:25px;
+      --nav-h:84px; --icon-pad:2px;
+
+      /* Dimensioni QR e tipografia */
+      --qr-size-mobile: 300px;
+      --qr-size-desktop: 440px; /* ~200% rispetto a prima */
+      --title-size: clamp(24px, 3.2vw, 36px);
+      --text-size: clamp(16px, 1.6vw, 20px);
+      --caption-size: clamp(14px, 1.4vw, 18px);
     }
 
     body{
-      background:var(--main);
-      color:var(--fg);
-      font:16px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      background:var(--main); color:var(--fg);
+      font:16px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
       display:flex; flex-direction:column; min-height:100vh;
     }
 
-    header{background:var(--main);height:20px;}
+    header{background:var(--main); height:20px;}
 
     nav[role="tablist"]{
-      position:sticky; top:0; z-index:20;
-      background:var(--main);
+      position:sticky; top:0; z-index:20; background:var(--main);
       display:flex; justify-content:center; align-items:flex-start;
       padding:calc(4px + env(safe-area-inset-top)) 8px 6px; gap:12px;
+      contain:layout style;
     }
-
     .tabs-pill{
       display:flex; gap:8px; align-items:center; justify-content:center;
       padding:6px 8px; border-radius:var(--radius);
@@ -45,14 +62,13 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.15);
       position:relative; z-index:1;
     }
-
     .tab{
       appearance:none; border:1px solid rgba(255,255,255,.28);
       background:rgba(255,255,255,.08); color:#fff;
       padding:9px 13px; border-radius:999px; cursor:pointer;
       font-weight:700; font-size:13px; letter-spacing:.2px;
       transition:transform .05s ease, background .2s, color .2s, border-color .2s;
-      white-space:nowrap;
+      white-space:nowrap; will-change:transform;
     }
     .tab:hover{background:rgba(255,255,255,.16)}
     .tab:active{transform:scale(.98)}
@@ -61,11 +77,9 @@
 
     .apps-dock{
       display:flex; gap:12px; align-items:center;
-      margin-left:40px;
-      padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
-      flex-wrap:wrap; /* evita overflow su schermi stretti */
+      margin-left:40px; padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
+      flex-wrap:wrap;
     }
-
     .app-icon{
       height:var(--tabs-h); max-height:var(--tabs-h);
       aspect-ratio:1/1; border-radius:14px; flex:0 0 auto;
@@ -73,17 +87,17 @@
       overflow:hidden; display:flex; align-items:center; justify-content:center;
       background:rgba(255,255,255,.02); cursor:pointer;
       transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
-      padding:var(--icon-pad); /* margine visivo per non tagliare i bordi dell'immagine */
+      padding:var(--icon-pad); will-change:transform;
     }
-    .app-icon img{width:100%; height:100%; object-fit:contain; object-position:center; display:block; image-rendering:auto}
+    .app-icon img{width:100%; height:100%; object-fit:contain; object-position:center; display:block}
     .app-icon.fallback{font-weight:800; font-size:12px; letter-spacing:.2px; color:var(--main); background:#fff;}
 
     .hud{position:absolute;white-space:nowrap;color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
     @media (min-width:900px){ .hud{display:flex;} }
-    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(12px);} 
-    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-20px);} 
+    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(12px);}
+    .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-20px);}
     .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
 
@@ -93,19 +107,68 @@
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
     .panel{
-      flex:none; max-height:960px; width:100%;
-      background:#fff; color:#000; border-radius:var(--radius);
-      display:flex; align-items:center; justify-content:center;
-      font-size:32px; font-weight:700; overflow:hidden; position:relative;
-      -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
-      box-shadow: 0 12px 32px rgba(0,0,0,.25);margin-top: 14px;
+      flex:none; max-height:960px; width:100%; background:#fff; color:#000; border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700;
+      overflow:hidden; position:relative; -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.25); margin-top: 14px;
+      contain: layout style paint;
     }
     .panel iframe{width:100%; height:100%; border:0; background:transparent;}
 
+    /* === Showcase senza contenitore, gruppo centrato, gap minimo === */
+    .app-showcase{
+      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:22px; text-align:center;
+    }
+    @media (min-width:800px){
+      .app-showcase{
+        flex-direction:row; justify-content:center; align-items:center; text-align:center;
+        gap:100px; /* minimo visivo tra testo+QR e telefono */
+      }
+      .app-showcase .info-col{flex:0 1 auto; max-width:400px;}
+      .app-showcase .phone-col{flex:0 1 auto; display:flex; justify-content:center; align-items:center;}
+    }
+
+    /* Titolo e testo (più grandi) */
+    .info-col h2{margin:0 0 8px; font-size:var(--title-size); letter-spacing:.2px}
+    .info-col p{margin:0; font-size:var(--text-size); opacity:.95}
+
+    /* QR enorme (200%) + didascalia, nessun contenitore, con fade-in */
+    .qr-wrap{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:70px;               /* spazio tra QR e caption */
+      margin-top:70px;        /* più aria dal testo sopra */
+      margin-bottom:20px;     /* un filo d'aria sotto */
+    }
+    .qr{
+      width:min(var(--qr-size-desktop), 90vw);
+      height:min(var(--qr-size-desktop), 90vw);
+      border-radius:20px; background:#fff; display:grid; place-items:center; overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+
+      /* stato iniziale per fade-in */
+      opacity:0; transform:translateY(6px);
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .qr.is-visible{ opacity:1; transform:none; }
+    @media (max-width:1000px){
+      .qr{
+        width:min(var(--qr-size-mobile), 88vw);
+        height:min(var(--qr-size-mobile), 88vw);
+      }
+    }
+    .qr img{width:100%; height:100%; object-fit:contain}
+    .qr-caption{font-size:var(--caption-size); opacity:.98}
+    .qr.error{font-size:12px; color:#999; padding:10px; text-align:center}
+
+    /* Phone preview */
     .phone-stage{width:100%; display:grid; place-items:center; margin-top:-12px;}
     .phone-mockup{position:relative; height:820px; max-height:820px; aspect-ratio:9/19.5; display:block;}
     .phone-mockup .screen{position:absolute; inset:0; padding:14px 16px 22px 16px;}
-    .phone-mockup .screen > .screen-clip{position:absolute; top:14px; left:16px; right:16px; bottom:22px; border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;}
+    .phone-mockup .screen > .screen-clip{
+      position:absolute; top:14px; left:16px; right:16px; bottom:22px;
+      border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
+    }
     .phone-mockup iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
 
     @media (prefers-reduced-motion: reduce){
@@ -128,10 +191,10 @@
 
     <div class="apps-dock" id="apps-dock">
       <button type="button" class="app-icon" data-app="stoc" title="Apri Stòc" aria-label="Apri Stòc" aria-current="false">
-        <img src="stoc-logo.png" alt="Stòc" onerror="imgFallback(this,'Stòc')">
+        <img src="stoc-logo.png" alt="Stòc" onerror="imgFallback(this,'Stòc')" loading="lazy">
       </button>
       <button type="button" class="app-icon" data-app="ocapi" title="Apri Ocapì" aria-label="Apri Ocapì" aria-current="false">
-        <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')">
+        <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')" loading="lazy">
       </button>
     </div>
 
@@ -143,40 +206,67 @@
   <main>
     <section id="view-inserisci" data-view class="active" role="tabpanel" aria-labelledby="tab-inserisci" aria-hidden="false">
       <div class="panel">
-        <iframe src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta" loading="eager"></iframe>
+        <iframe data-src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
       </div>
     </section>
 
     <section id="view-modifica" data-view role="tabpanel" aria-labelledby="tab-modifica" aria-hidden="true">
       <div class="panel">
-        <iframe src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets" loading="lazy" referrerpolicy="no-referrer"></iframe>
+        <iframe data-src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets" referrerpolicy="no-referrer"></iframe>
       </div>
     </section>
 
     <section id="view-cerca" data-view role="tabpanel" aria-labelledby="tab-cerca" aria-hidden="true">
       <div class="panel" style="color:#000; font-size:18px; font-weight:600; letter-spacing:.2px;">
-        “Cerca”: ricerca rapida ordini / filtri
+        "Cerca": ricerca rapida ordini / filtri
       </div>
     </section>
 
+    <!-- STÒC℗-->
     <section id="view-stoc" data-view role="tabpanel" aria-labelledby="tab-stoc" aria-hidden="true">
-      <div class="phone-stage" aria-label="Anteprima mobile Stòc">
-        <div class="phone-mockup">
-          <div class="screen">
-            <div class="screen-clip">
-              <iframe src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)" loading="lazy"></iframe>
+      <div class="app-showcase">
+        <div class="info-col">
+          <h2>Stòc℗ – Gestione Ordini</h2>
+          <p>Consulta gli ordini inseriti, scansiona il barcode e aggiorna il luogo di stoccaggio in tempo reale. Pensato per la consegna: veloce e senza cacce al tesoro.</p> <br><br> <p>Un’app semplice, costruita per velocizzare il flusso di preparazione, stoccaggio e consegna defli ordini.</p>
+          <div class="qr-wrap">
+            <div class="qr"><img id="qr-stoc" alt="QR per Stòc"></div>
+            <div class="qr-caption">Scansiona il codice qui sopra e usa l'app direttamente (nessun download da fare, zero spazio occupato).</div>
+          </div>
+        </div>
+        <div class="phone-col">
+          <div class="phone-stage" aria-label="Anteprima mobile Stòc">
+            <div class="phone-mockup">
+              <div class="screen">
+                <div class="screen-clip">
+                  <iframe data-src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- OCAPÌ℗ -->
     <section id="view-ocapi" data-view role="tabpanel" aria-labelledby="tab-ocapi" aria-hidden="true">
-      <div class="phone-stage" aria-label="Anteprima mobile Ocapì">
-        <div class="phone-mockup">
-          <div class="screen">
-            <div class="screen-clip">
-              <iframe src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)" loading="lazy"></iframe>
+      <div class="app-showcase">
+        <div class="info-col">
+          <h2>Ocapì℗ – Manager Avicoli </h2>
+          <p>Ocapì℗ sa quanti polli, oche, anatre e capponi servono domani, dopodomani e ogni altro giorno.
+Tu devi solo aprire l'app, guardare i numeri e se serve bestemm...<br><br> <p>Con Ocapì℗, tutto fila liscio e finalmente, t'ha l'è capì anca ti.</p>
+          <div class="qr-wrap">
+            <div class="qr"><img id="qr-ocapi" alt="QR per Ocapì"></div>
+            <div class="qr-caption">Scansiona il codice qui sopra e usa l'app direttamente (nessun download da fare, zero spazio occupato).</div>
+          </div>
+        </div>
+        <div class="phone-col">
+          <div class="phone-stage" aria-label="Anteprima mobile Ocapì">
+            <div class="phone-mockup">
+              <div class="screen">
+                <div class="screen-clip">
+                  <iframe data-src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -185,120 +275,155 @@
   </main>
 
   <script>
-    // Fallback immagine icona
-    function imgFallback(img,label){
-      try{const p=img.parentElement;if(!p)return; p.classList.add('fallback'); img.remove(); if(!p.textContent.trim()) p.textContent=label;}catch(e){console.debug(e);} }
+    // === CONFIG ===
+    const VIEWS = ["inserisci", "modifica", "cerca", "stoc", "ocapi"];
+    const APP_CONFIG = {
+      stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',   qrImg: '#qr-stoc'  },
+      ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli', qrImg: '#qr-ocapi' }
+    };
 
-    const VIEWS=["inserisci","modifica","cerca","stoc","ocapi"];
-    const $$=(s)=>Array.from(document.querySelectorAll(s));
+    // === UTILITIES ===
+    const $  = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+    const pad2 = (n) => n < 10 ? '0' + n : n;
+    const capFirst = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-    const tabs = $$('.tab');
-    const tabByView = Object.fromEntries(tabs.map(t=>[t.dataset.tab,t]));
+    // === STATE ===
+    let currentView = 'inserisci';
+    let clockInterval, dateInterval, resizeObserver;
+    const loadedIframes = new Set();
 
-    function setAriaForPanels(view, active){
-      const panel = document.getElementById('view-'+view);
-      if(!panel) return;
+    // === DOM CACHE ===
+    const dom = {
+      tabs: $$('.tab'),
+      pill: $('#tabs-pill'),
+      nav: $('#tabs-nav'),
+      hh: $('#hh'), mm: $('#mm'), colon: $('#colon'),
+      hudDate: $('#hud-date'),
+      appsDock: $('#apps-dock')
+    };
+    const tabByView = Object.fromEntries(dom.tabs.map(t => [t.dataset.tab, t]));
+
+    // === VIEW MANAGEMENT ===
+    function setAriaForPanel(view, active) {
+      const panel = document.getElementById('view-' + view);
+      if (!panel) return;
       panel.classList.toggle('active', active);
       panel.setAttribute('aria-hidden', String(!active));
-      panel.toggleAttribute('hidden', !active);
+      if (active) { panel.removeAttribute('hidden'); loadIframeIfNeeded(panel); }
+      else { panel.setAttribute('hidden', ''); }
     }
-
-    function activate(v,{focusTab=true,updateUrl=true}={}){
-      if(!VIEWS.includes(v)) v='inserisci';
-      VIEWS.forEach(x=> setAriaForPanels(x, x===v));
-      tabs.forEach(b=> b.setAttribute('aria-selected', String(b.dataset.tab===v)));
-      $$('.app-icon').forEach(i=> i.setAttribute('aria-current', i.dataset.app===v ? 'page' : 'false'));
-      if(focusTab && tabByView[v]) tabByView[v].focus({preventScroll:true});
-      if(updateUrl){
-        try{ localStorage.setItem('activeView', v); }catch{ }
-        try{ if(location.hash !== '#'+v) history.replaceState(null, '', '#'+v); }catch{ }
+    function loadIframeIfNeeded(panel){
+      const iframe = panel.querySelector('iframe[data-src]');
+      if (iframe && !loadedIframes.has(iframe)) { iframe.src = iframe.dataset.src; loadedIframes.add(iframe); }
+    }
+    function activate(view, { focusTab=true, updateUrl=true } = {}){
+      if (!VIEWS.includes(view)) view = 'inserisci';
+      if (view === currentView) return;
+      currentView = view;
+      VIEWS.forEach(v => setAriaForPanel(v, v === view));
+      dom.tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === view)));
+      $$('.app-icon').forEach(i => i.setAttribute('aria-current', i.dataset.app === view ? 'page' : 'false'));
+      if (focusTab && tabByView[view]) tabByView[view].focus({ preventScroll:true });
+      if (updateUrl){
+        try { localStorage.setItem('activeView', view); } catch {}
+        try { const hash = '#' + view; if (location.hash !== hash) history.replaceState(null, '', hash); } catch {}
       }
     }
 
-    // Click: tabs + app icons
-    document.querySelector('[role="tablist"]').addEventListener('click',e=>{
-      const b=e.target.closest('.tab');
-      if(b){ activate(b.dataset.tab); return; }
-    });
-    document.getElementById('apps-dock').addEventListener('click',e=>{
-      const i=e.target.closest('.app-icon'); if(!i) return; activate(i.dataset.app);
-    });
-
-    // Tastiera per i tab (ArrowLeft/Right, Home/End)
-    document.getElementById('tabs-pill').addEventListener('keydown', e=>{
-      const idx = tabs.findIndex(t=>t===document.activeElement);
-      if(idx===-1) return;
+    // === EVENTS ===
+    function handleTabClick(e){ const tab = e.target.closest('.tab'); if (tab) activate(tab.dataset.tab); }
+    function handleAppClick(e){ const icon = e.target.closest('.app-icon'); if (icon) activate(icon.dataset.app); }
+    function handleTabKeyboard(e){
+      const idx = dom.tabs.findIndex(t => t === document.activeElement);
+      if (idx === -1) return;
       let nextIdx = idx;
-      switch(e.key){
-        case 'ArrowRight': nextIdx = (idx+1)%tabs.length; break;
-        case 'ArrowLeft': nextIdx = (idx-1+tabs.length)%tabs.length; break;
-        case 'Home': nextIdx = 0; break;
-        case 'End': nextIdx = tabs.length-1; break;
-        case 'Enter': case ' ': activate(tabs[idx].dataset.tab); e.preventDefault(); return;
+      switch (e.key){
+        case 'ArrowRight': nextIdx = (idx + 1) % dom.tabs.length; break;
+        case 'ArrowLeft' : nextIdx = (idx - 1 + dom.tabs.length) % dom.tabs.length; break;
+        case 'Home'      : nextIdx = 0; break;
+        case 'End'       : nextIdx = dom.tabs.length - 1; break;
+        case 'Enter': case ' ':
+          activate(dom.tabs[idx].dataset.tab); e.preventDefault(); return;
         default: return;
       }
-      tabs[nextIdx].focus();
-      e.preventDefault();
-    });
-
-    // HUD clock & date
-    const pill=document.getElementById('tabs-pill');
-    const nav=document.getElementById('tabs-nav');
-    const hh=document.getElementById('hh');
-    const mm=document.getElementById('mm');
-    const colon=document.getElementById('colon');
-    const hudDate=document.getElementById('hud-date');
-
-    function syncTabs(){
-      const h=pill.offsetHeight;
-      document.documentElement.style.setProperty('--tabs-h',h+'px');
-      const nh=nav.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--nav-h',nh+'px');
+      dom.tabs[nextIdx].focus(); e.preventDefault();
     }
-    function pad2(n){return n<10?'0'+n:n;}
-    function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}    
+    function handleHashChange(){
+      const view = location.hash.slice(1);
+      if (VIEWS.includes(view)) activate(view, { focusTab:false, updateUrl:false });
+    }
+
+    // === CLOCK & DATE ===
+    function syncTabs(){
+      const h = dom.pill.offsetHeight;
+      document.documentElement.style.setProperty('--tabs-h', h + 'px');
+      const nh = dom.nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h', nh + 'px');
+    }
     function formatItalianDate(d){
-      const fmt=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
-      const p=fmt.formatToParts(d);
-      let w='',day='',m='';
+      const fmt = new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
+      const p = fmt.formatToParts(d);
+      let w='', day='', m='';
       p.forEach(x=>{ if(x.type==='weekday') w=capFirst(x.value); if(x.type==='day') day=x.value; if(x.type==='month') m=capFirst(x.value); });
       return `${w}, ${day} ${m}`;
     }
-    function updateClock(){
-      const n=new Date();
-      hh.textContent=pad2(n.getHours());
-      mm.textContent=pad2(n.getMinutes());
-    }
-    function updateDate(){ hudDate.textContent=formatItalianDate(new Date()); }
-    let blink=true; function tick(){ updateClock(); blink=!blink; colon.classList.toggle('off',!blink); }
+    function updateClock(){ const n = new Date(); $('#hh').textContent = pad2(n.getHours()); $('#mm').textContent = pad2(n.getMinutes()); }
+    function updateDate(){ $('#hud-date').textContent = formatItalianDate(new Date()); }
+    let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); }
 
-    // Deep-link / restore stato
-    function initialView(){
-      const fromHash = location.hash && location.hash.slice(1);
-      if(VIEWS.includes(fromHash)) return fromHash;
-      try{
-        const stored = localStorage.getItem('activeView');
-        if(VIEWS.includes(stored)) return stored;
-      }catch{}
+    // === QR CODE (con gestione fade-in) ===
+    function qrUrl(data, size = 440){
+      return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+    }
+    function setupShowcase(){
+      for (const key in APP_CONFIG){
+        const { url, qrImg } = APP_CONFIG[key];
+        const img = document.querySelector(qrImg);
+        if (img){
+          const size = window.matchMedia('(min-width:1100px)').matches ? 440 : 300;
+          const wrap = img.closest('.qr');
+          if (wrap) wrap.classList.remove('is-visible'); // reset stato
+          img.onload = () => { if (wrap) wrap.classList.add('is-visible'); };
+          img.onerror = () => {
+            if (wrap){ wrap.classList.add('error'); wrap.textContent = 'QR non disponibile'; }
+          };
+          img.src = qrUrl(url, size);
+        }
+      }
+    }
+
+    // === INIT ===
+    function getInitialView(){
+      const fromHash = location.hash?.slice(1);
+      if (VIEWS.includes(fromHash)) return fromHash;
+      try{ const stored = localStorage.getItem('activeView'); if (VIEWS.includes(stored)) return stored; }catch{}
       return 'inserisci';
     }
+    function init(){
+      const initial = getInitialView();
+      activate(initial, { focusTab:false, updateUrl:true });
+      const firstPanel = document.getElementById('view-' + initial);
+      if (firstPanel) loadIframeIfNeeded(firstPanel);
 
-    // Init
-    activate(initialView(),{focusTab:false,updateUrl:true});
-    updateDate();
-    updateClock();
-    syncTabs();
+      updateDate(); updateClock();
+      setInterval(tick, 1000);
+      setInterval(updateDate, 60000);
 
-    const clockInterval = setInterval(tick,1000);
-    const dateInterval = setInterval(updateDate,60000);
-    window.addEventListener('resize', syncTabs, {passive:true});
-    if('ResizeObserver' in window){ new ResizeObserver(syncTabs).observe(pill); }
+      syncTabs(); setupShowcase();
 
-    // Aggiorna vista se cambia hash esternamente
-    window.addEventListener('hashchange',()=>{
-      const v = location.hash.slice(1);
-      if(VIEWS.includes(v)) activate(v,{focusTab:false,updateUrl:false});
-    });
+      $('#tabs-pill').addEventListener('click', handleTabClick);
+      $('#tabs-pill').addEventListener('keydown', handleTabKeyboard);
+      $('#apps-dock').addEventListener('click', handleAppClick);
+      window.addEventListener('hashchange', handleHashChange);
+      window.addEventListener('resize', () => { syncTabs(); setupShowcase(); }, { passive:true });
+
+      if ('ResizeObserver' in window){ new ResizeObserver(syncTabs).observe($('#tabs-pill')); }
+
+      console.assert(typeof window.imgFallback === 'function', 'imgFallback non definita');
+      console.assert(document.querySelector('[data-view].active'), 'Nessuna vista attiva');
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   </script>
 </body>
 </html>
