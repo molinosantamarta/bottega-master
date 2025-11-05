@@ -174,17 +174,16 @@
       .tabs-pill{-webkit-backdrop-filter:none; backdrop-filter:none}
     }
     .app-icon {
-  background: rgba(0, 0, 0, 0.5); /* leggero sfondo scuro */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(5px) saturate(120%);
-}
-.app-icon:hover {
-  transform: scale(1.06);
-  background: rgba(0,0,0,0.55);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-}
-    
+      background: rgba(0, 0, 0, 0.5); /* leggero sfondo scuro */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(5px) saturate(120%);
+    }
+    .app-icon:hover {
+      transform: scale(1.06);
+      background: rgba(0,0,0,0.55);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    }
   </style>
 </head>
 <body>
@@ -195,9 +194,9 @@
 
     <div class="tabs-pill" id="tabs-pill">
       <button type="button" class="tab" role="tab" id="tab-inserisci" data-tab="inserisci" aria-controls="view-inserisci" aria-selected="true">Inserisci</button>
-      <button type="button" class="tab" role="tab" id="tab-modifica" data-tab="modifica" aria-controls="view-modifica" aria-selected="false">Modifica</button>
-      <button type="button" class="tab" role="tab" id="tab-cerca" data-tab="cerca" aria-controls="view-cerca" aria-selected="false">Stampa</button>
-      <button type="button" class="tab" role="tab" id="tab-cerca" data-tab="cerca" aria-controls="view-cerca" aria-selected="false">Cerca</button>
+      <button type="button" class="tab" role="tab" id="tab-modifica"  data-tab="modifica"  aria-controls="view-modifica"  aria-selected="false">Modifica</button>
+      <button type="button" class="tab" role="tab" id="tab-stampa"    data-tab="stampa"    aria-controls="view-stampa"    aria-selected="false">Stampa</button>
+      <button type="button" class="tab" role="tab" id="tab-cerca"     data-tab="cerca"     aria-controls="view-cerca"     aria-selected="false">Cerca</button>
     </div>
 
     <div class="apps-dock" id="apps-dock">
@@ -224,6 +223,12 @@
     <section id="view-modifica" data-view role="tabpanel" aria-labelledby="tab-modifica" aria-hidden="true">
       <div class="panel">
         <iframe data-src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets" referrerpolicy="no-referrer"></iframe>
+      </div>
+    </section>
+    
+    <section id="view-stampa" data-view role="tabpanel" aria-labelledby="tab-stampa" aria-hidden="true">
+      <div class="panel">
+        <iframe data-src="https://molinosantamarta.github.io/bottega-print/" title="Stampa" referrerpolicy="no-referrer"></iframe>
       </div>
     </section>
 
@@ -287,10 +292,10 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
 
   <script>
     // === CONFIG ===
-    const VIEWS = ["inserisci", "modifica", "cerca", "stoc", "ocapi"];
+    const VIEWS = ["inserisci", "modifica", "stampa", "cerca", "stoc", "ocapi"];
     const APP_CONFIG = {
-      stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',   qrImg: '#qr-stoc'  },
-      ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli', qrImg: '#qr-ocapi' }
+      stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',    qrImg: '#qr-stoc'  },
+      ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
     };
 
     // === UTILITIES ===
