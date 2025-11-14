@@ -193,7 +193,7 @@
       background:#000;
       opacity:0;
       pointer-events:none;
-      transition:opacity .4s ease;
+      transition:opacity .8s ease;
     }
     .hacker-modal.active{
       opacity:1;
@@ -205,13 +205,14 @@
       border:0;
       background:transparent;
     }
+    
   </style>
 </head>
 <body>
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
-    <button id="btn-restart" aria-label="Riavvia" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); saturate(160%); display:flex; align-items:top; justify-content:center; cursor:pointer; color:yellow; font-size:38px; line-height:1;">↻</button>
+    <button id="btn-restart" aria-label="Riavvia" style="position:absolute; left:10px; top:50%; transform:translateY(-50%) rotate(48deg); width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); saturate(160%); display:flex; align-items:top; justify-content:center; cursor:pointer; color:yellow;font-size:35px;line-height:1">↻</button>
 
     <div class="hud hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
 
@@ -529,3 +530,4 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
   </script>
 </body>
 </html>
+
