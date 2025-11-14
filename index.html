@@ -56,7 +56,7 @@
     .tabs-pill{
       display:flex; gap:8px; align-items:center; justify-content:center;
       padding:6px 8px; border-radius:var(--radius);
-      background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.10));
+      background:none, rgba(255,255,255,.10));
       border:1px solid rgba(255,255,255,.35);
       position:relative; z-index:1;
     }
@@ -210,7 +210,7 @@
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
-    <button id="btn-restart" aria-label="Riavvia" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); backdrop-filter:blur(6px) saturate(160%); display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; font-size:28px; font-weight:700;">↻</button>
+    <button id="btn-restart" aria-label="Riavvia" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); backdrop-filter:blur(6px) saturate(160%); display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; font-size:26px; line-height:1;">↻</button>
 
     <div class="hud hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
 
@@ -476,7 +476,13 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
       if (restartBtn){
         restartBtn.addEventListener('click', () => {
           document.querySelectorAll('iframe').forEach(f => {
-            if (f.src) f.src = f.src;
+            // se l'iframe è lazy (data-src), carica da data-src
+            if (f.dataset && f.dataset.src) {
+              f.src = f.dataset.src;
+            } else if (f.src) {
+              // altrimenti ricarica il src esistente
+              f.src = f.src;
+            }
           });
 
           if (hackerTimeoutId){
@@ -522,3 +528,4 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
   </script>
 </body>
 </html>
+
