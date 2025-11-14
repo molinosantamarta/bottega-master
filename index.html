@@ -94,7 +94,7 @@
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       font-weight:800; line-height:1; display:none; align-items:center; height:var(--tabs-h); letter-spacing:.2px; user-select:none;}
     @media (min-width:900px){ .hud{display:flex;} }
-    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(40px);}
+    .hud-date{left:10px;font-size:var(--date-size);transform:translateX(60px);}
     .hud-clock{right:10px;font-size:var(--clock-size);text-align:right;transform:translateX(-40px);}
     .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
     .hud-clock .blink.off{opacity:0;}
@@ -184,12 +184,31 @@
       background: rgba(0,0,0,0.55);
       box-shadow: 0 8px 18px rgba(0,0,0,0.4);
     }
+
+    .hacker-modal{
+      position:fixed;
+      inset:0;
+      z-index:999;
+      background:#000;
+      display:none;
+    }
+    .hacker-modal.active{
+      display:block;
+    }
+    .hacker-modal iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      background:#000;
+    }
   </style>
 </head>
 <body>
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
+    <button id="btn-restart" aria-label="Riavvia" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); backdrop-filter:blur(6px) saturate(160%); display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; font-size:18px; font-weight:700;">↻</button>
+
     <div class="hud hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
 
     <div class="tabs-pill" id="tabs-pill">
@@ -294,6 +313,10 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
     </section>
   </main>
 
+  <div id="hacker-modal" class="hacker-modal" aria-hidden="true">
+    <iframe title="Modal hacker" loading="lazy"></iframe>
+  </div>
+
   <script>
     // === CONFIG ===
     const VIEWS = ["inserisci", "modifica", "stampa", "cerca", "stoc", "ocapi"];
@@ -392,6 +415,15 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
     function updateDate(){ $('#hud-date').textContent = formatItalianDate(new Date()); }
     let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); }
 
+    function closeHackerModal(){
+      const modal = document.getElementById('hacker-modal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden','true');
+      const iframe = modal.querySelector('iframe');
+      if (iframe){ iframe.src = 'about:blank'; }
+    }
+
     // === QR CODE (con gestione fade-in) ===
     function qrUrl(data, size = 440){
       return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
@@ -431,6 +463,32 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
       setInterval(updateDate, 60000);
 
       syncTabs(); setupShowcase();
+
+      const restartBtn = $('#btn-restart');
+      const hackerModal = document.getElementById('hacker-modal');
+      if (restartBtn){
+        restartBtn.addEventListener('click', () => {
+          document.querySelectorAll('iframe').forEach(f => {
+            if (f.src) f.src = f.src;
+          });
+          if (hackerModal){
+            const iframe = hackerModal.querySelector('iframe');
+            if (iframe && (!iframe.src || iframe.src === 'about:blank')){
+              iframe.src = 'hacker.html';
+            }
+            hackerModal.classList.add('active');
+            hackerModal.setAttribute('aria-hidden','false');
+          }
+        });
+      }
+      if (hackerModal){
+        hackerModal.addEventListener('click', (e) => {
+          if (e.target === hackerModal) closeHackerModal();
+        });
+      }
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeHackerModal();
+      });
 
       $('#tabs-pill').addEventListener('click', handleTabClick);
       $('#tabs-pill').addEventListener('keydown', handleTabKeyboard);
