@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HUD — retroBottega (hacker mode • refined)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#050708;
+      --panel-bg:rgba(4,10,9,0.82);
+      --neon1:#b2ff59;
+      --neon2:#39ff7a;
+      --neon3:#00e676;
+      --accent:#00eaff;
+      --danger:#ff4d4f;
+      --mono:'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--bg);color:#cfeef1;font-family:var(--mono);overflow:hidden}
+
+    .bg-wrap{position:fixed;inset:0;overflow:hidden;z-index:0}
+    video.bg{width:100%;height:100%;object-fit:cover;filter:contrast(1.18) saturate(1.2) brightness(.96)}
+    .vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(60% 40% at 50% 30%,rgba(0,0,0,0) 0%,rgba(0,0,0,.12) 62%,rgba(0,0,0,.22) 100%);mix-blend-mode:multiply}
+
+    .panel{
+      position:fixed;left:50%;top:calc(50% - 100px);transform:translate(-50%,-50%);
+      width:min(820px,94vw);max-height:72vh;border-radius:14px;padding:16px;
+      display:flex;flex-direction:column;gap:10px;z-index:10;
+      background:linear-gradient(180deg, rgba(6,12,10,0.86), rgba(4,7,7,0.82));
+      box-shadow:0 24px 60px rgba(0,0,0,.65), inset 0 0 40px rgba(57,255,122,0.03);
+      border:1px solid rgba(57,255,122,0.08);
+      backdrop-filter:blur(6px) saturate(1.1)
+    }
+
+    .title{
+      position:relative;font-size:44px;color:transparent;font-weight:900;
+      letter-spacing:.9px;text-transform:uppercase;
+      background:linear-gradient(90deg,var(--neon1),var(--neon2),var(--neon3),var(--neon2),var(--neon1));
+      background-size:220% 100%;
+      -webkit-background-clip:text;background-clip:text;
+      animation:titleShift 6s linear infinite, glitch 3.2s ease-in-out infinite;
+      filter:drop-shadow(0 0 14px rgba(57,255,122,.35))
+    }
+    .title::after{
+      content:" ";position:absolute;inset:-2px 0;pointer-events:none;
+      background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0px,rgba(255,255,255,.06) 1px,transparent 1px,transparent 3px);
+      mix-blend-mode:overlay;opacity:.35;animation:disconnect 1.4s steps(6) infinite
+    }
+
+    .subtitle{
+      font-size:18px;color:#9af3ff;opacity:.98;margin-top:4px;
+      letter-spacing:.5px;font-weight:700;text-transform:uppercase;
+      text-shadow:0 0 10px rgba(0,234,255,.35)
+    }
+
+    .console{
+      position:relative;border-radius:8px;padding:10px 12px;
+      background:linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.26));
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:inset 0 0 24px rgba(0,0,0,.5);min-height:110px
+    }
+    .logs{
+      height:110px;overflow:hidden;position:relative;
+      mask-image:linear-gradient(to bottom, transparent 0, rgba(0,0,0,.9) 10%, rgba(0,0,0,1) 85%, transparent 100%)
+    }
+    #logList{position:absolute;left:0;right:0;top:0}
+    .line{
+      font-size:12px;line-height:1.22;white-space:nowrap;
+      color:rgba(190,255,210,.88);padding:1px 0
+    }
+    .line.ok{color:rgba(57,255,122,.96)}
+    .line.info{color:rgba(0,234,255,.96)}
+    .line.warn{color:#ffd77a}
+    .line.err{color:#ff6464}
+
+    .footer{display:flex;align-items:center;gap:12px;margin-top:6px}
+    .progress{
+      flex:1;height:22px;background:linear-gradient(180deg,#031e13,#041a12);
+      border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.6);
+      box-shadow:inset 0 2px 10px rgba(0,0,0,.8),0 0 18px rgba(0,0,0,.25)
+    }
+    .bar{
+      position:relative;height:100%;width:0%;
+      background:linear-gradient(90deg,#00c86f,#00b964,#00ab5b);
+      box-shadow:inset 0 0 6px rgba(0,0,0,.4),0 0 28px rgba(0,255,140,.35)
+    }
+    .bar::before{
+      content:"";position:absolute;top:0;bottom:0;left:-40%;width:40%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+      filter:blur(1px);animation:glide 1.6s linear infinite
+    }
+    .pct{
+      font-size:24px;color:#a9ffca;font-weight:900;
+      min-width:78px;text-align:right;text-shadow:0 0 10px rgba(57,255,122,.45)
+    }
+
+    .admin-badge{
+      position:fixed;right:14px;bottom:12px;
+      background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08);
+      color:#bfe;font:12px/1.6 var(--mono);padding:3px 10px;border-radius:999px;
+      opacity:.92;z-index:20
+    }
+    .admin-badge span{color:#9ff}
+
+    @keyframes titleShift{0%{background-position:0% 50%}100%{background-position:220% 50%}}
+    @keyframes glitch{
+      0%,100%{text-shadow:0 0 transparent}
+      15%{text-shadow:1px 0 rgba(0,234,255,.4),-1px 0 rgba(255,0,120,.35)}
+      35%{text-shadow:-1px 0 rgba(0,234,255,.35),1px 0 rgba(255,0,120,.35)}
+      55%{text-shadow:2px 0 rgba(0,234,255,.25),-2px 0 rgba(255,0,120,.25)}
+      75%{text-shadow:-2px 0 rgba(0,234,255,.25),2px 0 rgba(255,0,120,.25)}
+    }
+    @keyframes disconnect{
+      0%{clip-path:inset(0 0 0 0)}
+      20%{clip-path:inset(3% 0 0 0)}
+      40%{clip-path:inset(0 0 5% 0)}
+      60%{clip-path:inset(2% 0 2% 0)}
+      80%{clip-path:inset(0 0 4% 0)}
+      100%{clip-path:inset(0 0 0 0)}
+    }
+    @keyframes glide{0%{left:-40%}100%{left:140%}}
+
+    @media (max-width:700px){
+      .panel{top:50%;padding:14px;width:94vw}
+      .title{font-size:32px}
+      .subtitle{font-size:14px}
+      .logs{height:100px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-wrap">
+    <video class="bg" autoplay muted loop playsinline preload="auto">
+      <source src="https://raw.githubusercontent.com/molinosantamarta/bottega-print/b9e3be8a851235132e1e61ca673609e707aebc01/hacker.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="vignette"></div>
+
+  <main class="panel" role="dialog" aria-label="retroBottega HUD">
+    <header>
+      <div class="title">CONNESSIONE CON GIUANIN BÉL NÈT</div>
+      <div class="subtitle">agente di INTELLIGENZA ARTIFICIALE AVANZATO | gpt 6.0 preview</div>
+    </header>
+
+    <section class="console" aria-live="polite">
+      <div class="logs" id="logs">
+        <div id="logList"></div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <div id="pct" class="pct">0%</div>
+    </div>
+  </main>
+
+  <div class="admin-badge" aria-label="admin">admin: <span>retroBottega</span></div>
+
+  <script>
+    (function(){
+      const DURATION = 12000;
+      const BASE_TICK = 85;
+
+      const LEVELS = ['INFO','OK','WARN','ERR'];
+      const MSGS = [
+        'auth token', 'query ORDINI 2025', 'normalizzazione campi', 'retroBottega sync',
+        'mapping schema', 'rendering scontrino', 'stampa coda', 'checksum', 'commit ▶ reload',
+        'cache warmup', 'alloc buffer', 'TLS 1.3 handshake', 'latency', 'delta ordini', 'diff map'
+      ];
+
+      const logsEl = document.getElementById('logs');
+      const listEl = document.getElementById('logList');
+      const bar   = document.getElementById('bar');
+      const pct   = document.getElementById('pct');
+
+      function randHex(n){
+        return Array.from({length:n},()=>Math.floor(Math.random()*16).toString(16)).join('').toUpperCase();
+      }
+      function ts(){
+        const d=new Date();
+        return d.toISOString().split('T')[1].replace('Z','');
+      }
+      function makeLine(){
+        const lv  = LEVELS[Math.floor(Math.random()*LEVELS.length)];
+        const msg = MSGS[Math.floor(Math.random()*MSGS.length)];
+        const pipe = 'pipe#'+randHex(4);
+        let extra='';
+        if(msg==='latency'){ extra = (5+Math.floor(Math.random()*20))+'ms'; }
+        else if(msg==='delta ordini'){ extra = '+'+(Math.floor(Math.random()*5)); }
+        else if(msg==='checksum' || msg==='stampa coda'){ extra = 'OK'; }
+        const txt = `[${ts()}] ${lv.padEnd(4,' ')} ${pipe}  ${msg}${extra?('… '+extra):'…'}`;
+        const d = document.createElement('div');
+        d.className = 'line '+(lv==='OK'?'ok':lv==='INFO'?'info':lv==='WARN'?'warn':'err');
+        d.textContent = txt;
+        return d;
+      }
+
+      function seed(n){
+        for(let i=0;i<n;i++){ listEl.appendChild(makeLine()); }
+        logsEl.scrollTop = logsEl.scrollHeight;
+      }
+
+      function start(){
+        const startAt = performance.now();
+        let lastTick = 0;
+
+        function frame(now){
+          const elapsed = now - startAt;
+          const p = Math.min(1, elapsed / DURATION);
+          const pctVal = Math.round(p*100);
+          bar.style.width = pctVal + '%';
+          pct.textContent = pctVal + '%';
+
+          if(now - lastTick > BASE_TICK){
+            lastTick = now;
+            const burst = Math.random() < 0.55;
+            const lines = burst ? (3 + Math.floor(Math.random()*5)) : 1;
+            for(let n=0;n<lines;n++){ listEl.appendChild(makeLine()); }
+            const jump = burst ? (20 + Math.floor(Math.random()*26)) : (10 + Math.floor(Math.random()*12));
+            logsEl.scrollTop = Math.min(logsEl.scrollHeight, logsEl.scrollTop + jump);
+            if(listEl.children.length > 600){
+              for(let k=0;k<200;k++) listEl.removeChild(listEl.firstChild);
+            }
+          }
+
+          if(p < 1){
+            requestAnimationFrame(frame);
+          } else {
+            finish();
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function finish(){
+        try{
+          if(window.parent && window.parent !== window){
+            window.parent.postMessage({type:'hud-done',ts:Date.now()}, '*');
+          }
+        }catch(e){}
+      }
+
+      seed(30);
+      start();
+    })();
+  </script>
+</body>
+</html>
