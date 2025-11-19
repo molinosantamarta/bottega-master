@@ -398,7 +398,26 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
 
     // === EVENTS ===
     function handleTabClick(e){ const tab = e.target.closest('.tab'); if (tab) activate(tab.dataset.tab); }
-    function handleAppClick(e){ const icon = e.target.closest('.app-icon'); if (icon) activate(icon.dataset.app); }
+    function handleAppClick(e){
+  const icon = e.target.closest('.app-icon');
+  if (!icon) return;
+
+  const app = icon.dataset.app;
+
+  // Comportamento speciale per Zucchetti: apre link esterno
+  if (app === 'zucchetti') {
+    window.open(
+      'https://app.tienilconto.it/coordinator/jsp/gsco_login_portlet.jsp',
+      '_blank',
+      'noopener'
+    );
+    return; // non cambiamo vista dentro Master
+  }
+
+  // Per tutte le altre app funziona come prima
+  activate(app);
+}
+
     function handleTabKeyboard(e){
       const idx = dom.tabs.findIndex(t => t === document.activeElement);
       if (idx === -1) return;
