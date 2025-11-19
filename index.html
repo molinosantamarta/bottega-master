@@ -1,5 +1,3 @@
-
-<!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
@@ -76,7 +74,7 @@
 
     .apps-dock{
       display:flex; gap:12px; align-items:center;
-      margin-left:40px; padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
+      margin-left:20px; padding:0; border-radius:0; background:transparent; border:none; box-shadow:none;
       flex-wrap:wrap;
     }
     .app-icon{
@@ -185,6 +183,9 @@
       background: rgba(0,0,0,0.55);
       box-shadow: 0 8px 18px rgba(0,0,0,0.4);
     }
+.app-icon-zucchetti {
+  margin-left: 20px; /* aumenta o riduci come preferisci */
+}
 
     .hacker-modal{
       position:fixed;
@@ -229,6 +230,10 @@
       </button>
       <button type="button" class="app-icon" data-app="ocapi" title="Apri Ocapì" aria-label="Apri Ocapì" aria-current="false">
         <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')" loading="lazy">
+      </button>
+      <!-- Nuova icona Zucchetti -->
+      <button type="button" class="app-icon app-icon-zucchetti" data-app="zucchetti" title="Apri Zucchetti" aria-label="Apri Zucchetti" aria-current="false">
+        <img src="zucchetti.png" alt="Zucchetti" onerror="imgFallback(this,'Zucchetti')" loading="lazy">
       </button>
     </div>
 
@@ -316,6 +321,18 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
         </div>
       </div>
     </section>
+
+    <!-- ZUCCHETTI (login gestionale) -->
+    <section id="view-zucchetti" data-view role="tabpanel" aria-labelledby="tab-zucchetti" aria-hidden="true">
+      <div class="panel">
+        <iframe
+          src="https://app.tienilconto.it/coordinator/jsp/gsco_login_portlet.jsp"
+          title="Zucchetti – Gestionale"
+          loading="eager"
+          style="width:100%;height:100%;border:0;pointer-events:auto;position:relative;z-index:1"
+        ></iframe>
+      </div>
+    </section>
   </main>
 
   <div id="hacker-modal" class="hacker-modal" aria-hidden="true">
@@ -324,7 +341,7 @@ Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce..<br><b
 
   <script>
     // === CONFIG ===
-    const VIEWS = ["inserisci", "modifica", "stampa", "cerca", "stoc", "ocapi"];
+    const VIEWS = ["inserisci", "modifica", "stampa", "cerca", "stoc", "ocapi", "zucchetti"];
     const APP_CONFIG = {
       stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',    qrImg: '#qr-stoc'  },
       ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
