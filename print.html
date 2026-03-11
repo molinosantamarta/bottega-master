@@ -135,8 +135,8 @@
       grid-template-columns:auto minmax(0,1fr);
       align-items:center;
       gap:11px;
-      padding:9px 12px;
-      border-radius:15px;
+      padding:8px 11px;
+      border-radius:18px;
       border:1px solid rgba(119,5,5,.09);
       cursor:pointer;
       background:linear-gradient(180deg,#fff 0%, #fcfbfb 100%);
@@ -213,38 +213,39 @@
       background:#fffdfd;
     }
     .order.is-past{
-      background:linear-gradient(180deg,#f4f1f1 0%, #f1eded 100%);
-      border-color:rgba(0,0,0,.05);
+      background:linear-gradient(180deg,#ece7e7 0%, #e3dddd 100%);
+      border-color:rgba(0,0,0,.08);
       box-shadow:none;
-      opacity:.76;
+      opacity:.66;
     }
-    .order.is-past .order-name{color:#5f5858}
+    .order.is-past .order-name{color:#554d4d}
     .order.is-past .badge{
-      background:#ead87a;
-      color:#3c3620;
+      background:#d8c66d;
+      color:#332e1c;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     }
     .order.is-past .pickup-badge{
-      background:#e6e1e1;
-      border-color:#d7cece;
-      color:#6d6565;
+      background:linear-gradient(180deg,#b4a8a8 0%, #998d8d 100%);
+      border-color:#8f8383;
+      color:#fff;
     }
     .order.is-past .dept-chip{
-      background:#e8e3e3;
-      border-color:#dad0d0;
-      color:#6c6161;
+      background:#dcd5d5;
+      border-color:#cec2c2;
+      color:#615656;
     }
     .order.is-past .order-zone{
-      color:#7d7676;
+      color:#716767;
     }
     .order.is-past .insert-meta{
-      color:#8e8585;
+      color:#7c7272;
     }
     .btn.smol{height:32px;padding:0 12px;font-size:13px;border-radius:999px}
     .btn.icon.smol{width:32px;height:32px;padding:0}
     .badge{
-      min-width:54px;
-      height:34px;
+      min-width:50px;
+      height:36px;
+      padding:0 10px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -252,19 +253,12 @@
       background:#ffd60a;
       color:#000;
       font-weight:900;
-      font-size:15px;
+      font-size:16px;
       line-height:1;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 6px 14px rgba(0,0,0,.08);
     }
-    .order-inline{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      min-width:0;
-      row-gap:4px;
-    }
     .order-name{
+      display:block;
       font-weight:900;
       font-size:20px;
       line-height:1.02;
@@ -273,66 +267,76 @@
     }
     .order-meta{
       display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-      min-width:0;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:center;
+      gap:4px;
+      min-width:148px;
+      grid-column:2;
+      grid-row:1;
+      align-self:stretch;
     }
     .pickup-badge{
-      display:inline-flex;
-      align-items:center;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
       justify-content:center;
-      gap:6px;
-      min-height:28px;
-      padding:0 12px;
-      border-radius:999px;
-      background:#edf6ef;
-      border:1px solid rgba(52,120,74,.18);
-      color:#255437;
+      gap:4px;
+      min-height:64px;
+      padding:10px 14px;
+      border-radius:16px 18px 18px 16px;
+      background:linear-gradient(180deg,#2f9b4f 0%, #267f42 100%);
+      border:1px solid rgba(25,94,49,.28);
+      color:#fff;
       font-size:13px;
       font-weight:900;
+      line-height:1;
       letter-spacing:.03em;
-      white-space:nowrap;
-      box-shadow:0 2px 8px rgba(0,0,0,.04);
+      white-space:normal;
+      box-shadow:0 8px 18px rgba(25,94,49,.18);
     }
     .pickup-prefix{
-      font-size:10px;
+      display:block;
+      font-size:9px;
       font-weight:900;
-      letter-spacing:.08em;
+      line-height:1;
+      letter-spacing:.11em;
       text-transform:uppercase;
-      opacity:.72;
+      opacity:.84;
     }
     .pickup-value{
-      font-size:13px;
+      display:block;
+      font-size:18px;
       font-weight:900;
-      letter-spacing:.02em;
+      line-height:1.02;
+      letter-spacing:-.02em;
     }
     .pickup-badge.today{
-      background:#e6f6ea;
-      border-color:rgba(52,120,74,.26);
-      color:#1f5d35;
+      background:linear-gradient(180deg,#2fa753 0%, #257f41 100%);
+      border-color:rgba(25,94,49,.34);
+      color:#fff;
     }
     .pickup-badge.tomorrow{
-      background:#eef7e8;
-      border-color:rgba(112,150,68,.28);
-      color:#496728;
+      background:linear-gradient(180deg,#7da02e 0%, #5f7c1f 100%);
+      border-color:rgba(88,112,29,.34);
+      color:#fff;
     }
     .pickup-badge.future{
-      background:#f1f7f1;
-      border-color:#d9e8db;
-      color:#255437;
+      background:linear-gradient(180deg,#4f8f74 0%, #3a6c57 100%);
+      border-color:rgba(53,98,78,.34);
+      color:#fff;
     }
     .pickup-badge.past{
-      background:#e7e2e2;
-      border-color:#d7cdcd;
-      color:#6a6262;
+      background:linear-gradient(180deg,#b0a6a6 0%, #968c8c 100%);
+      border-color:#918585;
+      color:#fff;
       box-shadow:none;
     }
     .order-submeta{
       display:flex;
       align-items:center;
       gap:8px;
-      margin-top:4px;
+      margin-top:0;
       min-width:0;
     }
     .insert-meta{
@@ -341,10 +345,18 @@
       color:#857777;
       white-space:nowrap;
     }
+    .order-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
     .dept-group{
       display:flex;
       align-items:center;
-      gap:4px;
+      justify-content:flex-start;
+      gap:6px;
       flex-wrap:wrap;
       min-width:0;
     }
@@ -352,26 +364,35 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:26px;
-      height:26px;
+      width:36px;
+      height:36px;
       border-radius:999px;
       background:#f7f2f2;
       border:1px solid #ebe3e3;
       color:#352626;
+      box-shadow:0 2px 8px rgba(0,0,0,.04);
+      flex:0 0 36px;
+      overflow:hidden;
     }
     .dept-chip-icon{
-      font-size:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+      font-size:17px;
       line-height:1;
       flex:0 0 auto;
     }
     .order-zone{
       display:inline-flex;
       align-items:center;
+      justify-content:flex-end;
       gap:4px;
-      color:#2f7a48;
-      font-size:11px;
+      color:#5d6f63;
+      font-size:10px;
       font-weight:800;
-      padding:0 2px;
+      padding:0 3px 0 0;
       white-space:nowrap;
     }
     .order-zone-dot{font-size:11px;line-height:1}
@@ -428,9 +449,32 @@
     }
     .order-main{
       min-width:0;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:stretch;
+      column-gap:12px;
+      row-gap:1px;
+    }
+    .order-main.has-submeta .order-meta{
+      grid-row:1 / span 2;
+    }
+    .order-text{
+      min-width:0;
       display:flex;
       flex-direction:column;
-      gap:0;
+      justify-content:center;
+      gap:1px;
+      grid-column:1;
+      grid-row:1;
+    }
+    .order-head .dept-group{
+      gap:5px;
+      margin-left:4px;
+      position:relative;
+      top:2px;
+    }
+    .order-main.has-submeta .order-text{
+      grid-row:1 / span 2;
     }
   </style>
 </head>
@@ -748,7 +792,7 @@
               <div class="label">${esc(av)}</div>
             </div>
             <div class="center">
-              <img id="tkt-logo" class="logo" src="${LOGO}" alt="Bottega di Casterno">
+              <img class="tkt-logo logo" src="${LOGO}" alt="Bottega di Casterno">
             </div>
             <div class="side right">
               <img class="icon" src="${CART_ICON}" alt="Ordine" onerror="this.style.display='none'" />
@@ -765,11 +809,11 @@
         parts.push(`<div class="holiday-msg">Grazie e Arrivederci</div>`);
         if(typeof row.number==='number'&&!isNaN(row.number)) parts.push(`<div class="barcode">*${row.number}*</div>`);
       } else {
-        parts.push(`<img id="tkt-logo" class="logo" src="${LOGO}" alt="Bottega di Casterno">`);
+        parts.push(`<img class="tkt-logo logo" src="${LOGO}" alt="Bottega di Casterno">`);
       }
 
       wrap.innerHTML=`<div class="tkt">${parts.join('')}</div>`;
-      const logoEl=document.getElementById('tkt-logo');
+      const logoEl=wrap.querySelector('.tkt-logo');
       if(logoEl){
         logoEl.onerror=()=>{
           const dv=document.createElement('div');
@@ -1041,23 +1085,26 @@
           : '';
         lastGroupKey = groupKey;
 
+        const hasSubmeta = !!(useInsertionHistory && insertedLabel);
         return `
           ${groupHeader}
           <div class="order ${isPastPickup ? 'is-past' : ''}" data-i="${i}">
             <span class="badge">${o.number != null ? o.number : '—'}</span>
-            <div class="order-main">
-              <div class="order-inline">
-                <span class="order-name">${esc(o.name)}</span>
+            <div class="order-main ${hasSubmeta ? 'has-submeta' : ''}">
+              <div class="order-text">
+                <div class="order-head">
+                  <span class="order-name">${esc(o.name)}</span>
+                  ${deptHtml ? `<div class="dept-group">${deptHtml}</div>` : ''}
+                </div>
+                ${hasSubmeta ? `<div class="order-submeta"><span class="insert-meta">Inserito ${esc(insertedLabel)}</span></div>` : ''}
+              </div>
                 <div class="order-meta">
                   <span class="pickup-badge ${pickupTone}">
                     <span class="pickup-prefix">Ritiro</span>
                     <span class="pickup-value">${esc(pickupLabel)}</span>
                   </span>
-                  ${deptHtml ? `<div class="dept-group">${deptHtml}</div>` : ''}
                   ${zoneTxt}
                 </div>
-              </div>
-              ${useInsertionHistory && insertedLabel ? `<div class="order-submeta"><span class="insert-meta">Inserito ${esc(insertedLabel)}</span></div>` : ''}
             </div>
           </div>
         `;
