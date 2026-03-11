@@ -134,8 +134,8 @@
       display:grid;
       grid-template-columns:auto minmax(0,1fr);
       align-items:center;
-      gap:11px;
-      padding:8px 11px;
+      gap:9px;
+      padding:5px 8px;
       border-radius:18px;
       border:1px solid rgba(119,5,5,.09);
       cursor:pointer;
@@ -225,9 +225,9 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     }
     .order.is-past .pickup-badge{
-      background:linear-gradient(180deg,#b4a8a8 0%, #998d8d 100%);
-      border-color:#8f8383;
-      color:#fff;
+      background:#d8c66d;
+      border-color:#b09a34;
+      color:#332e1c;
     }
     .order.is-past .dept-chip{
       background:#dcd5d5;
@@ -243,9 +243,9 @@
     .btn.smol{height:32px;padding:0 12px;font-size:13px;border-radius:999px}
     .btn.icon.smol{width:32px;height:32px;padding:0}
     .badge{
-      min-width:50px;
+      min-width:44px;
       height:36px;
-      padding:0 10px;
+      padding:0 8px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -260,8 +260,8 @@
     .order-name{
       display:block;
       font-weight:900;
-      font-size:20px;
-      line-height:1.02;
+      font-size:19px;
+      line-height:1;
       color:#111;
       letter-spacing:-.02em;
     }
@@ -270,34 +270,34 @@
       flex-direction:column;
       align-items:stretch;
       justify-content:center;
-      gap:4px;
-      min-width:148px;
+      gap:1px;
+      min-width:132px;
       grid-column:2;
       grid-row:1;
-      align-self:stretch;
+      align-self:center;
     }
     .pickup-badge{
       display:flex;
       flex-direction:column;
       align-items:flex-start;
       justify-content:center;
-      gap:4px;
-      min-height:64px;
-      padding:10px 14px;
+      gap:2px;
+      min-height:46px;
+      padding:6px 6px 6px 10px;
       border-radius:16px 18px 18px 16px;
-      background:linear-gradient(180deg,#2f9b4f 0%, #267f42 100%);
-      border:1px solid rgba(25,94,49,.28);
-      color:#fff;
+      background:#ffd60a;
+      border:1px solid #d4af00;
+      color:#111;
       font-size:13px;
       font-weight:900;
       line-height:1;
       letter-spacing:.03em;
       white-space:normal;
-      box-shadow:0 8px 18px rgba(25,94,49,.18);
+      box-shadow:none;
     }
     .pickup-prefix{
       display:block;
-      font-size:9px;
+      font-size:8px;
       font-weight:900;
       line-height:1;
       letter-spacing:.11em;
@@ -306,49 +306,50 @@
     }
     .pickup-value{
       display:block;
-      font-size:18px;
+      font-size:16px;
       font-weight:900;
       line-height:1.02;
       letter-spacing:-.02em;
     }
     .pickup-badge.today{
-      background:linear-gradient(180deg,#2fa753 0%, #257f41 100%);
-      border-color:rgba(25,94,49,.34);
-      color:#fff;
+      background:#ffd60a;
+      border-color:#d4af00;
+      color:#111;
     }
     .pickup-badge.tomorrow{
-      background:linear-gradient(180deg,#7da02e 0%, #5f7c1f 100%);
-      border-color:rgba(88,112,29,.34);
-      color:#fff;
+      background:#ffd60a;
+      border-color:#d4af00;
+      color:#111;
     }
     .pickup-badge.future{
-      background:linear-gradient(180deg,#4f8f74 0%, #3a6c57 100%);
-      border-color:rgba(53,98,78,.34);
-      color:#fff;
+      background:#ffd60a;
+      border-color:#d4af00;
+      color:#111;
     }
     .pickup-badge.past{
-      background:linear-gradient(180deg,#b0a6a6 0%, #968c8c 100%);
-      border-color:#918585;
-      color:#fff;
+      background:#d8c66d;
+      border-color:#b09a34;
+      color:#332e1c;
       box-shadow:none;
     }
     .order-submeta{
       display:flex;
       align-items:center;
       gap:8px;
-      margin-top:0;
+      margin-top:-1px;
       min-width:0;
     }
     .insert-meta{
-      font-size:11px;
+      font-size:10px;
       font-weight:700;
+      line-height:1;
       color:#857777;
       white-space:nowrap;
     }
     .order-head{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:6px;
       flex-wrap:wrap;
       min-width:0;
     }
@@ -356,22 +357,23 @@
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      gap:6px;
+      gap:4px;
       flex-wrap:wrap;
       min-width:0;
+      align-self:center;
     }
     .dept-chip{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:36px;
-      height:36px;
+      width:32px;
+      height:32px;
       border-radius:999px;
       background:#f7f2f2;
       border:1px solid #ebe3e3;
       color:#352626;
       box-shadow:0 2px 8px rgba(0,0,0,.04);
-      flex:0 0 36px;
+      flex:0 0 32px;
       overflow:hidden;
     }
     .dept-chip-icon{
@@ -380,7 +382,7 @@
       justify-content:center;
       width:100%;
       height:100%;
-      font-size:17px;
+      font-size:15px;
       line-height:1;
       flex:0 0 auto;
     }
@@ -452,8 +454,8 @@
       display:grid;
       grid-template-columns:minmax(0,1fr) auto;
       align-items:stretch;
-      column-gap:12px;
-      row-gap:1px;
+      column-gap:8px;
+      row-gap:0;
     }
     .order-main.has-submeta .order-meta{
       grid-row:1 / span 2;
@@ -463,15 +465,16 @@
       display:flex;
       flex-direction:column;
       justify-content:center;
-      gap:1px;
+      gap:0;
       grid-column:1;
       grid-row:1;
+      align-self:center;
     }
     .order-head .dept-group{
-      gap:5px;
-      margin-left:4px;
+      gap:4px;
+      margin-left:8px;
       position:relative;
-      top:2px;
+      top:6px;
     }
     .order-main.has-submeta .order-text{
       grid-row:1 / span 2;
