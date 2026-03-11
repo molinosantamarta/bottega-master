@@ -220,14 +220,14 @@
     }
     .order.is-past .order-name{color:#554d4d}
     .order.is-past .badge{
-      background:#d8c66d;
-      color:#332e1c;
+      background:#c9c2c2;
+      color:#4a4343;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     }
     .order.is-past .pickup-badge{
-      background:#d8c66d;
-      border-color:#b09a34;
-      color:#332e1c;
+      background:#c9c2c2;
+      border-color:#aaa1a1;
+      color:#4a4343;
     }
     .order.is-past .dept-chip{
       background:#dcd5d5;
@@ -293,7 +293,7 @@
       line-height:1;
       letter-spacing:.03em;
       white-space:normal;
-      box-shadow:none;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 1px 0 rgba(0,0,0,.06);
     }
     .pickup-prefix{
       display:block;
@@ -302,7 +302,7 @@
       line-height:1;
       letter-spacing:.11em;
       text-transform:uppercase;
-      opacity:.84;
+      opacity:1;
     }
     .pickup-value{
       display:block;
@@ -327,9 +327,9 @@
       color:#111;
     }
     .pickup-badge.past{
-      background:#d8c66d;
-      border-color:#b09a34;
-      color:#332e1c;
+      background:#c9c2c2;
+      border-color:#aaa1a1;
+      color:#4a4343;
       box-shadow:none;
     }
     .order-submeta{
@@ -469,6 +469,8 @@
       grid-column:1;
       grid-row:1;
       align-self:center;
+      position:relative;
+      top:-2px;
     }
     .order-head .dept-group{
       gap:4px;
