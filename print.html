@@ -61,12 +61,21 @@
     .insert-ts{text-align:center;font-size:12px;margin:4px 0 2px}
 
     /* RIGHT: Controlli */
-    .right{display:flex;flex-direction:column;gap:var(--g)}
-    .controls{padding:var(--pad)}
+    .right{display:flex;flex-direction:column;gap:0;min-height:0}
+    .controls{
+      display:grid;
+      grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
+      align-items:stretch;
+      gap:14px;
+      padding:10px 14px 8px;
+      flex:0 0 auto;
+    }
 
     .flashcards{
       display:grid;
-      grid-template-columns:repeat(4, minmax(110px, 1fr));
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      width:100%;
+      height:108px;
       gap:8px;
       min-width:0;
     }
@@ -75,61 +84,123 @@
       background:linear-gradient(180deg,#fff 0%, #faf8f8 100%);
       color:#111;
       border:1px solid rgba(0,0,0,.07);
-      border-radius:16px;
-      padding:10px 12px 12px;
-      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      border-radius:18px;
+      padding:14px 14px 16px;
+      box-shadow:0 4px 12px rgba(0,0,0,.07);
       user-select:none;
       cursor:pointer;
       transition:border-color .15s, box-shadow .15s, transform .08s ease, background .15s ease;
-      min-height:92px;
+      min-height:108px;
+      height:108px;
       display:flex;
       flex-direction:column;
-      justify-content:center;
+      justify-content:flex-start;
+      gap:8px;
+      box-sizing:border-box;
     }
     .card:hover{
       transform:translateY(-1px);
       border-color:rgba(119,5,5,.18);
-      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      box-shadow:0 7px 16px rgba(0,0,0,.09);
     }
     .card .k{
-      font-size:11px;
+      font-size:10px;
       font-weight:800;
-      letter-spacing:.04em;
+      letter-spacing:.1em;
       text-transform:uppercase;
-      opacity:.62;
+      opacity:.58;
     }
     .card .v{
-      font-size:40px;
-      line-height:.95;
+      font-size:36px;
+      line-height:.92;
       font-weight:900;
-      margin-top:8px;
+      margin-top:4px;
+      letter-spacing:-.04em;
     }
     .card.active{
       outline:0;
       border-color:var(--main);
-      background:linear-gradient(180deg,#fff6f6 0%, #fff 100%);
-      box-shadow:0 0 0 2px rgba(119,5,5,.12), 0 10px 22px rgba(119,5,5,.10);
+      background:linear-gradient(180deg,#fff7f7 0%, #fff 100%);
+      box-shadow:0 0 0 2px rgba(119,5,5,.10), 0 8px 18px rgba(119,5,5,.09);
     }
 
-    .searchbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:18px;align-items:center}
-    .input{flex:1;padding:12px 16px;border-radius:999px;border:1px solid #ddd;font-size:16px}
+    .searchbar{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) auto auto;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:108px;
+      height:108px;
+      width:100%;
+      padding:12px 14px;
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:18px;
+      background:linear-gradient(180deg,#fbfbfc 0%, #f4f4f6 100%);
+      box-sizing:border-box;
+    }
+    .input{
+      flex:1;
+      min-width:0;
+      height:52px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid #ddd;
+      font-size:16px;
+      background:#fff;
+    }
+    .filter-label{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      padding:0 10px;
+      color:#6b5b5b;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
 
-    /* Chip filtro stile Stòc */
     .chipbar{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid rgba(0,0,0,.06);background:#f7f7f8;border-radius:999px;box-sizing:border-box}
-    #chipbar-filter{cursor:pointer}
-    #chipbar-filter .chip-inner{display:inline-flex;align-items:center;gap:8px;min-height:40px;max-height:40px;border-radius:999px}
-    #chipbar-filter.compact .chip-inner{background:#f2f2f3;border:1px solid rgba(0,0,0,.06);width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0}
-    #chipbar-filter.compact #sso-filter-label,#chipbar-filter.compact #sso-filter-badge{opacity:0;width:0;pointer-events:none}
-    #chipbar-filter.compact svg{color:#111;width:18px;height:18px}
-    #chipbar-filter.active{display:inline-flex;background:#f7f7f8;border-color:rgba(0,0,0,.06)}
-    #chipbar-filter.active .chip-inner{background:#000;color:#fff;border:1px solid #000;padding:0 8px;gap:4px;justify-content:center;align-items:center}
-    #chipbar-filter.active .chip-inner svg{width:18px;height:18px;color:#ffd60a;margin-right:3px}
-    #sso-filter-label{display:none!important}
-    .count-badge{display:none;align-items:center;justify-content:center;padding:0 12px;height:28px;background:#ffd60a;color:#000;border-radius:999px;font-weight:900;font-size:14px;gap:8px}
-    .count-badge .sep{color:rgba(0,0,0,.55)}
-    #chipbar-filter.active #sso-filter-badge{display:inline-flex}
+    .dept-filter{padding:6px 10px;gap:6px;min-height:52px;justify-content:flex-start}
+    #chipbar-filter{cursor:default}
+    #chipbar-filter.is-filtered{background:#f1f1f2;border-color:rgba(0,0,0,.12)}
+    #chipbar-filter .filter-dept{
+      appearance:none;
+      border:0;
+      background:transparent;
+      padding:0;
+      margin:0;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border-radius:999px;
+    }
+    #chipbar-filter .filter-dept .dept-chip{
+      transition:background .14s ease, border-color .14s ease, color .14s ease, opacity .14s ease;
+    }
+    #chipbar-filter.is-filtered .filter-dept.is-active .dept-chip{
+      background:#111;
+      border-color:#111;
+      color:#ffd60a;
+      box-shadow:none;
+    }
+    #chipbar-filter.is-filtered .filter-dept:not(.is-active){opacity:.42}
+    #chipbar-filter .filter-dept:focus-visible{
+      outline:2px solid #111;
+      outline-offset:3px;
+    }
 
-    .list{padding:12px;border-top:0px solid #eee;max-height:calc(100vh - 280px);overflow:auto}
+    .list{
+      flex:1 1 auto;
+      min-height:0;
+      padding:8px 12px 12px;
+      border-top:0 solid #eee;
+      overflow:auto;
+    }
     .order{
       display:grid;
       grid-template-columns:auto minmax(0,1fr);
@@ -259,11 +330,15 @@
     }
     .order-name{
       display:block;
+      min-width:0;
       font-weight:900;
       font-size:19px;
       line-height:1;
       color:#111;
       letter-spacing:-.02em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .order-meta{
       display:flex;
@@ -332,35 +407,27 @@
       color:#4a4343;
       box-shadow:none;
     }
-    .order-submeta{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      margin-top:-1px;
-      min-width:0;
-    }
     .insert-meta{
+      display:block;
+      max-width:100%;
       font-size:10px;
       font-weight:700;
       line-height:1;
       color:#857777;
       white-space:nowrap;
-    }
-    .order-head{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-top:0;
     }
     .dept-group{
       display:flex;
       align-items:center;
       justify-content:flex-start;
       gap:4px;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       min-width:0;
       align-self:center;
+      margin-top:2px;
     }
     .dept-chip{
       display:inline-flex;
@@ -399,30 +466,19 @@
     }
     .order-zone-dot{font-size:11px;line-height:1}
 
-    /* Modale FILTRO (nascosta di default) */
-    .modal{position:fixed;inset:0;display:none;z-index:2147483647;pointer-events:none}
-    .modal.open{display:block;pointer-events:auto}
-    .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:saturate(1.2) blur(6px);z-index:1}
-    .modal .sheet{position:absolute;inset:0;background:#fff;color:#111;display:flex;flex-direction:column;z-index:2}
-    #sso-filter-modal .sheet{position:relative;inset:auto;margin:10vh auto;width:min(560px,92vw);max-height:80vh;background:#fff;color:#111;border-radius:var(--r);overflow:hidden;border:1px solid rgba(0,0,0,.08);box-shadow:var(--e);display:flex;flex-direction:column}
-    #sso-filter-modal header{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #ececec;padding:14px 16px 10px}
-    #sso-filter-modal .h{font-size:18px;font-weight:800;color:#111;margin:0}
-    #sso-filter-modal .close{border:1px solid #ddd;background:#fff;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}
-    #sso-filter-modal .content{padding:14px 16px 18px;font-size:15px}
-    .filter-options{display:flex;flex-direction:column;gap:10px;padding-top:4px}
-    .filter-row{display:flex;align-items:center;gap:10px;padding:6px 2px}
-    .filter-row input{width:20px;height:20px}
-    .filter-actions{display:flex;gap:10px;margin-top:16px}
-
     /* Responsive */
     @media (max-width:1200px){
-      .searchbar{grid-template-columns:1fr auto;grid-auto-flow:row}
+      .controls{grid-template-columns:1fr;align-items:stretch}
+      .flashcards{height:108px}
+      .searchbar{grid-template-columns:minmax(220px,320px) auto auto;grid-auto-flow:row;height:108px}
     }
     @media (max-width:960px){
+      .flashcards{height:auto}
+      .card{height:auto}
       .flashcards{grid-template-columns:repeat(2, minmax(0, 1fr))}
     }
     @media (max-width:1100px){:root{--pw:35%;--sw:65%}}
-    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.list{max-height:none}.searchbar{grid-template-columns:1fr}.flashcards{grid-template-columns:1fr 1fr}}
+    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.controls{padding:12px}.list{max-height:none}.searchbar{grid-template-columns:1fr;min-height:auto;height:auto}.flashcards{grid-template-columns:1fr 1fr}}
 
     /* Stampa */
     @media print{
@@ -462,21 +518,24 @@
     }
     .order-text{
       min-width:0;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:0;
+      display:grid;
+      grid-template-columns:fit-content(100%) auto;
+      align-items:center;
+      column-gap:14px;
       grid-column:1;
       grid-row:1;
       align-self:center;
       position:relative;
       top:-2px;
+      width:fit-content;
+      max-width:100%;
     }
-    .order-head .dept-group{
-      gap:4px;
-      margin-left:8px;
-      position:relative;
-      top:6px;
+    .order-copy{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:2px;
     }
     .order-main.has-submeta .order-text{
       grid-row:1 / span 2;
@@ -519,36 +578,12 @@
 
         <div class="searchbar">
           <input id="q" class="input" type="search" placeholder="Cerca cliente…" />
-          <button id="btn-search" class="btn primary">Cerca</button>
-          <div class="chipbar compact" id="chipbar-filter" title="Filtro" aria-haspopup="dialog" aria-expanded="false">
-            <div class="chip-inner">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><rect x="3" y="6" rx="1.5" ry="1.5" width="18" height="2"></rect><rect x="6" y="11" rx="1.5" ry="1.5" width="12" height="2"></rect><rect x="9" y="16" rx="1.5" ry="1.5" width="6" height="2"></rect></g></svg>
-              <span id="sso-filter-label" aria-hidden="true"></span>
-              <span id="sso-filter-badge" class="count-badge"></span>
-            </div>
-          </div>
+          <span class="filter-label" aria-hidden="true">Filtro</span>
+          <div class="chipbar dept-filter" id="chipbar-filter" aria-label="Filtro reparti"></div>
         </div>
       </div>
       <div class="list" id="orders-list" aria-live="polite"></div>
     </aside>
-  </div>
-
-  <!-- MODAL FILTRO -->
-  <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="backdrop"></div>
-    <div class="sheet">
-      <header>
-        <div class="h">Filtro Reparti</div>
-      </header>
-      <div class="content">
-        <div class="text">Seleziona almeno un reparto. Verranno mostrati solo gli ordini del reparto/i selezionato/i.</div>
-        <div class="filter-options" id="sso-filter-options"></div>
-        <div class="filter-actions">
-          <button id="sso-filter-toggle-all" class="btn">Seleziona tutti</button>
-          <button id="sso-filter-apply" class="btn primary">Filtra</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- JS (identico al tuo: non toccato) -->
@@ -912,40 +947,50 @@
       return chips;
     }
 
-    function updateFilterUI(){
-      const badge = D.q('#sso-filter-badge');
-      const chip  = D.q('#chipbar-filter');
-      if (!badge || !chip) return;
-
-      const all = [
-        {id:'pane',   icon:'🥖'},
-        {id:'banco',  icon:'🧀'},
-        {id:'fruver', icon:'🥦'},
-        {id:'carne',  icon:'🥩'},
-        {id:'altro',  icon:'📦'}
-      ];
-
-      // ➤ Caso: TUTTI i reparti sono selezionati → filtro NON attivo
+    const FILTER_LABELS = {
+      pane:'Pane',
+      banco:'Banco',
+      fruver:'Frutta e verdura',
+      carne:'Carne',
+      altro:'Altro'
+    };
+    function persistActiveDepts(){
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE]));
+    }
+    function toggleActiveDept(id){
+      const next = new Set(ACTIVE);
       if (ACTIVE.size === ALL_IDS.length) {
-        chip.classList.add('compact');
-        chip.classList.remove('active');
-
-        // Nessun badge, nessun testo
-        badge.style.display = 'none';
-        badge.innerHTML = '';
-        return;
+        next.clear();
+        next.add(id);
+      } else if (next.has(id)) {
+        if (next.size === 1) {
+          ALL_IDS.forEach(depId => next.add(depId));
+        } else {
+          next.delete(id);
+        }
+      } else {
+        next.add(id);
       }
-
-      // ➤ Caso: filtro attivo (almeno un reparto deselezionato)
-      chip.classList.remove('compact');
-      chip.classList.add('active');
-
-      // Badge visibile con le icone dei reparti selezionati
-      badge.style.display = 'inline-flex';
-      badge.innerHTML = all
-        .filter(d => ACTIVE.has(d.id))
-        .map(d => d.icon)
-        .join(' <span class="sep">+</span> ');
+      ACTIVE = next;
+      persistActiveDepts();
+      updateFilterUI();
+      apply();
+    }
+    function updateFilterUI(){
+      const chip = D.q('#chipbar-filter');
+      if (!chip) return;
+      const isFiltered = ACTIVE.size !== ALL_IDS.length;
+      chip.classList.toggle('is-filtered', isFiltered);
+      chip.innerHTML = DEPTS.map(dep => {
+        const on = ACTIVE.has(dep.id);
+        return `
+          <button type="button" class="filter-dept ${on ? 'is-active' : ''}" data-dep="${dep.id}" aria-pressed="${on ? 'true' : 'false'}" title="${FILTER_LABELS[dep.id] || dep.id}">
+            <span class="dept-chip" aria-hidden="true">
+              <span class="dept-chip-icon">${dep.icon}</span>
+            </span>
+          </button>
+        `;
+      }).join('');
     }
 
     /* ===================== Stat / Flashcards ===================== */
@@ -1090,18 +1135,20 @@
           : '';
         lastGroupKey = groupKey;
 
-        const hasSubmeta = !!(useInsertionHistory && insertedLabel);
+        const hasInsertMeta = !!(useInsertionHistory && insertedLabel);
+        const hasDeptMeta = !!deptHtml;
+        const hasSubmeta = hasInsertMeta || hasDeptMeta;
         return `
           ${groupHeader}
           <div class="order ${isPastPickup ? 'is-past' : ''}" data-i="${i}">
             <span class="badge">${o.number != null ? o.number : '—'}</span>
             <div class="order-main ${hasSubmeta ? 'has-submeta' : ''}">
               <div class="order-text">
-                <div class="order-head">
+                <div class="order-copy">
                   <span class="order-name">${esc(o.name)}</span>
-                  ${deptHtml ? `<div class="dept-group">${deptHtml}</div>` : ''}
+                  ${hasInsertMeta ? `<span class="insert-meta">Inserito ${esc(insertedLabel)}</span>` : ''}
                 </div>
-                ${hasSubmeta ? `<div class="order-submeta"><span class="insert-meta">Inserito ${esc(insertedLabel)}</span></div>` : ''}
+                ${hasDeptMeta ? `<div class="dept-group">${deptHtml}</div>` : ''}
               </div>
                 <div class="order-meta">
                   <span class="pickup-badge ${pickupTone}">
@@ -1144,126 +1191,22 @@
       apply();
     }
 
-    /* ===================== Modale FILTRO ===================== */
-    const modal=document.getElementById('sso-filter-modal'),
-          optsEl=document.getElementById('sso-filter-options'),
-          applyBtn=document.getElementById('sso-filter-apply'),
-          toggleAllBtn=document.getElementById('sso-filter-toggle-all'),
-          closeBtn=document.getElementById('sso-filter-close');
-    const openModal=()=>{
-      renderOpts(); modal.classList.add('open');
-      modal.setAttribute('aria-hidden','false');
-      lock(); D.q('#chipbar-filter').setAttribute('aria-expanded','true');
-    };
-    const closeModal=()=>{
-      modal.classList.remove('open');
-      modal.setAttribute('aria-hidden','true');
-      unlock(); D.q('#chipbar-filter').setAttribute('aria-expanded','false');
-      updateFilterUI();
-    };
-    function renderOpts(){
-      const SIMPLE=[
-        {id:'pane',label:'🥖  PANE'},
-        {id:'banco',label:'🧀  BANCO'},
-        {id:'fruver',label:'🥦  FRUTTA E VERDURA'},
-        {id:'carne',label:'🥩  CARNE'},
-        {id:'altro',label:'📦  ALTRO'}
-      ];
-      const act=new Set(ACTIVE);
-      optsEl.innerHTML=SIMPLE.map(d=>`<label class="filter-row"><input type="checkbox" data-dep="${d.id}" ${act.has(d.id)?'checked':''}/><span class="label">${d.label}</span></label>`).join('');
-      optsEl.querySelectorAll('input[type="checkbox"]').forEach(i=>i.addEventListener('change',()=>{ updToggle(); updApply(); }));
-      updToggle(); updApply();
-    }
-
-    const countSel = () => {
-      let c = 0;
-      optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
-        if (i.checked) c++;
-      });
-      return c;
-    };
-
-    const setAll = b => {
-      optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
-        i.checked = b;
-      });
-      updToggle();
-      updApply();
-    };
-
-    const updToggle = () => {
-      const tot = ALL_IDS.length;
-      const sel = countSel();
-      toggleAllBtn.textContent = (sel === tot) ? 'Deseleziona tutti' : 'Seleziona tutti';
-    };
-
-    const updApply = () => {
-      applyBtn.disabled = (countSel() === 0);
-    };
-
-    // Wiring bottoni modale: aggiorna ACTIVE e ri-applica il filtro a cascata
-    if (toggleAllBtn) {
-      toggleAllBtn.addEventListener('click', () => {
-        const tot = ALL_IDS.length;
-        const sel = countSel();
-        setAll(sel !== tot);              // se non sono tutti, seleziona tutti; se sono tutti, deseleziona tutti
-      });
-    }
-
-    if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        const selected = [];
-        optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
-          if (i.checked) selected.push(i.dataset.dep);
-        });
-
-        // Se qualcosa va storto e non c'è nulla selezionato, fallback a tutti i reparti
-        const next = selected.length ? selected : ALL_IDS;
-        ACTIVE = new Set(next);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE]));
-
-        closeModal();
-        apply();                          // ricalcola lista ordini (dopo filtro flashcard)
-      });
-    }
-
-    /* ===================== Scroll lock per modale ===================== */
-    function lock(){
-      const y=window.scrollY||window.pageYOffset;
-      document.body.dataset.scrollY=y;
-      document.body.style.position='fixed';
-      document.body.style.top=`-${y}px`;
-      document.body.style.left='0';
-      document.body.style.right='0';
-      document.body.style.width='100%';
-    }
-    function unlock(){
-      const y=+(document.body.dataset.scrollY||0);
-      document.body.style.position='';
-      document.body.style.top='';
-      document.body.style.left='';
-      document.body.style.right='';
-      document.body.style.width='';
-      window.scrollTo(0,y);
-      delete document.body.dataset.scrollY;
-    }
-
     /* ===================== Azioni UI / tastiera ===================== */
     function search(){apply();}
     function next(){if(index<view.length-1) select(index+1);}
     function prev(){if(index>0) select(index-1);}
     function doPrint(){window.print();}
 
-    if(D.q('#chipbar-filter')) D.q('#chipbar-filter').addEventListener('click',openModal);
-    if(closeBtn) closeBtn.addEventListener('click',closeModal);
-    if(modal) modal.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('backdrop')) closeModal();});
-
+    if(D.q('#chipbar-filter')) {
+      D.q('#chipbar-filter').addEventListener('click',e=>{
+        const btn = e.target.closest('.filter-dept');
+        if(!btn) return;
+        e.preventDefault();
+        toggleActiveDept(btn.dataset.dep);
+      });
+    }
     document.addEventListener('keydown',e=>{
       const k=e.key,typing=/input|textarea/i.test(e.target.tagName)||e.target.isContentEditable;
-      if(modal&&modal.classList.contains('open')){
-        if(k==='Escape'||k==='q'||k==='Q'){e.preventDefault();closeModal();}
-        return;
-      }
       if(typing) return;
       if(k==='ArrowDown'){e.preventDefault();next();}
       else if(k==='ArrowUp'){e.preventDefault();prev();}
@@ -1381,7 +1324,7 @@
         const card=e.target.closest('.card');
         if(card&&card.dataset.filter) setFilter(card.dataset.filter);
       });
-      D.q('#btn-search').addEventListener('click',search);
+      D.q('#q').addEventListener('input',search);
       D.q('#q').addEventListener('keydown',e=>{if(e.key==='Enter') search();});
       D.q('#orders-list').addEventListener('click',e=>{
         const row=e.target.closest('.order'); if(!row) return;
@@ -1398,6 +1341,7 @@
         if (e.origin !== window.location.origin) return;
         if (e.data && e.data.type === 'master:refresh') load({ preserveSelection:true });
       });
+      updateFilterUI();
       load();
     })();
   </script>
