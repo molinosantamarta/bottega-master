@@ -288,6 +288,7 @@
       align-items:center;
       justify-content:center;
       min-height:58px;
+      margin-right:8px;
       white-space:nowrap;
       color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
@@ -387,7 +388,7 @@
       .apps-dock{gap:10px; margin-right:0;}
       .app-icon{width:52px;height:52px;border-radius:18px;}
       .app-icon img{border-radius:14px;}
-      .hud-clock{font-size:36px; min-height:52px;}
+      .hud-clock{font-size:36px; min-height:52px; margin-right:4px;}
       .nav-left{padding-left:60px;}
     }
     @media (max-width:720px){
@@ -582,6 +583,128 @@
       z-index:20;
     }
     #hacker-modal .admin-badge span{color:#9ff}
+    #screensaver-modal{
+      position:fixed;
+      inset:0;
+      z-index:980;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .28s ease;
+      background:
+        radial-gradient(60% 46% at 50% 34%, rgba(255,255,255,.1) 0%, rgba(255,255,255,.03) 26%, rgba(0,0,0,0) 62%),
+        linear-gradient(180deg, var(--main) 0%, #620404 100%);
+      color:#fff7dd;
+      overflow:hidden;
+    }
+    #screensaver-modal.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    #screensaver-modal::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.02) 0 1px, transparent 1px 100%),
+        linear-gradient(180deg, rgba(255,255,255,.02) 0 1px, transparent 1px 100%);
+      background-size:28px 28px;
+      opacity:.14;
+      mix-blend-mode:screen;
+    }
+    #screensaver-modal::after{
+      content:"";
+      position:absolute;
+      inset:auto auto -18vh -10vw;
+      width:54vw;
+      height:54vw;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,210,90,.14) 0%, rgba(255,210,90,.05) 32%, rgba(255,210,90,0) 68%);
+      filter:blur(18px);
+      pointer-events:none;
+    }
+    #screensaver-modal .inner{
+      position:relative;
+      z-index:1;
+      width:100%;
+      height:100%;
+      display:grid;
+      grid-template-rows:minmax(0,1fr) auto auto auto minmax(0,1fr) auto;
+      justify-items:center;
+      text-align:center;
+      padding:36px 32px 28px;
+      box-sizing:border-box;
+    }
+    #screensaver-modal .logo{
+      width:min(492px, 57vw);
+      height:180px;
+      object-fit:contain;
+      background:transparent;
+      filter:brightness(0) invert(1);
+      margin-top:74px;
+    }
+    #screensaver-modal .title{
+      font-size:19px;
+      font-weight:700;
+      letter-spacing:-.02em;
+      text-transform:none;
+      color:rgba(255,255,255,.9);
+    }
+    #screensaver-modal .time{
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+      font-size:clamp(168px, 28vw, 320px);
+      line-height:.9;
+      font-weight:800;
+      letter-spacing:-.04em;
+      color:#fff9e8;
+      text-shadow:0 18px 34px rgba(0,0,0,.22);
+      margin:18px 0 12px;
+      display:inline-flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:.06em;
+    }
+    #screensaver-modal .time-sep{
+      display:inline-block;
+      transform:translateY(-.02em);
+      transition:opacity .46s ease-in-out;
+    }
+    #screensaver-modal .time-sep.off{
+      opacity:.18;
+    }
+    #screensaver-modal .date{
+      font-size:clamp(29px, 3.9vw, 52px);
+      line-height:1.1;
+      font-weight:800;
+      color:rgba(255,245,208,.88);
+      letter-spacing:.02em;
+      margin-top:10px;
+      margin-bottom:0;
+    }
+    #screensaver-modal .mini-logo{
+      width:59px;
+      height:59px;
+      object-fit:contain;
+      display:block;
+      margin-bottom:12px;
+      padding:4px;
+      border-radius:18px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 10px 22px rgba(0,0,0,.16);
+      box-sizing:border-box;
+    }
+    #screensaver-modal .bottom{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      margin-top:0;
+      padding-bottom:0;
+      width:max-content;
+    }
     @keyframes hacker-title-shift{0%{background-position:0% 50%}100%{background-position:220% 50%}}
     @keyframes hacker-glitch{
       0%,100%{text-shadow:0 0 transparent}
@@ -765,6 +888,20 @@
     <div class="admin-badge" aria-label="admin">admin: <span>retroBottega</span></div>
   </div>
 
+  <div id="screensaver-modal" aria-hidden="true">
+    <div class="inner">
+      <img class="logo" src="svg-bottega%20black.png" alt="La Bottega di Casterno" />
+      <div class="time" id="screensaver-time" aria-label="Ora corrente">
+        <span id="screensaver-hh">00</span><span class="time-sep" id="screensaver-sep">:</span><span id="screensaver-mm">00</span>
+      </div>
+      <div class="date" id="screensaver-date">Lunedì, 3 Ottobre</div>
+      <div class="bottom">
+        <img class="mini-logo" src="master-favicon.png" alt="" aria-hidden="true" />
+        <div class="title">Master 2.0</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // === CONFIG ===
     const VIEWS = ["inserisci", "modifica", "stampa", "stoc", "ocapi"];
@@ -774,6 +911,8 @@
     };
     const HACKER_MODAL_DURATION = 12000;
     const HACKER_BASE_TICK = 85;
+    const SCREENSAVER_IDLE_MS = 5000;
+    const ACTIVITY_THROTTLE_MS = 250;
 
     // === UTILITIES ===
     const $  = (s) => document.querySelector(s);
@@ -788,6 +927,9 @@
     let resizeObserver = null;
     let hackerTimeoutId = null;
     let hackerRafId = null;
+    let screensaverTimerId = null;
+    let screensaverActive = false;
+    let lastActivityAt = 0;
     let qrSizeMode = null;
     const loadedIframes = new Set();
 
@@ -799,7 +941,13 @@
       home: $('#btn-home'),
       hh: $('#hh'), mm: $('#mm'), colon: $('#colon'),
       hudDate: $('#hud-date'),
-      appsDock: $('#apps-dock')
+      appsDock: $('#apps-dock'),
+      screensaver: $('#screensaver-modal'),
+      screensaverTime: $('#screensaver-time'),
+      screensaverHH: $('#screensaver-hh'),
+      screensaverMM: $('#screensaver-mm'),
+      screensaverSep: $('#screensaver-sep'),
+      screensaverDate: $('#screensaver-date')
     };
     const tabByView = Object.fromEntries(dom.tabs.map(t => [t.dataset.tab, t]));
 
@@ -900,9 +1048,71 @@
       p.forEach(x=>{ if(x.type==='weekday') w=capFirst(x.value); if(x.type==='day') day=x.value; if(x.type==='month') m=capFirst(x.value); });
       return `${w}, ${day} ${m}`;
     }
-    function updateClock(){ const n = new Date(); $('#hh').textContent = pad2(n.getHours()); $('#mm').textContent = pad2(n.getMinutes()); }
-    function updateDate(){ $('#hud-date').textContent = formatItalianDate(new Date()); }
-    let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); }
+    function updateClock(){
+      const n = new Date();
+      const hh = pad2(n.getHours());
+      const mm = pad2(n.getMinutes());
+      $('#hh').textContent = hh;
+      $('#mm').textContent = mm;
+      if (dom.screensaverHH) dom.screensaverHH.textContent = hh;
+      if (dom.screensaverMM) dom.screensaverMM.textContent = mm;
+    }
+    function updateDate(){
+      const label = formatItalianDate(new Date());
+      $('#hud-date').textContent = label;
+      if (dom.screensaverDate) dom.screensaverDate.textContent = label;
+    }
+    let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); dom.screensaverSep?.classList.toggle('off', !blink); }
+
+    function armScreensaver(){
+      if (screensaverTimerId) clearTimeout(screensaverTimerId);
+      screensaverTimerId = setTimeout(showScreensaver, SCREENSAVER_IDLE_MS);
+    }
+    function hideScreensaver(){
+      if (!dom.screensaver || !screensaverActive) return;
+      screensaverActive = false;
+      dom.screensaver.classList.remove('active');
+      dom.screensaver.setAttribute('aria-hidden', 'true');
+    }
+    function showScreensaver(){
+      if (!dom.screensaver || screensaverActive) return;
+      if (document.getElementById('hacker-modal')?.classList.contains('active')) {
+        armScreensaver();
+        return;
+      }
+      updateClock();
+      updateDate();
+      screensaverActive = true;
+      dom.screensaver.classList.add('active');
+      dom.screensaver.setAttribute('aria-hidden', 'false');
+    }
+    function registerActivity(source = 'generic'){
+      const now = Date.now();
+      if (source === 'pointermove' && now - lastActivityAt < ACTIVITY_THROTTLE_MS) return;
+      lastActivityAt = now;
+      if (screensaverActive) hideScreensaver();
+      armScreensaver();
+    }
+    function bindActivityWatchers(){
+      const passiveOpts = { passive:true, capture:true };
+      ['pointermove','pointerdown','touchstart','wheel'].forEach(type => {
+        window.addEventListener(type, () => registerActivity(type), passiveOpts);
+      });
+      window.addEventListener('keydown', () => registerActivity('keydown'), true);
+      window.addEventListener('focus', () => registerActivity('focus'));
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') registerActivity('visible');
+      });
+      $$('iframe').forEach(frame => {
+        frame.addEventListener('load', () => registerActivity('iframe-load'));
+        frame.addEventListener('pointerenter', () => registerActivity('iframe-enter'), { passive:true });
+        frame.addEventListener('focus', () => registerActivity('iframe-focus'));
+      });
+      window.addEventListener('message', (e) => {
+        if (e.origin !== window.location.origin) return;
+        if (e.data && e.data.type === 'print:activity') registerActivity('print-activity');
+      });
+    }
 
     const HACKER_LEVELS = ['INFO','OK','WARN','ERR'];
     const HACKER_MSGS = [
@@ -1086,6 +1296,8 @@
       updateDate(); updateClock();
       clockInterval = setInterval(tick, 1000);
       dateInterval = setInterval(updateDate, 60000);
+      bindActivityWatchers();
+      armScreensaver();
 
       syncTabs(); setupShowcase(true);
 

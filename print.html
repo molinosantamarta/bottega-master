@@ -1196,6 +1196,17 @@
     function next(){if(index<view.length-1) select(index+1);}
     function prev(){if(index>0) select(index-1);}
     function doPrint(){window.print();}
+    let parentActivityTs = 0;
+    function notifyParentActivity(force = false){
+      const now = Date.now();
+      if (!force && now - parentActivityTs < 250) return;
+      parentActivityTs = now;
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage({ type:'print:activity' }, window.location.origin);
+        } catch (_) {}
+      }
+    }
 
     if(D.q('#chipbar-filter')) {
       D.q('#chipbar-filter').addEventListener('click',e=>{
@@ -1335,6 +1346,10 @@
       D.q('#btn-prev').addEventListener('click',next);
       D.q('#btn-print').addEventListener('click',doPrint);
       window.addEventListener('resize',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n);});
+      ['pointermove','pointerdown','touchstart','wheel'].forEach(type => {
+        window.addEventListener(type, () => notifyParentActivity(type !== 'pointermove'), { passive:true });
+      });
+      window.addEventListener('keydown', () => notifyParentActivity(true));
       window.addEventListener('beforeprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,22,9);});
       window.addEventListener('afterprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,26,10);});
       window.addEventListener('message', (e) => {
@@ -1343,6 +1358,7 @@
       });
       updateFilterUI();
       load();
+      notifyParentActivity(true);
     })();
   </script>
 </body>
