@@ -1,0 +1,10 @@
+{
+  "name": "bottega-master",
+  "private": true,
+  "scripts": {
+    "dev": "browser-sync start --server --files \"*.html,*.css,*.js,*.png,*.jpg,*.jpeg,*.gif,*.svg,*.webp,*.mp4\" --port 3000 --no-ui --no-notify --no-open"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}

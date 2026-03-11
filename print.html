@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=The+Nautigal:wght@400;700&display=swap" rel="stylesheet">
+  <title>Bottega – Stampa Ordini</title>
+  <style>
+    :root{--main:#770505;--fg:#0b0b0b;--card:#fff;--ink:#111;--r:22px;--e:0 10px 24px rgba(0,0,0,.15);--g:14px;--pad:16px;--pw:18%;--sw:82%;--tmax:960px}
+    html,body{height:100%;margin:0;background:#f5f5f7;color:var(--fg);font:16px/1.45 Verdana, Geneva, sans-serif}
+    .app{display:grid;grid-template-columns:minmax(240px,var(--pw)) minmax(520px,var(--sw));gap:var(--g);height:100%;padding:calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));box-sizing:border-box}
+
+    /* Pannelli */
+    .panel{background:var(--card);color:var(--ink);border-radius:var(--r);box-shadow:var(--e);overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+
+    /* LEFT: Anteprima scontrino */
+    .left{display:flex;flex-direction:column}
+    .ticket-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:#fafafa;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--main);border-radius:999px;height:44px;padding:0 18px;background:#fff;color:var(--main);font-weight:800;cursor:pointer;transition:transform .06s ease,background .15s,color .15s}
+    .btn:active{transform:scale(.985)}
+    .btn.primary{background:var(--main);color:#fff;border-color:var(--main)}
+    .btn.icon{width:44px;padding:0}
+
+    #tkt-body{width:100%;max-height:var(--tmax);background:#fff;color:#000;border:0;border-radius:0;overflow:auto;box-shadow:none}
+    .tkt{font:15px/1.35 Verdana, Geneva, sans-serif;text-align:center;padding:10px 0 12px}
+    .tkt .info-top{margin-bottom:6px;font-size:1.1em}
+    .tkt .info-name{font-weight:700;margin:6px 8px;white-space:nowrap;overflow:hidden;max-width:calc(100% - 16px)}
+    #tkt-name{font-size:24px;line-height:1.15;display:inline-block;max-width:100%;white-space:nowrap}
+    /* Data più grande */
+    .tkt .info-date b{font-size:1.28em}
+    /* Telefono: stessa dimensione del core e più vicino al nome */
+    .tkt .info-phone{margin-top:2px;font-size:1em !important;line-height:1.15}
+    .tkt .info-time{margin-top:6px}
+
+    /* Header con logo centrale e icone laterali */
+    .tkt-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:6px 10px 8px}
+    .tkt-header .side{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px}
+    .tkt-header .icon{height:46px;width:auto;object-fit:contain}
+    /* Numero ordine e SI devono avere la stessa dimensione */
+    .tkt-header .label{font-weight:800;margin-top:4px;font-size:1.25em;line-height:1}
+    .tkt-header .right .icon{transform:translateY(6px)}
+    .tkt-header .right .label{transform:translateY(-6px)}
+
+    /* Logo */
+    .tkt .logo{display:block;margin:0 auto;max-width:100%;height:auto}
+
+    .dept-line{margin:6px 8px 2px;font-weight:700;font-size:0.95em}
+
+    /* Core valori: compatto e centrato verticalmente */
+    .vals{width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:200px;text-align:center;line-height:1.15}
+    .vals .line{padding:6px 8px;word-break:break-word}
+    .dept-sep{border-top:1px solid #000;margin:6px 12px;width:calc(100% - 24px);height:0}
+
+    .holiday-msg{font-family:'The Nautigal',cursive;color:var(--main);font-size:40px;font-weight:700;margin-top:12px;letter-spacing:.5px}
+    .barcode{font-family:'Libre Barcode 39',cursive;font-size:92px;line-height:1;letter-spacing:1px;margin-top:8px}
+    .hr-solid{border-top:2px solid #111;margin:10px 12px}
+    .insert-ts{text-align:center;font-size:12px;margin:4px 0 2px}
+
+    /* RIGHT: Controlli */
+    .right{display:flex;flex-direction:column;gap:var(--g)}
+    .controls{padding:var(--pad)}
+
+    .flashcards{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(110px, 1fr));
+      gap:8px;
+      min-width:0;
+    }
+
+    .card{
+      background:linear-gradient(180deg,#fff 0%, #faf8f8 100%);
+      color:#111;
+      border:1px solid rgba(0,0,0,.07);
+      border-radius:16px;
+      padding:10px 12px 12px;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      user-select:none;
+      cursor:pointer;
+      transition:border-color .15s, box-shadow .15s, transform .08s ease, background .15s ease;
+      min-height:92px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .card:hover{
+      transform:translateY(-1px);
+      border-color:rgba(119,5,5,.18);
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+    }
+    .card .k{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      opacity:.62;
+    }
+    .card .v{
+      font-size:40px;
+      line-height:.95;
+      font-weight:900;
+      margin-top:8px;
+    }
+    .card.active{
+      outline:0;
+      border-color:var(--main);
+      background:linear-gradient(180deg,#fff6f6 0%, #fff 100%);
+      box-shadow:0 0 0 2px rgba(119,5,5,.12), 0 10px 22px rgba(119,5,5,.10);
+    }
+
+    .searchbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:18px;align-items:center}
+    .input{flex:1;padding:12px 16px;border-radius:999px;border:1px solid #ddd;font-size:16px}
+
+    /* Chip filtro stile Stòc */
+    .chipbar{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid rgba(0,0,0,.06);background:#f7f7f8;border-radius:999px;box-sizing:border-box}
+    #chipbar-filter{cursor:pointer}
+    #chipbar-filter .chip-inner{display:inline-flex;align-items:center;gap:8px;min-height:40px;max-height:40px;border-radius:999px}
+    #chipbar-filter.compact .chip-inner{background:#f2f2f3;border:1px solid rgba(0,0,0,.06);width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0}
+    #chipbar-filter.compact #sso-filter-label,#chipbar-filter.compact #sso-filter-badge{opacity:0;width:0;pointer-events:none}
+    #chipbar-filter.compact svg{color:#111;width:18px;height:18px}
+    #chipbar-filter.active{display:inline-flex;background:#f7f7f8;border-color:rgba(0,0,0,.06)}
+    #chipbar-filter.active .chip-inner{background:#000;color:#fff;border:1px solid #000;padding:0 8px;gap:4px;justify-content:center;align-items:center}
+    #chipbar-filter.active .chip-inner svg{width:18px;height:18px;color:#ffd60a;margin-right:3px}
+    #sso-filter-label{display:none!important}
+    .count-badge{display:none;align-items:center;justify-content:center;padding:0 12px;height:28px;background:#ffd60a;color:#000;border-radius:999px;font-weight:900;font-size:14px;gap:8px}
+    .count-badge .sep{color:rgba(0,0,0,.55)}
+    #chipbar-filter.active #sso-filter-badge{display:inline-flex}
+
+    .list{padding:12px;border-top:0px solid #eee;max-height:calc(100vh - 280px);overflow:auto}
+    .order{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr);
+      align-items:center;
+      gap:11px;
+      padding:9px 12px;
+      border-radius:15px;
+      border:1px solid rgba(119,5,5,.09);
+      cursor:pointer;
+      background:linear-gradient(180deg,#fff 0%, #fcfbfb 100%);
+      transition:border-color .14s ease, box-shadow .14s ease, background .14s ease;
+    }
+    .order+.order{margin-top:6px}
+    .date-group{
+      position:sticky;
+      top:0;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:14px 0 8px;
+      padding:7px 4px 7px 2px;
+      background:linear-gradient(180deg, rgba(245,245,247,.96) 0%, rgba(245,245,247,.88) 100%);
+      backdrop-filter:blur(6px);
+    }
+    .date-group:first-child{margin-top:0}
+    .date-group-label{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    .date-group-label::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#ffd60a;
+      box-shadow:0 0 0 3px rgba(255,214,10,.18);
+      flex:0 0 auto;
+    }
+    .date-group-main{
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:-.01em;
+      color:#5d1616;
+      white-space:nowrap;
+    }
+    .date-group-sub{
+      font-size:12px;
+      font-weight:700;
+      color:#7d6d6d;
+      white-space:nowrap;
+    }
+    .date-group-count{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:28px;
+      height:24px;
+      padding:0 8px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(119,5,5,.08);
+      color:#5d1616;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 2px 8px rgba(0,0,0,.04);
+      flex:0 0 auto;
+    }
+    .order:hover{
+      background:#fffdfd;
+      border-color:rgba(119,5,5,.16);
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
+    }
+    .order.selected{
+      outline:0;
+      border-color:rgba(119,5,5,.3);
+      box-shadow:0 0 0 2px rgba(119,5,5,.09), 0 10px 22px rgba(0,0,0,.06);
+      background:#fffdfd;
+    }
+    .order.is-past{
+      background:linear-gradient(180deg,#f4f1f1 0%, #f1eded 100%);
+      border-color:rgba(0,0,0,.05);
+      box-shadow:none;
+      opacity:.76;
+    }
+    .order.is-past .order-name{color:#5f5858}
+    .order.is-past .badge{
+      background:#ead87a;
+      color:#3c3620;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .order.is-past .pickup-badge{
+      background:#e6e1e1;
+      border-color:#d7cece;
+      color:#6d6565;
+    }
+    .order.is-past .dept-chip{
+      background:#e8e3e3;
+      border-color:#dad0d0;
+      color:#6c6161;
+    }
+    .order.is-past .order-zone{
+      color:#7d7676;
+    }
+    .order.is-past .insert-meta{
+      color:#8e8585;
+    }
+    .btn.smol{height:32px;padding:0 12px;font-size:13px;border-radius:999px}
+    .btn.icon.smol{width:32px;height:32px;padding:0}
+    .badge{
+      min-width:54px;
+      height:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:#ffd60a;
+      color:#000;
+      font-weight:900;
+      font-size:15px;
+      line-height:1;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 6px 14px rgba(0,0,0,.08);
+    }
+    .order-inline{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:0;
+      row-gap:4px;
+    }
+    .order-name{
+      font-weight:900;
+      font-size:20px;
+      line-height:1.02;
+      color:#111;
+      letter-spacing:-.02em;
+    }
+    .order-meta{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .pickup-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:28px;
+      padding:0 12px;
+      border-radius:999px;
+      background:#edf6ef;
+      border:1px solid rgba(52,120,74,.18);
+      color:#255437;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.03em;
+      white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+    .pickup-prefix{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+    }
+    .pickup-value{
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.02em;
+    }
+    .pickup-badge.today{
+      background:#e6f6ea;
+      border-color:rgba(52,120,74,.26);
+      color:#1f5d35;
+    }
+    .pickup-badge.tomorrow{
+      background:#eef7e8;
+      border-color:rgba(112,150,68,.28);
+      color:#496728;
+    }
+    .pickup-badge.future{
+      background:#f1f7f1;
+      border-color:#d9e8db;
+      color:#255437;
+    }
+    .pickup-badge.past{
+      background:#e7e2e2;
+      border-color:#d7cdcd;
+      color:#6a6262;
+      box-shadow:none;
+    }
+    .order-submeta{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:4px;
+      min-width:0;
+    }
+    .insert-meta{
+      font-size:11px;
+      font-weight:700;
+      color:#857777;
+      white-space:nowrap;
+    }
+    .dept-group{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .dept-chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      background:#f7f2f2;
+      border:1px solid #ebe3e3;
+      color:#352626;
+    }
+    .dept-chip-icon{
+      font-size:14px;
+      line-height:1;
+      flex:0 0 auto;
+    }
+    .order-zone{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      color:#2f7a48;
+      font-size:11px;
+      font-weight:800;
+      padding:0 2px;
+      white-space:nowrap;
+    }
+    .order-zone-dot{font-size:11px;line-height:1}
+
+    /* Modale FILTRO (nascosta di default) */
+    .modal{position:fixed;inset:0;display:none;z-index:2147483647;pointer-events:none}
+    .modal.open{display:block;pointer-events:auto}
+    .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:saturate(1.2) blur(6px);z-index:1}
+    .modal .sheet{position:absolute;inset:0;background:#fff;color:#111;display:flex;flex-direction:column;z-index:2}
+    #sso-filter-modal .sheet{position:relative;inset:auto;margin:10vh auto;width:min(560px,92vw);max-height:80vh;background:#fff;color:#111;border-radius:var(--r);overflow:hidden;border:1px solid rgba(0,0,0,.08);box-shadow:var(--e);display:flex;flex-direction:column}
+    #sso-filter-modal header{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #ececec;padding:14px 16px 10px}
+    #sso-filter-modal .h{font-size:18px;font-weight:800;color:#111;margin:0}
+    #sso-filter-modal .close{border:1px solid #ddd;background:#fff;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}
+    #sso-filter-modal .content{padding:14px 16px 18px;font-size:15px}
+    .filter-options{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+    .filter-row{display:flex;align-items:center;gap:10px;padding:6px 2px}
+    .filter-row input{width:20px;height:20px}
+    .filter-actions{display:flex;gap:10px;margin-top:16px}
+
+    /* Responsive */
+    @media (max-width:1200px){
+      .searchbar{grid-template-columns:1fr auto;grid-auto-flow:row}
+    }
+    @media (max-width:960px){
+      .flashcards{grid-template-columns:repeat(2, minmax(0, 1fr))}
+    }
+    @media (max-width:1100px){:root{--pw:35%;--sw:65%}}
+    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.list{max-height:none}.searchbar{grid-template-columns:1fr}.flashcards{grid-template-columns:1fr 1fr}}
+
+    /* Stampa */
+    @media print{
+      @page{size:auto;margin:0}
+      body{background:#fff}
+      .app>.right,.ticket-bar{display:none!important}
+      .app{display:block;padding:0}
+      .panel{border:0;box-shadow:none;border-radius:0}
+      #tkt-body{border:0;box-shadow:none;border-radius:0;width:100%;max-height:none}
+      .tkt{font:16px/1.4 Verdana, Geneva, sans-serif;text-align:center;padding:0}
+      .tkt .logo{
+        max-width:100% !important;
+        height:auto !important;
+        margin:0 auto !important;
+        transform:scale(1.28);
+        transform-origin:center;
+        z-index:2;
+      }
+      #tkt-name{font-size:22px !important}
+      .tkt-header .icon{transform:scale(0.9)}
+      .tkt-header .right .icon{transform:translateY(6px) scale(0.9)}
+      .tkt-header .right .label{transform:translateY(-8px)}
+      .dept-sep{border-top-color:#000 !important}
+      .barcode{font-size:92px}
+      .holiday-msg{font-size:40px;font-weight:700;color:var(--main)}
+    }
+    .order-main{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- LEFT: Anteprima scontrino (18%) -->
+    <section class="panel left">
+      <div class="ticket-bar">
+        <button id="btn-prev" class="btn icon" aria-label="Ordine precedente" title="Ordine precedente">◀︎</button>
+        <button id="btn-print" class="btn primary" aria-label="Stampa" title="Stampa">Stampa</button>
+        <button id="btn-next" class="btn icon" aria-label="Ordine successivo" title="Ordine successivo">▶︎</button>
+      </div>
+      <div class="tkt" id="tkt-body"><!-- render dinamico --></div>
+    </section>
+
+    <!-- RIGHT: Controlli (82%) -->
+    <aside class="panel right">
+      <div class="controls">
+        <div class="flashcards" id="flashcards">
+          <div class="card" data-filter="all">
+            <div class="k">Totale</div>
+            <div id="fc-total" class="v">—</div>
+          </div>
+          <div class="card" data-filter="pickup_today">
+            <div class="k">Oggi</div>
+            <div id="fc-pickup-today" class="v">—</div>
+          </div>
+          <div class="card" data-filter="pickup_tomorrow">
+            <div class="k">Domani</div>
+            <div id="fc-pickup-tomorrow" class="v">—</div>
+          </div>
+          <div class="card" data-filter="pickup_future">
+            <div class="k">Futuri</div>
+            <div id="fc-pickup-future" class="v">—</div>
+          </div>
+        </div>
+
+        <div class="searchbar">
+          <input id="q" class="input" type="search" placeholder="Cerca cliente…" />
+          <button id="btn-search" class="btn primary">Cerca</button>
+          <div class="chipbar compact" id="chipbar-filter" title="Filtro" aria-haspopup="dialog" aria-expanded="false">
+            <div class="chip-inner">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><rect x="3" y="6" rx="1.5" ry="1.5" width="18" height="2"></rect><rect x="6" y="11" rx="1.5" ry="1.5" width="12" height="2"></rect><rect x="9" y="16" rx="1.5" ry="1.5" width="6" height="2"></rect></g></svg>
+              <span id="sso-filter-label" aria-hidden="true"></span>
+              <span id="sso-filter-badge" class="count-badge"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list" id="orders-list" aria-live="polite"></div>
+    </aside>
+  </div>
+
+  <!-- MODAL FILTRO -->
+  <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="backdrop"></div>
+    <div class="sheet">
+      <header>
+        <div class="h">Filtro Reparti</div>
+      </header>
+      <div class="content">
+        <div class="text">Seleziona almeno un reparto. Verranno mostrati solo gli ordini del reparto/i selezionato/i.</div>
+        <div class="filter-options" id="sso-filter-options"></div>
+        <div class="filter-actions">
+          <button id="sso-filter-toggle-all" class="btn">Seleziona tutti</button>
+          <button id="sso-filter-apply" class="btn primary">Filtra</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS (identico al tuo: non toccato) -->
+  <script>
+    /* ===================== Utils ===================== */
+    const D={q:s=>document.querySelector(s),qa:s=>Array.from(document.querySelectorAll(s))};
+    const pad=n=>String(n).padStart(2,'0');
+    const capFirst=s=>{ const v=String(s||''); return v ? v.charAt(0).toUpperCase()+v.slice(1) : ''; };
+    const today=()=>{const d=new Date;return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+    const addDaysISO=(iso,days)=>{
+      if(!iso) return null;
+      const d=new Date(iso+"T12:00:00");
+      d.setDate(d.getDate()+days);
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    };
+    const tomorrow=()=>addDaysISO(today(),1);
+
+    const giorniSettimana=['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
+    const fmtIT=(iso)=>{ if(!iso) return '—'; const d=new Date(iso+"T12:00:00"); return `${giorniSettimana[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()).slice(-2)}`; };
+    const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').trim();
+    const esc=s=>String(s==null?'':s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
+    const hasV=v=>{const t=String(v||'').trim();return t!==''&&t!=='0'&&t!=='-'&&t.toLowerCase()!=='n/d'};
+    const isYes=v=>['si','sì','y','yes','true','1'].includes(norm(v));
+    const fmtLong = (iso) => {
+      if (!iso) return "—";
+      const d = new Date(iso + "T12:00:00");
+
+      const giorniSettimana = [
+        "domenica","lunedì","martedì","mercoledì",
+        "giovedì","venerdì","sabato"
+      ];
+
+      const mesi = [
+        "gennaio","febbraio","marzo","aprile","maggio","giugno",
+        "luglio","agosto","settembre","ottobre","novembre","dicembre"
+      ];
+
+      const g = giorniSettimana[d.getDay()];
+      const giorno = d.getDate();
+      const mese = mesi[d.getMonth()];
+      const anno = d.getFullYear();
+
+      return `${g}, ${giorno} ${mese} ${anno}`;
+    };
+    const fmtPickupGroup = (iso) => {
+      if (!iso) return { main:'Data da definire', sub:'' };
+      const full = capFirst(fmtLong(iso));
+      if (iso === today()) return { main:'Oggi', sub:full };
+      if (iso === tomorrow()) return { main:'Domani', sub:full };
+      return { main:full, sub:'' };
+    };
+    const fmtPickupBadge = (iso) => {
+      if (!iso) return 'Data da definire';
+      const d = new Date(iso + 'T12:00:00');
+      const dow = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'][d.getDay()];
+      return `${dow} ${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
+    };
+    const parseTimestamp = (value) => {
+      if (!value) return null;
+      const str = String(value).trim();
+      if (!str) return null;
+      let d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+      const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ T](\d{1,2}):(\d{2}))?$/);
+      if (m) {
+        const yy = +m[3];
+        return new Date(yy < 100 ? 2000 + yy : yy, +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0), 0);
+      }
+      return null;
+    };
+    const fmtInsertedShort = (row) => {
+      if (!row || !row.insertedAtMs) return '';
+      const d = new Date(row.insertedAtMs);
+      return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    let ORDERS=[],view=[],index=0,active='all';
+    const FETCH_TIMEOUT_MS = 12000;
+
+    /* ===================== Ticket ===================== */
+    function buildValueLines(row){
+      const entries=Object.entries(row.src||{});
+      const DROP=[
+        'ord','numero ordine','ora (parsed)','zona (parsed)','nome','nome cliente','cliente','data','giorno','data ordine','ora','orario',
+        'inserimento','timestamp','created','created at','creazione','data inserimento','insertion','stoccaggio','telefono','cellulare','tel','phone','mobile','contatto',
+        'reparto','reparti','avicolo'
+      ].map(norm);
+      const AV=['anatra','anatre','oca','oche','capone','capponi','faraona','faraone','pollo','polli','gallo','galline'];
+      const isAvKey=k=>AV.some(t=>k.includes(t));
+
+      const HEAD_MAP={
+        [norm('1) PANE E PRODOTTI DA FORNO')]: 'pane',
+        [norm('2) BANCO GASTRONOMIA')]: 'banco',
+        [norm('3) FRUTTA E VERDURA')]: 'fruver',
+        [norm('4) CARNE')]: 'carne',
+        [norm('5) ALTRO')]: 'altro'
+      };
+
+      const groups={pane:[],banco:[],fruver:[],carne:[],altro:[]};
+      let current=null; let avicoloDesc=''; let lastAviIdx=-1;
+      let noteOrder='';
+
+      const pushLines=(arr,text)=>{
+        String(text).split(/\r?\n|;|•/).map(t=>t.trim()).filter(hasV)
+          .forEach(s=>arr.push(`<div class="line">${esc(s)}</div>`));
+      };
+
+      for(const [kr,vr] of entries){
+        const k=norm(kr); const val=(vr==null?'':String(vr)).trim();
+        if(!hasV(val)) continue;
+
+        // NOTE SULL'ORDINE (mostrale in fondo, se presenti)
+        if (
+          (k.includes('note') && (k.includes('ordine') || k.includes('ord'))) ||
+          k === norm("note sull'ordine")
+        ) {
+          noteOrder = val;
+          continue;
+        }
+
+        if( (k.includes('avicol') && (k.includes('descrizion') || k.includes('prepar'))) || k.includes('descrizione preparazione avicolo') ){
+          avicoloDesc=val; continue;
+        }
+
+        if(HEAD_MAP[k]){ current=HEAD_MAP[k]; pushLines(groups[current], val); continue; }
+
+        if(DROP.some(t=>k.includes(t))) continue;
+
+        if(isAvKey(k)){
+          const lab=AV.find(t=>k.includes(t))||'';
+          groups.carne.push(`<div class="line">${esc(val)} ${lab.toUpperCase()}</div>`);
+          lastAviIdx=groups.carne.length-1;
+          continue;
+        }
+
+        if(current){ pushLines(groups[current], val); }
+        else { pushLines(groups.altro, val); }
+      }
+
+      if(hasV(avicoloDesc)){
+        const html=`<div class="line">${esc(avicoloDesc)}</div>`;
+        if(lastAviIdx>=0) groups.carne.splice(lastAviIdx+1,0,html);
+        else groups.carne.push(html);
+      }
+
+      const order=['pane','banco','fruver','carne','altro'];
+      const pieces=[];
+      for(const id of order){
+        const arr=groups[id]; if(arr.length===0) continue;
+        if(pieces.length>0) pieces.push('<div class="dept-sep"></div>');
+        pieces.push(...arr);
+      }
+
+      // NOTE in fondo (se presenti)
+      if (hasV(noteOrder)) {
+        if (pieces.length > 0) pieces.push('<div class="dept-sep"></div>');
+        String(noteOrder).split(/\r?\n|;|•/).map(t=>t.trim()).filter(hasV)
+          .forEach(s=>pieces.push(`<div class="line">${esc(s)}</div>`));
+      }
+
+      return pieces.join('');
+    }
+
+    function fitText(el,max=26,min=10){
+      if(!el) return;
+      const p=el.parentElement||el;
+      el.style.display='inline-block';
+      el.style.whiteSpace='nowrap';
+      el.style.maxWidth='100%';
+      el.style.overflow='hidden';
+      let s=max,g=100;
+      el.style.fontSize=s+'px';
+      while(g--&&s>min&&el.scrollWidth>p.clientWidth-4){
+        s-=.5;el.style.fontSize=s+'px';
+      }
+    }
+
+    function pickTS(r){
+      if(!r) return '';
+      if(r.insertedAtRaw) return String(r.insertedAtRaw).trim();
+      if(!r.src) return '';
+      const pref=['INSERIMENTO ORDINE','INSERIMENTO','TIMESTAMP','CREATED','CREATED AT','CREAZIONE','DATA INSERIMENTO','INSERTION'];
+      const ks=Object.keys(r.src);
+      for(const l of pref){
+        const k=ks.find(x=>norm(x)===norm(l)||norm(x).includes(norm(l)));
+        if(k&&r.src[k]) return String(r.src[k]).trim();
+      }
+      return '';
+    }
+    function pickPhone(r){
+      const keys=['TELEFONO','CELLULARE','TEL','PHONE','MOBILE','CONTATTO'];
+      const ks=Object.keys(r.src||{});
+      for(const l of keys){
+        const k=ks.find(x=>norm(x)===norm(l)||norm(x).includes(norm(l)));
+        if(k&&r.src[k]) return String(r.src[k]).trim();
+      }
+      return '';
+    }
+
+    function deptList(r){
+      const map={
+        [norm('1) PANE E PRODOTTI DA FORNO')]: 'PANE',
+        [norm('2) BANCO GASTRONOMIA')]: 'BANCO',
+        [norm('3) FRUTTA E VERDURA')]: 'FRUTTA E VERDURA',
+        [norm('4) CARNE')]: 'CARNE',
+        [norm('5) ALTRO')]: 'ALTRO'
+      };
+      const out=[];
+      for(const [k,v] of Object.entries(r.src||{})){
+        const nk=norm(k);
+        if(map[nk]&&hasV(v)) out.push(map[nk]);
+        if(nk.includes('avicol')&&isYes(v)&&!out.includes('CARNE')) out.push('CARNE');
+      }
+      return out.join(', ');
+    }
+
+    const avicoloYN=r=>{
+      for(const k of Object.keys(r.src||{}))
+        if(norm(k).includes('avicol')) return isYes(r.src[k])?'SI':'NO';
+      return 'NO';
+    };
+
+    function renderTicket(){
+      const wrap=D.q('#tkt-body'); if(!wrap) return;
+      const row=view[index]||ORDERS[0]||null;
+      const LOGO=(window.BOTTEGA_LOGO_URL||'svg-bottega%20black.png');
+      const AVICOLO_ICON='avicolo.png';
+      const CART_ICON='carrello.png';
+      const parts=[];
+      const ts=pickTS(row); if(ts) parts.push(`<div class="insert-ts">${esc(ts)}</div>`);
+      if(row){
+        const ph=pickPhone(row);
+        parts.push(
+          `${row.name?`<div class='info-name'><span id='tkt-name'>${esc(row.name)}</span></div>`:''}`+
+          `${ph?`<div class='info-top info-phone'>${esc(ph)}</div>`:''}`+
+          `${row.date?`<div class='info-top info-date'><b>${fmtIT(row.date)}</b></div>`:''}`+
+          `${row.time?`<div class='info-top info-time'><b>Ore ${esc(row.time)}</b></div>`:''}`
+        );
+
+        const av=avicoloYN(row);
+        const num=(typeof row.number==='number'&&!isNaN(row.number))?row.number:'—';
+        parts.push(`
+          <div class="tkt-header">
+            <div class="side left">
+              <img class="icon" src="${AVICOLO_ICON}" alt="Avicoli" onerror="this.style.display='none'" />
+              <div class="label">${esc(av)}</div>
+            </div>
+            <div class="center">
+              <img id="tkt-logo" class="logo" src="${LOGO}" alt="Bottega di Casterno">
+            </div>
+            <div class="side right">
+              <img class="icon" src="${CART_ICON}" alt="Ordine" onerror="this.style.display='none'" />
+              <div class="label">${esc(num)}</div>
+            </div>
+          </div>
+        `);
+
+        const dtxt=deptList(row); if(dtxt) parts.push(`<div class="dept-line">${esc(dtxt)}</div>`);
+        const core=buildValueLines(row);
+        if(core){
+          parts.push(`<div class="hr-solid"></div><div class="vals">${core}</div><div class="hr-solid"></div>`);
+        }
+        parts.push(`<div class="holiday-msg">Grazie e Arrivederci</div>`);
+        if(typeof row.number==='number'&&!isNaN(row.number)) parts.push(`<div class="barcode">*${row.number}*</div>`);
+      } else {
+        parts.push(`<img id="tkt-logo" class="logo" src="${LOGO}" alt="Bottega di Casterno">`);
+      }
+
+      wrap.innerHTML=`<div class="tkt">${parts.join('')}</div>`;
+      const logoEl=document.getElementById('tkt-logo');
+      if(logoEl){
+        logoEl.onerror=()=>{
+          const dv=document.createElement('div');
+          dv.className='tkt center h';
+          dv.textContent='La Bottega di Casterno';
+          logoEl.replaceWith(dv);
+        };
+      }
+      const nameEl=document.getElementById('tkt-name'); if(nameEl) fitText(nameEl);
+    }
+
+    /* ===================== Reparti / Filtri ===================== */
+    const DEPTS=[
+      {id:'pane', k:norm('1) PANE E PRODOTTI DA FORNO'), icon:'🥖'},
+      {id:'banco',k:norm('2) BANCO GASTRONOMIA'), icon:'🧀'},
+      {id:'fruver',k:norm('3) FRUTTA E VERDURA'), icon:'🥦'},
+      {id:'carne',k:norm('4) CARNE'), icon:'🥩'},
+      {id:'altro',k:norm('5) ALTRO'), icon:'📦'}
+    ];
+    const ALL_IDS=DEPTS.map(d=>d.id);
+    function readStoredActiveDepts(){
+      try{
+        const raw = localStorage.getItem('sso_active_depts');
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      }catch(_){
+        return [];
+      }
+    }
+    let ACTIVE=new Set(readStoredActiveDepts().filter(id => ALL_IDS.includes(id)));
+    if(!ACTIVE.size){
+      ACTIVE=new Set(ALL_IDS);
+      localStorage.setItem('sso_active_depts',JSON.stringify([...ACTIVE]));
+    }
+    const rowHas=(row,id)=>{
+      const d=DEPTS.find(x=>x.id===id); if(!d) return false;
+      let head=false;
+      for(const [k,v] of Object.entries(row.src||{})){
+        const nk=row.__normKeys[k]||norm(k);
+        if(nk===d.k){head=hasV(v);break}
+      }
+      if(id==='carne'){
+        let avi=false;
+        for(const [k,v] of Object.entries(row.src||{})){
+          const nk=row.__normKeys[k]||norm(k);
+          if(nk==='avicolo'||nk.includes('avicol')){avi=isYes(v);break}
+        }
+        return head||avi;
+      }
+      return head;
+    };
+    const matchesActive=row=>{
+      if(!ACTIVE.size) return false;
+      for(const id of ACTIVE){ if(rowHas(row,id)) return true; }
+      return false;
+    };
+    function deptChips(row){
+      const src = row.src || {};
+      const nkMap = row.__normKeys || {};
+      const labels = {
+        pane: 'Pane',
+        banco: 'Banco',
+        fruver: 'Fruver',
+        carne: 'Carne',
+        altro: 'Altro'
+      };
+      const chips = [];
+
+      for (const dep of DEPTS) {
+        let present = false;
+        for (const [k, v] of Object.entries(src)) {
+          const nk = nkMap[k] || norm(k);
+          if (nk === dep.k && hasV(v)) {
+            present = true;
+            break;
+          }
+        }
+        if (present) chips.push({ icon: dep.icon, label: labels[dep.id] || dep.id });
+      }
+
+      let hasAvicolo = false;
+      for (const [k, v] of Object.entries(src)) {
+        const nk = nkMap[k] || norm(k);
+        if (nk.includes('avicol') && isYes(v)) {
+          hasAvicolo = true;
+          break;
+        }
+      }
+      if (hasAvicolo) chips.push({ icon: '🐔', label: 'Avicoli' });
+
+      return chips;
+    }
+
+    function updateFilterUI(){
+      const badge = D.q('#sso-filter-badge');
+      const chip  = D.q('#chipbar-filter');
+      if (!badge || !chip) return;
+
+      const all = [
+        {id:'pane',   icon:'🥖'},
+        {id:'banco',  icon:'🧀'},
+        {id:'fruver', icon:'🥦'},
+        {id:'carne',  icon:'🥩'},
+        {id:'altro',  icon:'📦'}
+      ];
+
+      // ➤ Caso: TUTTI i reparti sono selezionati → filtro NON attivo
+      if (ACTIVE.size === ALL_IDS.length) {
+        chip.classList.add('compact');
+        chip.classList.remove('active');
+
+        // Nessun badge, nessun testo
+        badge.style.display = 'none';
+        badge.innerHTML = '';
+        return;
+      }
+
+      // ➤ Caso: filtro attivo (almeno un reparto deselezionato)
+      chip.classList.remove('compact');
+      chip.classList.add('active');
+
+      // Badge visibile con le icone dei reparti selezionati
+      badge.style.display = 'inline-flex';
+      badge.innerHTML = all
+        .filter(d => ACTIVE.has(d.id))
+        .map(d => d.icon)
+        .join(' <span class="sep">+</span> ');
+    }
+
+    /* ===================== Stat / Flashcards ===================== */
+    function recompute(){
+      const t=ORDERS.length, tdy=today(), tmr=tomorrow();
+      let pT=0,pD=0,pF=0,max=0;
+      for(const o of ORDERS){
+        if(o.date===tdy) pT++;
+        if(o.date===tmr) pD++;
+        if(o.date>tdy) pF++;
+        if(typeof o.number==='number'&&!isNaN(o.number)) max=Math.max(max,o.number);
+      }
+      const total=t;
+      const elTotal=D.q('#fc-total');
+      const elPT=D.q('#fc-pickup-today');
+      const elPD=D.q('#fc-pickup-tomorrow');
+      const elPF=D.q('#fc-pickup-future');
+      if(elTotal) elTotal.textContent=total;
+      if(elPT) elPT.textContent=pT;
+      if(elPD) elPD.textContent=pD;
+      if(elPF) elPF.textContent=pF;
+    }
+
+    /* ===================== Lista ordini ===================== */
+    function sortByPickupDate(a,b){
+      const tdy = today();
+      const rank = (iso) => {
+        if (!iso) return 3;
+        if (iso < tdy) return 2;
+        return 0;
+      };
+      const ar = rank(a.date);
+      const br = rank(b.date);
+      if (ar !== br) return ar - br;
+
+      const ad = a.date || '9999-12-31';
+      const bd = b.date || '9999-12-31';
+      if (ad !== bd) return ad < bd ? -1 : 1;
+
+      const ta = a.time || '99:99';
+      const tb = b.time || '99:99';
+      if (ta !== tb) return ta < tb ? -1 : 1;
+
+      const an = typeof a.number==='number'&&!isNaN(a.number)?a.number:null;
+      const bn = typeof b.number==='number'&&!isNaN(b.number)?b.number:null;
+      if (an != null && bn != null && an !== bn) return bn - an;
+
+      return norm(a.name).localeCompare(norm(b.name), 'it');
+    }
+    function sortByInsertedDesc(a,b){
+      const ai = a.insertedAtMs || 0;
+      const bi = b.insertedAtMs || 0;
+      if (ai !== bi) return bi - ai;
+
+      const an = typeof a.number==='number'&&!isNaN(a.number)?a.number:null;
+      const bn = typeof b.number==='number'&&!isNaN(b.number)?b.number:null;
+      if (an != null && bn != null && an !== bn) return bn - an;
+
+      return norm(a.name).localeCompare(norm(b.name), 'it');
+    }
+    function highlight(){
+      const listEl = D.q('#orders-list');
+      const nodes  = D.qa('#orders-list .order');
+
+      // evidenzia l'ordine selezionato
+      nodes.forEach((n,i)=>n.classList.toggle('selected', i === index));
+
+      if (!listEl || index < 0 || index >= nodes.length) return;
+
+      const sel = nodes[index];
+
+      // bounding rect di lista e elemento selezionato
+      const listRect = listEl.getBoundingClientRect();
+      const selRect  = sel.getBoundingClientRect();
+
+      const margin = 8; // piccolo respiro
+
+      // Se l'elemento selezionato è SOPRA l'area visibile
+      if (selRect.top < listRect.top + margin) {
+        listEl.scrollTop -= (listRect.top + margin) - selRect.top;
+      }
+      // Se l'elemento selezionato è SOTTO l'area visibile
+      else if (selRect.bottom > listRect.bottom - margin) {
+        listEl.scrollTop += selRect.bottom - (listRect.bottom - margin);
+      }
+    }
+    function selectionKey(order){
+      if(!order) return null;
+      if(typeof order.number==='number' && !isNaN(order.number)) return `num:${order.number}`;
+      return `name:${norm(order.name)}|date:${order.date||''}|time:${order.time||''}`;
+    }
+    function currentSelectionKey(){
+      return selectionKey(view[index] || null);
+    }
+    function renderList(list,{selectedKey=null}={}){
+      const useInsertionHistory = active === 'all';
+      const sorted = [...list].sort(useInsertionHistory ? sortByInsertedDesc : sortByPickupDate);
+      const el     = D.q('#orders-list');
+
+      if(!sorted.length){
+        el.innerHTML = '<div class="card">Nessun ordine</div>';
+        view  = [];
+        index = 0;
+        renderTicket();
+        return;
+      }
+
+      const groupCounts = new Map();
+      if (!useInsertionHistory) {
+        sorted.forEach(o => {
+          const key = o.date || '__missing__';
+          groupCounts.set(key, (groupCounts.get(key) || 0) + 1);
+        });
+      }
+
+      let lastGroupKey = null;
+      el.innerHTML = sorted.map((o,i) => {
+        const isPastPickup = !!(o.date && o.date < today());
+        const pickupTone = !o.date ? 'future' : (o.date < today() ? 'past' : o.date === today() ? 'today' : o.date === tomorrow() ? 'tomorrow' : 'future');
+        const pickupLabel = fmtPickupBadge(o.date);
+        const insertedLabel = fmtInsertedShort(o);
+        const deptHtml = deptChips(o).map(dep => `
+          <span class="dept-chip" title="${esc(dep.label)}">
+            <span class="dept-chip-icon" aria-hidden="true">${dep.icon}</span>
+          </span>
+        `).join('');
+        const zoneTxt   = (o.zone && String(o.zone).trim() !== '')
+          ? `<span class="order-zone"><span class="order-zone-dot" aria-hidden="true">●</span><span>${esc(o.zone)}</span></span>`
+          : '';
+        const groupKey = o.date || '__missing__';
+        const groupData = fmtPickupGroup(o.date);
+        const groupHeader = !useInsertionHistory && groupKey !== lastGroupKey
+          ? `
+            <div class="date-group">
+              <div class="date-group-label">
+                <span class="date-group-main">${esc(groupData.main)}</span>
+                ${groupData.sub ? `<span class="date-group-sub">${esc(groupData.sub)}</span>` : ''}
+              </div>
+              <span class="date-group-count">${groupCounts.get(groupKey) || 0}</span>
+            </div>
+          `
+          : '';
+        lastGroupKey = groupKey;
+
+        return `
+          ${groupHeader}
+          <div class="order ${isPastPickup ? 'is-past' : ''}" data-i="${i}">
+            <span class="badge">${o.number != null ? o.number : '—'}</span>
+            <div class="order-main">
+              <div class="order-inline">
+                <span class="order-name">${esc(o.name)}</span>
+                <div class="order-meta">
+                  <span class="pickup-badge ${pickupTone}">
+                    <span class="pickup-prefix">Ritiro</span>
+                    <span class="pickup-value">${esc(pickupLabel)}</span>
+                  </span>
+                  ${deptHtml ? `<div class="dept-group">${deptHtml}</div>` : ''}
+                  ${zoneTxt}
+                </div>
+              </div>
+              ${useInsertionHistory && insertedLabel ? `<div class="order-submeta"><span class="insert-meta">Inserito ${esc(insertedLabel)}</span></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      view  = sorted;
+      if(selectedKey){
+        const preservedIndex = view.findIndex(o => selectionKey(o) === selectedKey);
+        index = preservedIndex >= 0 ? preservedIndex : 0;
+      }else{
+        index = 0;
+      }
+      highlight();
+      renderTicket();
+    }
+
+    /* ===================== Ricerca/Filtri ===================== */
+    function select(i){if(i<0||i>=view.length) return; index=i; highlight(); renderTicket();}
+    function apply({selectedKey=null}={}){
+      const q=(D.q('#q').value||'').trim().toLowerCase(), tdy=today(), tmr=tomorrow();
+      let base=[...ORDERS];
+      if(active==='pickup_today') base=base.filter(o=>o.date===tdy);
+      else if(active==='pickup_tomorrow') base=base.filter(o=>o.date===tmr);
+      else if(active==='pickup_future') base=base.filter(o=>o.date>tdy);
+      base=base.filter(matchesActive);
+      if(q) base=base.filter(o=>norm(o.name).includes(norm(q)));
+      renderList(base,{selectedKey});
+    }
+    function setFilter(k){
+      active=(k==='all')?'all':(active===k?'all':k);
+      D.qa('#flashcards .card').forEach(c=>c.classList.toggle('active',c.dataset.filter===active));
+      apply();
+    }
+
+    /* ===================== Modale FILTRO ===================== */
+    const modal=document.getElementById('sso-filter-modal'),
+          optsEl=document.getElementById('sso-filter-options'),
+          applyBtn=document.getElementById('sso-filter-apply'),
+          toggleAllBtn=document.getElementById('sso-filter-toggle-all'),
+          closeBtn=document.getElementById('sso-filter-close');
+    const openModal=()=>{
+      renderOpts(); modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      lock(); D.q('#chipbar-filter').setAttribute('aria-expanded','true');
+    };
+    const closeModal=()=>{
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      unlock(); D.q('#chipbar-filter').setAttribute('aria-expanded','false');
+      updateFilterUI();
+    };
+    function renderOpts(){
+      const SIMPLE=[
+        {id:'pane',label:'🥖  PANE'},
+        {id:'banco',label:'🧀  BANCO'},
+        {id:'fruver',label:'🥦  FRUTTA E VERDURA'},
+        {id:'carne',label:'🥩  CARNE'},
+        {id:'altro',label:'📦  ALTRO'}
+      ];
+      const act=new Set(ACTIVE);
+      optsEl.innerHTML=SIMPLE.map(d=>`<label class="filter-row"><input type="checkbox" data-dep="${d.id}" ${act.has(d.id)?'checked':''}/><span class="label">${d.label}</span></label>`).join('');
+      optsEl.querySelectorAll('input[type="checkbox"]').forEach(i=>i.addEventListener('change',()=>{ updToggle(); updApply(); }));
+      updToggle(); updApply();
+    }
+
+    const countSel = () => {
+      let c = 0;
+      optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
+        if (i.checked) c++;
+      });
+      return c;
+    };
+
+    const setAll = b => {
+      optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
+        i.checked = b;
+      });
+      updToggle();
+      updApply();
+    };
+
+    const updToggle = () => {
+      const tot = ALL_IDS.length;
+      const sel = countSel();
+      toggleAllBtn.textContent = (sel === tot) ? 'Deseleziona tutti' : 'Seleziona tutti';
+    };
+
+    const updApply = () => {
+      applyBtn.disabled = (countSel() === 0);
+    };
+
+    // Wiring bottoni modale: aggiorna ACTIVE e ri-applica il filtro a cascata
+    if (toggleAllBtn) {
+      toggleAllBtn.addEventListener('click', () => {
+        const tot = ALL_IDS.length;
+        const sel = countSel();
+        setAll(sel !== tot);              // se non sono tutti, seleziona tutti; se sono tutti, deseleziona tutti
+      });
+    }
+
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const selected = [];
+        optsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i => {
+          if (i.checked) selected.push(i.dataset.dep);
+        });
+
+        // Se qualcosa va storto e non c'è nulla selezionato, fallback a tutti i reparti
+        const next = selected.length ? selected : ALL_IDS;
+        ACTIVE = new Set(next);
+        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE]));
+
+        closeModal();
+        apply();                          // ricalcola lista ordini (dopo filtro flashcard)
+      });
+    }
+
+    /* ===================== Scroll lock per modale ===================== */
+    function lock(){
+      const y=window.scrollY||window.pageYOffset;
+      document.body.dataset.scrollY=y;
+      document.body.style.position='fixed';
+      document.body.style.top=`-${y}px`;
+      document.body.style.left='0';
+      document.body.style.right='0';
+      document.body.style.width='100%';
+    }
+    function unlock(){
+      const y=+(document.body.dataset.scrollY||0);
+      document.body.style.position='';
+      document.body.style.top='';
+      document.body.style.left='';
+      document.body.style.right='';
+      document.body.style.width='';
+      window.scrollTo(0,y);
+      delete document.body.dataset.scrollY;
+    }
+
+    /* ===================== Azioni UI / tastiera ===================== */
+    function search(){apply();}
+    function next(){if(index<view.length-1) select(index+1);}
+    function prev(){if(index>0) select(index-1);}
+    function doPrint(){window.print();}
+
+    if(D.q('#chipbar-filter')) D.q('#chipbar-filter').addEventListener('click',openModal);
+    if(closeBtn) closeBtn.addEventListener('click',closeModal);
+    if(modal) modal.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('backdrop')) closeModal();});
+
+    document.addEventListener('keydown',e=>{
+      const k=e.key,typing=/input|textarea/i.test(e.target.tagName)||e.target.isContentEditable;
+      if(modal&&modal.classList.contains('open')){
+        if(k==='Escape'||k==='q'||k==='Q'){e.preventDefault();closeModal();}
+        return;
+      }
+      if(typing) return;
+      if(k==='ArrowDown'){e.preventDefault();next();}
+      else if(k==='ArrowUp'){e.preventDefault();prev();}
+      else if(k==='Enter'){e.preventDefault();doPrint();}
+    });
+
+    /* ===================== API / Mapping ===================== */
+    const API='https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
+    function parseDate(s){
+      if(!s) return null; const str=String(s).trim();
+      let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+      if(m){
+        const dd=+m[1],mm=+m[2]-1,yy=+m[3];
+        return new Date(yy<100?2000+yy:yy,mm,dd,12,0,0);
+      }
+      m=str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if(m) return new Date(+m[1],+m[2]-1,+m[3],12,0,0);
+      const d=new Date(str); return isNaN(d.getTime())?null:d;
+    }
+    function pickKey(obj,cands){
+      const ks=Object.keys(obj||{});
+      for(const c of cands){
+        const k=ks.find(x=>norm(x)===norm(c)); if(k) return k;
+      }
+      for(const c of cands){
+        const k=ks.find(x=>norm(x).includes(norm(c))); if(k) return k;
+      }
+      return null;
+    }
+    function rowToOrder(r){
+      const nameK=pickKey(r,['NOME CLIENTE','NOME','CLIENTE']),
+            dateK=pickKey(r,['DATA ORDINE','DATA','GIORNO']),
+            timeK=pickKey(r,['ORA','ORARIO']),
+            zoneK=pickKey(r,['ZONA STOCCAGGIO','ZONA','STOCCAGGIO','UBICAZIONE']),
+            ordK =pickKey(r,['NUMERO ORDINE','ORDINE','N° ORDINE','ORD']),
+            insertedK =pickKey(r,['INSERIMENTO ORDINE','INSERIMENTO','TIMESTAMP','CREATED','CREATED AT','CREAZIONE','DATA INSERIMENTO','INSERTION']);
+      const name=nameK?String(r[nameK]||'').trim():'';
+      if(!name) return null;
+      const d=dateK?parseDate(r[dateK]):null,
+            t=timeK?String(r[timeK]||'').trim():'',
+            zone=zoneK?String(r[zoneK]||'').trim():'',
+            num=ordK?Number(r[ordK]):null,
+            dateISO=d?`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`:null,
+            insertedAtRaw=insertedK?String(r[insertedK]||'').trim():'',
+            insertedAtDate=parseTimestamp(insertedAtRaw),
+            insertedAtMs=insertedAtDate?insertedAtDate.getTime():0;
+      const __normKeys=Object.fromEntries(Object.keys(r).map(k=>[k,norm(k)]));
+      return {id:(num!=null?num:null),number:(num!=null?num:null),name,date:dateISO,time:t,zone,insertedAtRaw,insertedAtMs,src:r,__normKeys};
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS){
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try{
+        return await fetch(url, { ...options, signal: controller.signal });
+      }finally{
+        clearTimeout(timer);
+      }
+    }
+
+    async function load({preserveSelection=false} = {}){
+      const selectedKey = preserveSelection ? currentSelectionKey() : null;
+      try{
+        const res=await fetchWithTimeout(API+'?&_ts='+Date.now(),{
+          cache:'no-store',
+          mode:'cors',
+          headers:{Accept:'application/json, text/plain, */*'}
+        });
+        const ct=(res.headers&&res.headers.get('content-type'))||'';
+        const raw=await res.text();
+        if(!res.ok) throw new Error(`HTTP ${res.status}: ${raw.slice(0,200)}`);
+
+        let data;
+        try{
+          const looksJson=ct.toLowerCase().includes('json')||raw.trim().startsWith('{')||raw.trim().startsWith('[');
+          if(looksJson) data=JSON.parse(raw);
+          else throw new Error('API non JSON ('+ct+')');
+        }catch(_){
+          const s=raw.search(/[\[{]/),eB=raw.lastIndexOf('}'),eA=raw.lastIndexOf(']'),e=Math.max(eB,eA);
+          if(s!==-1&&e>s) data=JSON.parse(raw.slice(s,e+1));
+          else throw new Error('Parse JSON fallita');
+        }
+
+        let rows=[];
+        if(Array.isArray(data)) rows=data;
+        else if(Array.isArray(data.rows)) rows=data.rows;
+        else if(Array.isArray(data.data)) rows=data.data;
+        else if(data&&typeof data==='object'){
+          const k=Object.keys(data).find(x=>Array.isArray(data[x])&&(data[x].length===0||typeof data[x][0]==='object'));
+          if(k) rows=data[k];
+        }
+        if(!Array.isArray(rows)) rows=[];
+
+        ORDERS=rows.map(rowToOrder).filter(Boolean);
+        recompute();
+        D.qa('#flashcards .card').forEach(c=>c.classList.toggle('active',c.dataset.filter===active));
+        updateFilterUI();
+        apply({selectedKey});
+      }catch(e){
+        console.warn('API load error',e);
+        ORDERS=[];
+        recompute();
+        const el=D.q('#orders-list');
+        const msg = e && e.name === 'AbortError' ? 'Timeout richiesta API' : String(e.message||e);
+        if(el) el.innerHTML=`<div class="card">Errore caricamento dati API<br><small>${esc(msg).slice(0,180)}</small></div>`;
+        const wrap=D.q('#tkt-body');
+        if(wrap) wrap.innerHTML='<div class="tkt info-top"><b>La Bottega di Casterno</b><div style="font-weight:400;margin-top:6px">Nessun dato disponibile</div></div>';
+      }
+    }
+
+    /* ===================== Init ===================== */
+    (function init(){
+      renderTicket();
+      D.q('#flashcards').addEventListener('click',e=>{
+        const card=e.target.closest('.card');
+        if(card&&card.dataset.filter) setFilter(card.dataset.filter);
+      });
+      D.q('#btn-search').addEventListener('click',search);
+      D.q('#q').addEventListener('keydown',e=>{if(e.key==='Enter') search();});
+      D.q('#orders-list').addEventListener('click',e=>{
+        const row=e.target.closest('.order'); if(!row) return;
+        const i=+row.dataset.i;
+        select(i);
+      });
+      D.q('#btn-next').addEventListener('click',prev); // invertiti per UX destra->sinistra
+      D.q('#btn-prev').addEventListener('click',next);
+      D.q('#btn-print').addEventListener('click',doPrint);
+      window.addEventListener('resize',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n);});
+      window.addEventListener('beforeprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,22,9);});
+      window.addEventListener('afterprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,26,10);});
+      window.addEventListener('message', (e) => {
+        if (e.origin !== window.location.origin) return;
+        if (e.data && e.data.type === 'master:refresh') load({ preserveSelection:true });
+      });
+      load();
+    })();
+  </script>
+</body>
+</html>
