@@ -1,0 +1,1125 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Master - Ordini Bottega 2025</title>
+
+  <!-- Preconnect per risorse esterne -->
+  <link rel="preconnect" href="https://api.qrserver.com">
+  <link rel="dns-prefetch" href="https://www.molinosantamarta.it">
+  <link rel="dns-prefetch" href="https://docs.google.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="icon" href="./master-favicon.png" type="image/png" sizes="48x48">
+
+  <!-- imgFallback disponibile subito -->
+  <script>
+    window.imgFallback = function imgFallback(img, label) {
+      try {
+        const p = img?.parentElement;
+        if (!p) return;
+        p.classList?.add('fallback');
+        img.remove?.();
+        if (!p.textContent?.trim()) p.textContent = label || 'App';
+      } catch(e) { console.debug(e); }
+    };
+  </script>
+
+  <style>
+    html, body { height: 100%; margin: 0; }
+    :root{
+      --main:#770505; --fg:#f5f5f7; --radius:30px;
+      --tabs-h:0px; --clock-size:45px; --date-size:30px;
+      --nav-h:84px;
+      --nav-btn-size:48px;
+      --nav-surface:rgba(255,255,255,.11);
+      --nav-surface-hover:rgba(255,255,255,.18);
+      --nav-border:rgba(255,255,255,.24);
+      --nav-shadow:0 8px 20px rgba(0,0,0,.16);
+
+      /* Dimensioni QR e tipografia */
+      --qr-size-mobile: 300px;
+      --qr-size-desktop: 300px; /* ~200% rispetto a prima */
+      --title-size: clamp(20px, 2.8vw, 32px);
+      --text-size: clamp(12px, 1.2vw, 16px);
+      --caption-size: clamp(10px, 1vw, 14px);
+    }
+
+    body{
+      background:var(--main); color:var(--fg);
+      font:16px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      display:flex; flex-direction:column; min-height:100vh;
+    }
+
+    header{background:var(--main); height:20px;}
+
+    nav[role="tablist"]{
+      position:sticky; top:0; z-index:20; background:var(--main);
+      display:grid;
+      grid-template-columns:minmax(260px, 1fr) auto minmax(220px, 1fr);
+      align-items:center;
+      padding:calc(6px + env(safe-area-inset-top)) 18px 10px; gap:14px;
+      min-height:72px;
+      contain:layout style;
+    }
+    .nav-left,
+    .nav-center,
+    .nav-right{
+      min-width:0;
+      display:flex;
+      align-items:center;
+    }
+    .nav-left{
+      justify-self:start;
+      padding-left:76px;
+      min-height:var(--nav-btn-size);
+    }
+    .nav-center{justify-self:center;}
+    .nav-right{justify-self:end; gap:34px;}
+    .tabs-pill{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:5px;
+      border-radius:999px;
+      background:var(--nav-surface);
+      border:1px solid var(--nav-border);
+      box-shadow:var(--nav-shadow);
+      -webkit-backdrop-filter:blur(10px) saturate(130%);
+      backdrop-filter:blur(10px) saturate(130%);
+      position:relative;
+      z-index:1;
+    }
+    .tabs-pill{justify-content:center;}
+    .pill-sep{
+      width:1px;
+      height:28px;
+      background:rgba(255,255,255,.16);
+      margin:0 2px;
+      border-radius:999px;
+      flex:0 0 auto;
+    }
+    .tab{
+      appearance:none;
+      min-height:var(--nav-btn-size);
+      border:1px solid transparent;
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      padding:0 18px;
+      border-radius:999px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:800;
+      font-size:14px;
+      letter-spacing:.2px;
+      transition:transform .08s ease, background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+      white-space:nowrap; will-change:transform;
+    }
+    .tab svg{
+      width:16px;
+      height:16px;
+      flex:0 0 auto;
+      opacity:.95;
+    }
+    .tab:hover{
+      background:var(--nav-surface-hover);
+      border-color:rgba(255,255,255,.14);
+    }
+    .tab:active{transform:scale(.98)}
+    .tab[aria-selected="true"]{
+      background:#fff;
+      color:var(--main);
+      border-color:#fff;
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
+    }
+    .tab:focus-visible{outline:2px solid #fff; outline-offset:2px}
+
+    .apps-dock{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0;
+      margin:0 14px 0 0;
+      background:transparent;
+      border:0;
+      box-shadow:none;
+      -webkit-backdrop-filter:none;
+      backdrop-filter:none;
+      flex-wrap:nowrap;
+    }
+    .app-icon{
+      width:58px;
+      height:58px;
+      aspect-ratio:1/1;
+      border-radius:20px;
+      flex:0 0 auto;
+      border:1px solid rgba(255,255,255,.14);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.08);
+      cursor:pointer;
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      padding:3px;
+      will-change:transform;
+      box-shadow:0 8px 18px rgba(0,0,0,.14);
+    }
+    .app-icon img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      display:block;
+      border-radius:16px;
+      background:rgba(255,255,255,.96);
+    }
+    .app-icon:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.24);
+      box-shadow:0 12px 22px rgba(0,0,0,.18);
+    }
+    .app-icon[aria-current="page"]{
+      background:#fff;
+      border-color:#fff;
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 10px 22px rgba(0,0,0,.14);
+    }
+    .app-icon.fallback{
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.2px;
+      color:var(--main);
+      background:#fff;
+    }
+    .app-icon:focus-visible{outline:2px solid #fff; outline-offset:2px;}
+    .hud-date{
+      display:block;
+      font-size:var(--date-size);
+      line-height:1;
+      white-space:nowrap;
+      opacity:.96;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+      font-weight:800;
+      letter-spacing:.2px;
+      user-select:none;
+    }
+    .nav-icon-btn{
+      appearance:none;
+      width:var(--nav-btn-size);
+      height:var(--nav-btn-size);
+      border-radius:999px;
+      border:1px solid var(--nav-border);
+      background:var(--nav-surface);
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:transform .08s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+      flex:0 0 auto;
+      box-shadow:var(--nav-shadow);
+    }
+    .tabs-pill .nav-icon-btn{
+      width:44px;
+      height:44px;
+      border-color:transparent;
+      background:rgba(255,255,255,.04);
+      box-shadow:none;
+    }
+    .tabs-pill .home-btn{
+      width:auto;
+      min-height:var(--nav-btn-size);
+      padding:0 18px;
+      gap:10px;
+      border-radius:999px;
+    }
+    .nav-icon-btn:hover{
+      transform:translateY(-1px);
+      background:var(--nav-surface-hover);
+      border-color:rgba(255,255,255,.34);
+    }
+    .nav-icon-btn:active{transform:scale(.98)}
+    .nav-icon-btn:focus-visible{outline:2px solid #fff; outline-offset:2px}
+    .home-btn svg{width:16px; height:16px; display:block}
+    .home-btn span{display:inline-block; font-weight:800; font-size:14px; letter-spacing:.2px;}
+    .home-btn[aria-current="page"]{
+      background:#fff;
+      color:var(--main);
+      border-color:#fff;
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
+    }
+    .restart-btn{
+      position:absolute;
+      left:18px;
+      top:50%;
+      translate:0 -50%;
+      z-index:2;
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.35);
+      background:rgba(255,255,255,.12);
+      color:#ffd400;
+      font-size:31px;
+      line-height:1;
+      align-items:flex-start;
+      padding-top:6px;
+      box-shadow:0 10px 22px rgba(0,0,0,.16);
+      backdrop-filter:blur(5px) saturate(120%);
+      -webkit-backdrop-filter:blur(5px) saturate(120%);
+      transform:rotate(14deg);
+    }
+    .restart-btn:hover{
+      transform:rotate(14deg);
+      background:rgba(255,255,255,.18);
+    }
+    .restart-btn:active{
+      transform:rotate(14deg) scale(.98);
+    }
+    .hud-clock{
+      display:flex;
+      align-items:center;
+      white-space:nowrap;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+      font-weight:800;
+      font-size:var(--clock-size);
+      text-align:right;
+      line-height:1;
+      letter-spacing:.2px;
+      user-select:none;
+    }
+    .hud-clock .blink{display:inline-block;transition:opacity .12s linear;}
+    .hud-clock .blink.off{opacity:0;}
+
+    main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:2px 10px 12px;}
+    [data-view]{display:none;width:100%;height:100%;}
+    [data-view].active{display:flex;animation:fade .18s ease-out;}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    .panel{
+      flex:none; max-height:960px; width:100%; background:#fff; color:#000; border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700;
+      overflow:hidden; position:relative; -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.25); margin-top: 8px;
+      contain: layout style paint;
+    }
+    .panel iframe{width:100%; height:100%; border:0; background:transparent;}
+
+    /* === Showcase senza contenitore, gruppo centrato, gap minimo === */
+    .app-showcase{
+      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:22px; text-align:center;
+    }
+    @media (min-width:800px){
+      .app-showcase{
+        flex-direction:row; justify-content:center; align-items:center; text-align:center;
+        gap:100px; /* minimo visivo tra testo+QR e telefono */
+      }
+      .app-showcase .info-col{flex:0 1 auto; max-width:400px;}
+      .app-showcase .phone-col{flex:0 1 auto; display:flex; justify-content:center; align-items:center;}
+    }
+
+    /* Titolo e testo (più grandi) */
+    .info-col h2{margin:0 0 8px; font-size:var(--title-size); letter-spacing:.2px}
+    .info-col p{margin:0; font-size:var(--text-size); opacity:.95}
+
+    /* QR enorme (200%) + didascalia, nessun contenitore, con fade-in */
+    .qr-wrap{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:70px;               /* spazio tra QR e caption */
+      margin-top:70px;        /* più aria dal testo sopra */
+      margin-bottom:20px;     /* un filo d'aria sotto */
+    }
+    .qr{
+      width:min(var(--qr-size-desktop), 90vw);
+      height:min(var(--qr-size-desktop), 90vw);
+      border-radius:20px; background:#fff; display:grid; place-items:center; overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+
+      /* stato iniziale per fade-in */
+      opacity:0; transform:translateY(6px);
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .qr.is-visible{ opacity:1; transform:none; }
+    @media (max-width:1000px){
+      .qr{
+        width:min(var(--qr-size-mobile), 88vw);
+        height:min(var(--qr-size-mobile), 88vw);
+      }
+    }
+    .qr img{width:100%; height:100%; object-fit:contain}
+    .qr-caption{font-size:var(--caption-size); opacity:.98}
+    .qr.error{font-size:12px; color:#999; padding:10px; text-align:center}
+
+    /* Phone preview */
+    .phone-stage{width:100%; display:grid; place-items:center; margin-top:-12px;}
+    .phone-mockup{position:relative; height:820px; max-height:820px; aspect-ratio:9/19.5; display:block;}
+    .phone-mockup .screen{position:absolute; inset:0; padding:14px 16px 22px 16px;}
+    .phone-mockup .screen > .screen-clip{
+      position:absolute; top:14px; left:16px; right:16px; bottom:22px;
+      border-radius:42px; overflow:hidden; background:#111; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;
+    }
+    .phone-mockup iframe{position:absolute; inset:0; width:100%; height:100%; border:0; background:#111;}
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important}
+      .tabs-pill{-webkit-backdrop-filter:none; backdrop-filter:none}
+    }
+    @media (max-width:899px){
+      nav[role="tablist"]{
+        grid-template-columns:auto 1fr auto;
+        padding-left:12px;
+        padding-right:12px;
+        gap:10px;
+      }
+      .hud-date{display:none;}
+      .nav-right{gap:12px;}
+      .apps-dock{gap:10px; margin-right:0;}
+      .app-icon{width:52px;height:52px;border-radius:18px;}
+      .app-icon img{border-radius:14px;}
+      .hud-clock{font-size:32px;}
+      .nav-left{padding-left:60px;}
+    }
+    @media (max-width:720px){
+      nav[role="tablist"]{
+        grid-template-columns:1fr auto;
+      }
+      .nav-left{display:none;}
+      .nav-center{justify-self:start;}
+      .nav-right .apps-dock{display:none;}
+    }
+
+    #hacker-modal{
+      --hack-bg:#050708;
+      --hack-panel-bg:rgba(4,10,9,0.82);
+      --hack-neon1:#b2ff59;
+      --hack-neon2:#39ff7a;
+      --hack-neon3:#00e676;
+      --hack-accent:#00eaff;
+      --hack-mono:'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;
+      position:fixed;
+      inset:0;
+      z-index:999;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .8s ease;
+      overflow:hidden;
+    }
+    #hacker-modal.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    #hacker-modal .bg-wrap{
+      position:fixed;
+      inset:0;
+      overflow:hidden;
+      z-index:0;
+    }
+    #hacker-modal video.bg{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:contrast(1.18) saturate(1.2) brightness(.96);
+    }
+    #hacker-modal .vignette{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:radial-gradient(60% 40% at 50% 30%,rgba(0,0,0,0) 0%,rgba(0,0,0,.12) 62%,rgba(0,0,0,.22) 100%);
+      mix-blend-mode:multiply;
+    }
+    #hacker-modal .panel{
+      position:fixed;
+      left:50%;
+      top:calc(50% - 100px);
+      transform:translate(-50%,-50%);
+      width:min(820px,94vw);
+      max-height:72vh;
+      border-radius:14px;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      z-index:10;
+      background:linear-gradient(180deg, rgba(6,12,10,0.86), rgba(4,7,7,0.82));
+      box-shadow:0 24px 60px rgba(0,0,0,.65), inset 0 0 40px rgba(57,255,122,0.03);
+      border:1px solid rgba(57,255,122,0.08);
+      backdrop-filter:blur(6px) saturate(1.1);
+      -webkit-backdrop-filter:blur(6px) saturate(1.1);
+      color:#cfeef1;
+      font-family:var(--hack-mono);
+      margin-top:0;
+    }
+    #hacker-modal .title{
+      position:relative;
+      font-size:44px;
+      color:transparent;
+      font-weight:900;
+      letter-spacing:.9px;
+      text-transform:uppercase;
+      background:linear-gradient(90deg,var(--hack-neon1),var(--hack-neon2),var(--hack-neon3),var(--hack-neon2),var(--hack-neon1));
+      background-size:220% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      animation:hacker-title-shift 6s linear infinite, hacker-glitch 3.2s ease-in-out infinite;
+      filter:drop-shadow(0 0 14px rgba(57,255,122,.35));
+    }
+    #hacker-modal .title::after{
+      content:" ";
+      position:absolute;
+      inset:-2px 0;
+      pointer-events:none;
+      background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0px,rgba(255,255,255,.06) 1px,transparent 1px,transparent 3px);
+      mix-blend-mode:overlay;
+      opacity:.35;
+      animation:hacker-disconnect 1.4s steps(6) infinite;
+    }
+    #hacker-modal .subtitle{
+      font-size:18px;
+      color:#9af3ff;
+      opacity:.98;
+      margin-top:4px;
+      letter-spacing:.5px;
+      font-weight:700;
+      text-transform:uppercase;
+      text-shadow:0 0 10px rgba(0,234,255,.35);
+    }
+    #hacker-modal .console{
+      position:relative;
+      border-radius:8px;
+      padding:10px 12px;
+      background:linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.26));
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:inset 0 0 24px rgba(0,0,0,.5);
+      min-height:110px;
+    }
+    #hacker-modal .logs{
+      height:110px;
+      overflow:hidden;
+      position:relative;
+      mask-image:linear-gradient(to bottom, transparent 0, rgba(0,0,0,.9) 10%, rgba(0,0,0,1) 85%, transparent 100%);
+    }
+    #hacker-modal #hacker-log-list{
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+    }
+    #hacker-modal .line{
+      font-size:12px;
+      line-height:1.22;
+      white-space:nowrap;
+      color:rgba(190,255,210,.88);
+      padding:1px 0;
+    }
+    #hacker-modal .line.ok{color:rgba(57,255,122,.96)}
+    #hacker-modal .line.info{color:rgba(0,234,255,.96)}
+    #hacker-modal .line.warn{color:#ffd77a}
+    #hacker-modal .line.err{color:#ff6464}
+    #hacker-modal .footer{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-top:6px;
+    }
+    #hacker-modal .progress{
+      flex:1;
+      height:22px;
+      background:linear-gradient(180deg,#031e13,#041a12);
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.6);
+      box-shadow:inset 0 2px 10px rgba(0,0,0,.8),0 0 18px rgba(0,0,0,.25);
+    }
+    #hacker-modal .bar{
+      position:relative;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#00c86f,#00b964,#00ab5b);
+      box-shadow:inset 0 0 6px rgba(0,0,0,.4),0 0 28px rgba(0,255,140,.35);
+    }
+    #hacker-modal .bar::before{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:-40%;
+      width:40%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+      filter:blur(1px);
+      animation:hacker-glide 1.6s linear infinite;
+    }
+    #hacker-modal .pct{
+      font-size:24px;
+      color:#a9ffca;
+      font-weight:900;
+      min-width:78px;
+      text-align:right;
+      text-shadow:0 0 10px rgba(57,255,122,.45);
+    }
+    #hacker-modal .admin-badge{
+      position:fixed;
+      right:14px;
+      bottom:12px;
+      background:rgba(0,0,0,.5);
+      border:1px solid rgba(255,255,255,.08);
+      color:#bfe;
+      font:12px/1.6 var(--hack-mono);
+      padding:3px 10px;
+      border-radius:999px;
+      opacity:.92;
+      z-index:20;
+    }
+    #hacker-modal .admin-badge span{color:#9ff}
+    @keyframes hacker-title-shift{0%{background-position:0% 50%}100%{background-position:220% 50%}}
+    @keyframes hacker-glitch{
+      0%,100%{text-shadow:0 0 transparent}
+      15%{text-shadow:1px 0 rgba(0,234,255,.4),-1px 0 rgba(255,0,120,.35)}
+      35%{text-shadow:-1px 0 rgba(0,234,255,.35),1px 0 rgba(255,0,120,.35)}
+      55%{text-shadow:2px 0 rgba(0,234,255,.25),-2px 0 rgba(255,0,120,.25)}
+      75%{text-shadow:-2px 0 rgba(0,234,255,.25),2px 0 rgba(255,0,120,.25)}
+    }
+    @keyframes hacker-disconnect{
+      0%{clip-path:inset(0 0 0 0)}
+      20%{clip-path:inset(3% 0 0 0)}
+      40%{clip-path:inset(0 0 5% 0)}
+      60%{clip-path:inset(2% 0 2% 0)}
+      80%{clip-path:inset(0 0 4% 0)}
+      100%{clip-path:inset(0 0 0 0)}
+    }
+    @keyframes hacker-glide{0%{left:-40%}100%{left:140%}}
+    @media (max-width:700px){
+      #hacker-modal .panel{
+        top:50%;
+        padding:14px;
+        width:94vw;
+      }
+      #hacker-modal .title{font-size:32px}
+      #hacker-modal .subtitle{font-size:14px}
+      #hacker-modal .logs{height:100px}
+    }
+    
+  </style>
+</head>
+<body>
+  <header></header>
+
+  <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
+    <button type="button" id="btn-restart" class="nav-icon-btn restart-btn" aria-label="Riavvia" title="Ricarica le schermate">↻</button>
+
+    <div class="nav-left">
+      <div class="hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
+    </div>
+
+    <div class="nav-center">
+      <div class="tabs-pill" id="tabs-pill">
+        <button type="button" class="nav-icon-btn home-btn" id="btn-home" aria-label="Home stampa" aria-controls="view-stampa" aria-current="page" title="Vai alla home stampa">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3.5 10v10.3a.7.7 0 0 0 .7.7h5.1a.7.7 0 0 0 .7-.7v-5.5h4v5.5a.7.7 0 0 0 .7.7h5.1a.7.7 0 0 0 .7-.7V10L12 3.2Z"/></svg>
+          <span>Home</span>
+        </button>
+        <span class="pill-sep" aria-hidden="true"></span>
+        <button type="button" class="tab" role="tab" id="tab-inserisci" data-tab="inserisci" aria-controls="view-inserisci" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+          <span>Inserisci</span>
+        </button>
+        <button type="button" class="tab" role="tab" id="tab-modifica"  data-tab="modifica"  aria-controls="view-modifica"  aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.96 1.96l3.75 3.75l2.13-1.79Z"/></svg>
+          <span>Modifica</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div class="apps-dock" id="apps-dock">
+        <button type="button" class="app-icon" id="app-stoc-btn" data-app="stoc" title="Apri Stòc" aria-label="Apri Stòc" aria-current="false">
+          <img src="stoc-logo.png" alt="Stòc" onerror="imgFallback(this,'Stòc')" loading="lazy">
+        </button>
+        <button type="button" class="app-icon" id="app-ocapi-btn" data-app="ocapi" title="Apri Ocapì" aria-label="Apri Ocapì" aria-current="false">
+          <img src="ocapi-logo.png" alt="Ocapì" onerror="imgFallback(this,'Ocapì')" loading="lazy">
+        </button>
+      </div>
+
+      <div class="hud-clock" id="hud-clock" aria-live="off">
+        <span id="hh">00</span><span class="blink" id="colon">:</span><span id="mm">00</span>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section id="view-inserisci" data-view role="tabpanel" aria-labelledby="tab-inserisci" aria-hidden="true" hidden>
+      <div class="panel">
+        <iframe data-src="https://www.molinosantamarta.it/ordini-bottega" title="Molino Santa Marta"></iframe>
+      </div>
+    </section>
+
+    <section id="view-modifica" data-view role="tabpanel" aria-labelledby="tab-modifica" aria-hidden="true" hidden>
+      <div class="panel">
+        <iframe data-src="https://docs.google.com/spreadsheets/d/1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ/edit?gid=0#gid=0" title="Modifica – Google Sheets" referrerpolicy="no-referrer"></iframe>
+      </div>
+    </section>
+    
+    <section id="view-stampa" data-view class="active" role="tabpanel" aria-labelledby="btn-home" aria-hidden="false">
+      <div class="panel">
+       <iframe
+  id="frame-stampa"
+  src="./print.html"
+  title="Stampa"
+  loading="eager"
+  data-reload-strategy="message"
+  allow="clipboard-read; clipboard-write; fullscreen; geolocation; camera; microphone; display-capture; web-share"
+  style="width:100%;height:100%;border:0;pointer-events:auto;position:relative;z-index:1"
+></iframe>
+      </div>
+    </section>
+
+    <!-- STÒC℗-->
+    <section id="view-stoc" data-view role="region" aria-labelledby="app-stoc-btn" aria-hidden="true">
+      <div class="app-showcase">
+        <div class="info-col">
+          <h2>Stòc℗ – Gestione Ordini</h2>
+          <p>Consulta gli ordini inseriti, scansiona il barcode e aggiorna il luogo di stoccaggio in tempo reale. Pensato per la consegna: veloce e senza cacce al tesoro.</p>
+          <p>Un’app semplice, costruita per velocizzare il flusso di preparazione, stoccaggio e consegna degli ordini.</p>
+          <div class="qr-wrap">
+            <div class="qr"><img id="qr-stoc" alt="QR per Stòc"></div>
+            <div class="qr-caption">Scansiona il codice qui sopra e usa l'app direttamente (nessun download da fare, zero spazio occupato).</div>
+          </div>
+        </div>
+        <div class="phone-col">
+          <div class="phone-stage" aria-label="Anteprima mobile Stòc">
+            <div class="phone-mockup">
+              <div class="screen">
+                <div class="screen-clip">
+                  <iframe data-src="https://molinosantamarta.github.io/bottega-sso/" title="Stòc – App Bottega (mobile)"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OCAPÌ℗ -->
+    <section id="view-ocapi" data-view role="region" aria-labelledby="app-ocapi-btn" aria-hidden="true">
+      <div class="app-showcase">
+        <div class="info-col">
+          <h2>Ocapì℗ – Manager Avicoli </h2>
+          <p>Ocapì℗ sa quanti polli, oche, anatre e capponi servono domani, dopodomani e ogni altro giorno. Tu devi solo aprire l'app, guardare i numeri e fare il segno della croce.</p>
+          <p>Con Ocapì℗, tutto fila liscio e finalmente, t'ha l'è capì anca ti.</p>
+          <div class="qr-wrap">
+            <div class="qr"><img id="qr-ocapi" alt="QR per Ocapì"></div>
+            <div class="qr-caption">Scansiona il codice qui sopra e usa l'app direttamente (nessun download da fare, zero spazio occupato).</div>
+          </div>
+        </div>
+        <div class="phone-col">
+          <div class="phone-stage" aria-label="Anteprima mobile Ocapì">
+            <div class="phone-mockup">
+              <div class="screen">
+                <div class="screen-clip">
+                  <iframe data-src="https://molinosantamarta.github.io/bottega-avicoli" title="Ocapì – Avicoli (mobile)"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="hacker-modal" class="hacker-modal" aria-hidden="true">
+    <div class="bg-wrap">
+      <video id="hacker-video" class="bg" muted loop playsinline preload="auto">
+        <source src="hacker.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="vignette"></div>
+
+    <main class="panel" role="dialog" aria-label="retroBottega HUD">
+      <header>
+        <div class="title">CONNESSIONE CON GIUANIN BEL NET</div>
+        <div class="subtitle">agente di INTELLIGENZA ARTIFICIALE AVANZATO | gpt 6.0 preview</div>
+      </header>
+
+      <section class="console" aria-live="polite">
+        <div class="logs" id="hacker-logs">
+          <div id="hacker-log-list"></div>
+        </div>
+      </section>
+
+      <div class="footer">
+        <div class="progress"><div id="hacker-bar" class="bar"></div></div>
+        <div id="hacker-pct" class="pct">0%</div>
+      </div>
+    </main>
+
+    <div class="admin-badge" aria-label="admin">admin: <span>retroBottega</span></div>
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const VIEWS = ["inserisci", "modifica", "stampa", "stoc", "ocapi"];
+    const APP_CONFIG = {
+      stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',    qrImg: '#qr-stoc'  },
+      ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
+    };
+    const HACKER_MODAL_DURATION = 12000;
+    const HACKER_BASE_TICK = 85;
+
+    // === UTILITIES ===
+    const $  = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+    const pad2 = (n) => n < 10 ? '0' + n : n;
+    const capFirst = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+    // === STATE ===
+    let currentView = null;
+    let clockInterval = null;
+    let dateInterval = null;
+    let resizeObserver = null;
+    let hackerTimeoutId = null;
+    let hackerRafId = null;
+    let qrSizeMode = null;
+    const loadedIframes = new Set();
+
+    // === DOM CACHE ===
+    const dom = {
+      tabs: $$('.tab'),
+      pill: $('#tabs-pill'),
+      nav: $('#tabs-nav'),
+      home: $('#btn-home'),
+      hh: $('#hh'), mm: $('#mm'), colon: $('#colon'),
+      hudDate: $('#hud-date'),
+      appsDock: $('#apps-dock')
+    };
+    const tabByView = Object.fromEntries(dom.tabs.map(t => [t.dataset.tab, t]));
+
+    // === VIEW MANAGEMENT ===
+    function setAriaForPanel(view, active) {
+      const panel = document.getElementById('view-' + view);
+      if (!panel) return;
+      panel.classList.toggle('active', active);
+      panel.setAttribute('aria-hidden', String(!active));
+      if (active) { panel.removeAttribute('hidden'); loadIframeIfNeeded(panel); }
+      else { panel.setAttribute('hidden', ''); }
+    }
+    function loadIframeIfNeeded(panel){
+      const iframe = panel.querySelector('iframe[data-src]');
+      if (iframe && !loadedIframes.has(iframe)) { iframe.src = iframe.dataset.src; loadedIframes.add(iframe); }
+    }
+    function getActivePanel(){
+      if (currentView) return document.getElementById('view-' + currentView);
+      return document.querySelector('[data-view].active');
+    }
+    function refreshFrame(frame){
+      if (!frame) return;
+      if (frame.dataset.reloadStrategy === 'message' && frame.contentWindow) {
+        try {
+          frame.contentWindow.postMessage({ type:'master:refresh' }, window.location.origin);
+          return;
+        } catch (_) {}
+      }
+      if (frame.dataset && frame.dataset.src) {
+        frame.src = frame.dataset.src;
+        loadedIframes.add(frame);
+        return;
+      }
+      try {
+        frame.contentWindow.location.reload();
+      } catch (_) {
+        if (frame.src) frame.src = frame.src;
+      }
+    }
+    function restartCurrentView(){
+      const panel = getActivePanel();
+      if (!panel) return;
+      panel.querySelectorAll('iframe').forEach(refreshFrame);
+    }
+    function activate(view, { focusTab=true, updateUrl=true } = {}){
+      if (!VIEWS.includes(view)) view = 'stampa';
+      if (view === currentView) return;
+      currentView = view;
+      VIEWS.forEach(v => setAriaForPanel(v, v === view));
+      dom.tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === view)));
+      if (dom.home) dom.home.setAttribute('aria-current', view === 'stampa' ? 'page' : 'false');
+      $$('.app-icon').forEach(i => i.setAttribute('aria-current', i.dataset.app === view ? 'page' : 'false'));
+      if (focusTab) {
+        if (view === 'stampa' && dom.home) dom.home.focus({ preventScroll:true });
+        else if (tabByView[view]) tabByView[view].focus({ preventScroll:true });
+      }
+      if (updateUrl){
+        try { localStorage.setItem('activeView', view); } catch {}
+        try { const hash = '#' + view; if (location.hash !== hash) history.replaceState(null, '', hash); } catch {}
+      }
+    }
+
+    // === EVENTS ===
+    function handleTabClick(e){ const tab = e.target.closest('.tab'); if (tab) activate(tab.dataset.tab); }
+    function handleHomeClick(){ activate('stampa'); }
+    function handleAppClick(e){ const icon = e.target.closest('.app-icon'); if (icon) activate(icon.dataset.app); }
+    function handleTabKeyboard(e){
+      const idx = dom.tabs.findIndex(t => t === document.activeElement);
+      if (idx === -1) return;
+      let nextIdx = idx;
+      switch (e.key){
+        case 'ArrowRight': nextIdx = (idx + 1) % dom.tabs.length; break;
+        case 'ArrowLeft' : nextIdx = (idx - 1 + dom.tabs.length) % dom.tabs.length; break;
+        case 'Home'      : nextIdx = 0; break;
+        case 'End'       : nextIdx = dom.tabs.length - 1; break;
+        case 'Enter': case ' ':
+          activate(dom.tabs[idx].dataset.tab); e.preventDefault(); return;
+        default: return;
+      }
+      dom.tabs[nextIdx].focus(); e.preventDefault();
+    }
+    function handleHashChange(){
+      const view = location.hash.slice(1);
+      if (VIEWS.includes(view)) activate(view, { focusTab:false, updateUrl:false });
+    }
+
+    // === CLOCK & DATE ===
+    function syncTabs(){
+      const h = dom.pill.offsetHeight;
+      document.documentElement.style.setProperty('--tabs-h', h + 'px');
+      const nh = dom.nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h', nh + 'px');
+    }
+    function formatItalianDate(d){
+      const fmt = new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
+      const p = fmt.formatToParts(d);
+      let w='', day='', m='';
+      p.forEach(x=>{ if(x.type==='weekday') w=capFirst(x.value); if(x.type==='day') day=x.value; if(x.type==='month') m=capFirst(x.value); });
+      return `${w}, ${day} ${m}`;
+    }
+    function updateClock(){ const n = new Date(); $('#hh').textContent = pad2(n.getHours()); $('#mm').textContent = pad2(n.getMinutes()); }
+    function updateDate(){ $('#hud-date').textContent = formatItalianDate(new Date()); }
+    let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); }
+
+    const HACKER_LEVELS = ['INFO','OK','WARN','ERR'];
+    const HACKER_MSGS = [
+      'auth token', 'query ORDINI 2025', 'normalizzazione campi', 'retroBottega sync',
+      'mapping schema', 'rendering scontrino', 'stampa coda', 'checksum', 'commit reload',
+      'cache warmup', 'alloc buffer', 'TLS 1.3 handshake', 'latency', 'delta ordini', 'diff map'
+    ];
+
+    function hackerRandHex(n){
+      return Array.from({ length: n }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+    }
+    function hackerTs(){
+      const d = new Date();
+      return d.toISOString().split('T')[1].replace('Z', '');
+    }
+    function makeHackerLine(){
+      const lv = HACKER_LEVELS[Math.floor(Math.random() * HACKER_LEVELS.length)];
+      const msg = HACKER_MSGS[Math.floor(Math.random() * HACKER_MSGS.length)];
+      const pipe = 'pipe#' + hackerRandHex(4);
+      let extra = '';
+      if (msg === 'latency') extra = (5 + Math.floor(Math.random() * 20)) + 'ms';
+      else if (msg === 'delta ordini') extra = '+' + Math.floor(Math.random() * 5);
+      else if (msg === 'checksum' || msg === 'stampa coda') extra = 'OK';
+      const txt = `[${hackerTs()}] ${lv.padEnd(4, ' ')} ${pipe}  ${msg}${extra ? ('... ' + extra) : '...'}`;
+      const line = document.createElement('div');
+      line.className = 'line ' + (lv === 'OK' ? 'ok' : lv === 'INFO' ? 'info' : lv === 'WARN' ? 'warn' : 'err');
+      line.textContent = txt;
+      return line;
+    }
+    function resetHackerModal(){
+      const listEl = document.getElementById('hacker-log-list');
+      const logsEl = document.getElementById('hacker-logs');
+      const bar = document.getElementById('hacker-bar');
+      const pct = document.getElementById('hacker-pct');
+      if (listEl) listEl.innerHTML = '';
+      if (bar) bar.style.width = '0%';
+      if (pct) pct.textContent = '0%';
+      if (logsEl) logsEl.scrollTop = 0;
+      for (let i = 0; i < 30; i += 1) {
+        if (listEl) listEl.appendChild(makeHackerLine());
+      }
+      if (logsEl) logsEl.scrollTop = logsEl.scrollHeight;
+    }
+    function startHackerHud(){
+      const logsEl = document.getElementById('hacker-logs');
+      const listEl = document.getElementById('hacker-log-list');
+      const bar = document.getElementById('hacker-bar');
+      const pct = document.getElementById('hacker-pct');
+      if (!logsEl || !listEl || !bar || !pct) return;
+
+      const startAt = performance.now();
+      let lastTick = 0;
+
+      const frame = (now) => {
+        const elapsed = now - startAt;
+        const progress = Math.min(1, elapsed / HACKER_MODAL_DURATION);
+        const pctVal = Math.round(progress * 100);
+        bar.style.width = pctVal + '%';
+        pct.textContent = pctVal + '%';
+
+        if (now - lastTick > HACKER_BASE_TICK) {
+          lastTick = now;
+          const burst = Math.random() < 0.55;
+          const lines = burst ? (3 + Math.floor(Math.random() * 5)) : 1;
+          for (let n = 0; n < lines; n += 1) listEl.appendChild(makeHackerLine());
+          const jump = burst ? (20 + Math.floor(Math.random() * 26)) : (10 + Math.floor(Math.random() * 12));
+          logsEl.scrollTop = Math.min(logsEl.scrollHeight, logsEl.scrollTop + jump);
+          if (listEl.children.length > 600) {
+            for (let k = 0; k < 200; k += 1) {
+              if (listEl.firstChild) listEl.removeChild(listEl.firstChild);
+            }
+          }
+        }
+
+        if (progress < 1) {
+          hackerRafId = requestAnimationFrame(frame);
+        } else {
+          hackerRafId = null;
+          closeHackerModal();
+        }
+      };
+
+      hackerRafId = requestAnimationFrame(frame);
+    }
+    function openHackerModal(){
+      const modal = document.getElementById('hacker-modal');
+      const video = document.getElementById('hacker-video');
+      if (!modal) return;
+
+      if (hackerTimeoutId) {
+        clearTimeout(hackerTimeoutId);
+        hackerTimeoutId = null;
+      }
+      if (hackerRafId) {
+        cancelAnimationFrame(hackerRafId);
+        hackerRafId = null;
+      }
+
+      resetHackerModal();
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+
+      if (video) {
+        try {
+          video.currentTime = 0;
+          const play = video.play();
+          if (play && typeof play.catch === 'function') play.catch(() => {});
+        } catch (error) {}
+      }
+
+      startHackerHud();
+      hackerTimeoutId = setTimeout(() => {
+        closeHackerModal();
+      }, HACKER_MODAL_DURATION + 200);
+    }
+
+    function closeHackerModal(){
+      const modal = document.getElementById('hacker-modal');
+      const video = document.getElementById('hacker-video');
+      if (!modal) return;
+      if (hackerTimeoutId){
+        clearTimeout(hackerTimeoutId);
+        hackerTimeoutId = null;
+      }
+      if (hackerRafId){
+        cancelAnimationFrame(hackerRafId);
+        hackerRafId = null;
+      }
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden','true');
+      if (video) {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (error) {}
+      }
+    }
+
+    // === QR CODE (con gestione fade-in) ===
+    function qrUrl(data, size = 440){
+      return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+    }
+    function setupShowcase(force = false){
+      const size = window.matchMedia('(min-width:1100px)').matches ? 440 : 300;
+      if (!force && qrSizeMode === size) return;
+      qrSizeMode = size;
+      for (const key in APP_CONFIG){
+        const { url, qrImg } = APP_CONFIG[key];
+        const img = document.querySelector(qrImg);
+        if (img){
+          const wrap = img.closest('.qr');
+          const nextSrc = qrUrl(url, size);
+          if (!force && img.dataset.qrSrc === nextSrc) continue;
+          if (wrap) wrap.classList.remove('is-visible'); // reset stato
+          img.onload = () => { if (wrap) wrap.classList.add('is-visible'); };
+          img.onerror = () => {
+            if (wrap){ wrap.classList.add('error'); wrap.textContent = 'QR non disponibile'; }
+          };
+          img.dataset.qrSrc = nextSrc;
+          img.src = nextSrc;
+        }
+      }
+    }
+
+    // === INIT ===
+    function getInitialView(){
+      const fromHash = location.hash?.slice(1);
+      if (VIEWS.includes(fromHash)) return fromHash;
+      try{
+        const stored = localStorage.getItem('activeView');
+        if (VIEWS.includes(stored)) return stored;
+      }catch(_){}
+      return 'stampa';
+    }
+    function init(){
+      const initial = getInitialView();
+      activate(initial, { focusTab:false, updateUrl:true });
+      const firstPanel = document.getElementById('view-' + initial);
+      if (firstPanel) loadIframeIfNeeded(firstPanel);
+
+      updateDate(); updateClock();
+      clockInterval = setInterval(tick, 1000);
+      dateInterval = setInterval(updateDate, 60000);
+
+      syncTabs(); setupShowcase(true);
+
+      const restartBtn = $('#btn-restart');
+      const hackerModal = document.getElementById('hacker-modal');
+      if (restartBtn){
+        restartBtn.addEventListener('click', () => {
+          restartCurrentView();
+          openHackerModal();
+        });
+      }
+      if (hackerModal){
+        hackerModal.addEventListener('click', (e) => {
+          if (e.target === hackerModal || e.target.classList.contains('vignette')) closeHackerModal();
+        });
+      }
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeHackerModal();
+      });
+
+      $('#tabs-pill').addEventListener('click', handleTabClick);
+      $('#tabs-pill').addEventListener('keydown', handleTabKeyboard);
+      $('#btn-home')?.addEventListener('click', handleHomeClick);
+      $('#apps-dock').addEventListener('click', handleAppClick);
+      window.addEventListener('hashchange', handleHashChange);
+      window.addEventListener('resize', () => { syncTabs(); setupShowcase(); }, { passive:true });
+
+      if ('ResizeObserver' in window){
+        resizeObserver = new ResizeObserver(syncTabs);
+        resizeObserver.observe($('#tabs-pill'));
+      }
+
+      console.assert(typeof window.imgFallback === 'function', 'imgFallback non definita');
+      console.assert(document.querySelector('[data-view].active'), 'Nessuna vista attiva');
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  </script>
+</body>
+</html>
