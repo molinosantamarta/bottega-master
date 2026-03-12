@@ -74,12 +74,12 @@
     }
     .nav-left{
       justify-self:start;
-      gap:14px;
+      gap:20px;
       min-height:var(--nav-btn-size);
       flex-wrap:nowrap;
     }
     .nav-center{justify-self:center;}
-    .nav-right{justify-self:end; gap:34px;}
+    .nav-right{justify-self:end; gap:34px; margin-right:8px;}
     .tabs-pill{
       display:flex;
       align-items:center;
@@ -260,18 +260,18 @@
       box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
     }
     .restart-btn{
-      width:40px;
-      height:40px;
+      width:var(--nav-btn-size);
+      height:var(--nav-btn-size);
       padding:0;
       gap:0;
       border-radius:999px;
       border:1px solid #fff;
-      background:#fff;
-      color:var(--main);
+      background:var(--main);
+      color:#fff;
       font-weight:800;
       font-size:14px;
       letter-spacing:.2px;
-      box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
       flex:0 0 auto;
       transition:transform .08s ease, background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
@@ -279,19 +279,26 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:18px;
-      height:18px;
-      color:#3f3f44;
+      width:26px;
+      height:26px;
+      color:#fff;
       transform:none;
+      transition:color .2s ease, transform .2s ease;
     }
     .restart-btn .restart-icon svg{
-      width:18px;
-      height:18px;
+      width:26px;
+      height:26px;
       display:block;
     }
     .restart-btn:hover{
       background:#fff;
       border-color:#fff;
+      color:var(--main);
+      box-shadow:0 0 0 2px rgba(255,255,255,.14), 0 12px 24px rgba(0,0,0,.14);
+    }
+    .restart-btn:hover .restart-icon{
+      color:var(--main);
+      transform:rotate(16deg) scale(1.04);
     }
     .restart-btn:active{
       transform:scale(.98);
@@ -408,12 +415,12 @@
         gap:10px;
       }
       .hud-date{display:none;}
-      .nav-right{gap:12px;}
+      .nav-right{gap:12px; margin-right:4px;}
       .apps-dock{gap:10px; margin-right:0;}
       .app-icon{width:52px;height:52px;border-radius:18px;}
       .app-icon img{border-radius:14px;}
       .hud-clock{font-size:36px; min-height:52px; margin-right:4px;}
-      .nav-left{gap:10px;}
+      .nav-left{gap:14px;}
     }
     @media (max-width:720px){
       nav[role="tablist"]{
@@ -804,8 +811,8 @@
       <button type="button" id="btn-restart" class="nav-icon-btn restart-btn" aria-label="Aggiorna" title="Aggiorna">
         <span class="restart-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2.9v7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-            <path d="M7.3 5.7A8.3 8.3 0 1 0 16.7 5.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M19 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.45" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 12a8 8 0 1 1-2.34-5.66L19 7.7" fill="none" stroke="currentColor" stroke-width="2.45" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </span>
       </button>
@@ -983,7 +990,7 @@
       ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
     };
     const HACKER_REFRESH_DELAY_MS = 3000;
-    const HACKER_MODAL_DURATION = 6000;
+    const HACKER_MODAL_DURATION = 5000;
     const HACKER_BASE_TICK = 85;
     const SCREENSAVER_IDLE_MS = 120000;
     const SCREENSAVER_DATA_REFRESH_MS = 60 * 60 * 1000;

@@ -174,9 +174,9 @@
     }
 
     .input{
-      flex:0 1 210px;
-      min-width:170px;
-      max-width:230px;
+      flex:0 1 270px;
+      min-width:200px;
+      max-width:294px;
       height:var(--toolbar-control-h);
       padding:0 16px;
       border-radius:999px;
@@ -186,7 +186,7 @@
       background:linear-gradient(180deg,#fff 0%, #fff8f6 100%);
       color:#241616;
       box-shadow:0 6px 14px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.92);
-      margin-left:0;
+      margin-left:auto;
       box-sizing:border-box;
       position:relative;
       z-index:1;
@@ -364,9 +364,9 @@
     .btn.smol{height:32px;padding:0 12px;font-size:13px;border-radius:999px}
     .btn.icon.smol{width:32px;height:32px;padding:0}
     .badge{
-      min-width:44px;
-      height:36px;
-      padding:0 8px;
+      min-width:42px;
+      height:34px;
+      padding:0 7px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -374,7 +374,7 @@
       background:#ffd60a;
       color:#000;
       font-weight:900;
-      font-size:16px;
+      font-size:15px;
       line-height:1;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 6px 14px rgba(0,0,0,.08);
     }
@@ -527,18 +527,18 @@
     /* Responsive */
     @media (max-width:1200px){
       .controls{gap:8px}
-      .input{flex-basis:200px;min-width:170px;max-width:210px}
+      .input{flex-basis:258px;min-width:190px;max-width:270px}
       #chipbar-filter{flex-basis:auto;min-width:0}
     }
     @media (max-width:960px){
       .controls{--toolbar-control-h:42px;padding:10px 12px}
       .filter-pill{height:42px;padding:0 10px 0 12px}
       .filter-pill-count{min-width:26px;height:26px}
-      .input{flex-basis:180px;min-width:160px;max-width:190px}
+      .input{flex-basis:228px;min-width:178px;max-width:240px}
       #chipbar-filter{flex-basis:auto;min-width:0}
     }
     @media (max-width:1100px){:root{--pw:35%;--sw:65%}}
-    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.controls{padding:10px;margin:12px 12px 4px;gap:8px}.list{max-height:none}.filter-pill{flex:0 0 auto;justify-content:flex-start}.input{flex-basis:170px;min-width:150px;max-width:180px}#chipbar-filter{flex-basis:auto;min-width:0}}
+    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.controls{padding:10px;margin:12px 12px 4px;gap:8px}.list{max-height:none}.filter-pill{flex:0 0 auto;justify-content:flex-start}.input{flex-basis:216px;min-width:168px;max-width:228px}#chipbar-filter{flex-basis:auto;min-width:0}}
 
     /* Stampa */
     @media print{
@@ -618,7 +618,7 @@
     <aside class="panel right">
       <div class="controls" id="controls-bar">
         <button type="button" class="filter-pill active" data-filter="all" aria-pressed="true">
-          <span class="filter-pill-label">Totale</span>
+          <span class="filter-pill-label">Tutti</span>
           <span id="fc-total" class="filter-pill-count">—</span>
         </button>
         <button type="button" class="filter-pill" data-filter="pickup_today" aria-pressed="false">
