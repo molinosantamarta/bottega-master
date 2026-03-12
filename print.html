@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=The+Nautigal:wght@400;700&display=swap" rel="stylesheet">
   <title>Bottega – Stampa Ordini</title>
   <style>
-    :root{--main:#770505;--fg:#0b0b0b;--card:#fff;--ink:#111;--r:22px;--e:0 10px 24px rgba(0,0,0,.15);--g:14px;--pad:16px;--pw:18%;--sw:82%;--tmax:960px}
+    :root{--main:#770505;--fg:#0b0b0b;--card:#fff;--ink:#111;--r:22px;--e:0 10px 24px rgba(0,0,0,.15);--g:14px;--pad:16px;--pw:18%;--sw:82%;--tmax:960px;--ticket-width-screen:92%;--ticket-width-print:74mm}
     html,body{height:100%;margin:0;background:#f5f5f7;color:var(--fg);font:16px/1.45 Verdana, Geneva, sans-serif}
     .app{display:grid;grid-template-columns:minmax(240px,var(--pw)) minmax(520px,var(--sw));gap:var(--g);height:100%;padding:calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));box-sizing:border-box}
 
@@ -26,9 +26,9 @@
     .btn.icon{width:44px;padding:0}
 
     #tkt-body{width:100%;max-height:var(--tmax);background:#fff;color:#000;border:0;border-radius:0;overflow:auto;box-shadow:none}
-    .tkt{font:15px/1.35 Verdana, Geneva, sans-serif;text-align:center;padding:10px 0 12px}
+    .tkt{width:var(--ticket-width-screen);max-width:100%;margin:0 auto;font:15px/1.35 Verdana, Geneva, sans-serif;text-align:center;padding:10px 0 12px;box-sizing:border-box}
     .tkt .info-top{margin-bottom:6px;font-size:1.1em}
-    .tkt .info-name{font-weight:700;margin:6px 8px;white-space:nowrap;overflow:hidden;max-width:calc(100% - 16px)}
+    .tkt .info-name{font-weight:700;margin:6px 4px;white-space:nowrap;overflow:hidden;max-width:calc(100% - 8px)}
     #tkt-name{font-size:24px;line-height:1.15;display:inline-block;max-width:100%;white-space:nowrap}
     /* Data più grande */
     .tkt .info-date b{font-size:1.28em}
@@ -37,9 +37,9 @@
     .tkt .info-time{margin-top:6px}
 
     /* Header con logo centrale e icone laterali */
-    .tkt-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:6px 10px 8px}
-    .tkt-header .side{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px}
-    .tkt-header .icon{height:46px;width:auto;object-fit:contain}
+    .tkt-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:6px 8px 8px}
+    .tkt-header .side{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:46px}
+    .tkt-header .icon{height:42px;width:auto;object-fit:contain}
     /* Numero ordine e SI devono avere la stessa dimensione */
     .tkt-header .label{font-weight:800;margin-top:4px;font-size:1.25em;line-height:1}
     .tkt-header .right .icon{transform:translateY(6px)}
@@ -48,125 +48,160 @@
     /* Logo */
     .tkt .logo{display:block;margin:0 auto;max-width:100%;height:auto}
 
-    .dept-line{margin:6px 8px 2px;font-weight:700;font-size:0.95em}
+    .dept-line{margin:6px 6px 2px;font-weight:700;font-size:0.95em}
 
     /* Core valori: compatto e centrato verticalmente */
-    .vals{width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:200px;text-align:center;line-height:1.15}
-    .vals .line{padding:6px 8px;word-break:break-word}
-    .dept-sep{border-top:1px solid #000;margin:6px 12px;width:calc(100% - 24px);height:0}
+    .vals{width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:184px;text-align:center;line-height:1.15}
+    .vals .line{padding:5px 6px;word-break:break-word}
+    .dept-sep{border-top:1px solid #000;margin:6px 10px;width:calc(100% - 20px);height:0}
 
-    .holiday-msg{font-family:'The Nautigal',cursive;color:var(--main);font-size:40px;font-weight:700;margin-top:12px;letter-spacing:.5px}
+    .holiday-msg{font-family:'The Nautigal',cursive;color:var(--main);font-size:40px;font-weight:700;margin-top:10px;letter-spacing:.5px}
     .barcode{font-family:'Libre Barcode 39',cursive;font-size:92px;line-height:1;letter-spacing:1px;margin-top:8px}
-    .hr-solid{border-top:2px solid #111;margin:10px 12px}
+    .hr-solid{border-top:2px solid #111;margin:10px 10px}
     .insert-ts{text-align:center;font-size:12px;margin:4px 0 2px}
 
     /* RIGHT: Controlli */
     .right{display:flex;flex-direction:column;gap:0;min-height:0}
     .controls{
-      display:grid;
-      grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
-      align-items:stretch;
-      gap:14px;
-      padding:10px 14px 8px;
-      flex:0 0 auto;
-    }
-
-    .flashcards{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      width:100%;
-      height:108px;
-      gap:8px;
-      min-width:0;
-    }
-
-    .card{
-      background:linear-gradient(180deg,#fff 0%, #faf8f8 100%);
-      color:#111;
-      border:1px solid rgba(0,0,0,.07);
-      border-radius:18px;
-      padding:14px 14px 16px;
-      box-shadow:0 4px 12px rgba(0,0,0,.07);
-      user-select:none;
-      cursor:pointer;
-      transition:border-color .15s, box-shadow .15s, transform .08s ease, background .15s ease;
-      min-height:108px;
-      height:108px;
+      --toolbar-control-h:46px;
       display:flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      gap:8px;
-      box-sizing:border-box;
-    }
-    .card:hover{
-      transform:translateY(-1px);
-      border-color:rgba(119,5,5,.18);
-      box-shadow:0 7px 16px rgba(0,0,0,.09);
-    }
-    .card .k{
-      font-size:10px;
-      font-weight:800;
-      letter-spacing:.1em;
-      text-transform:uppercase;
-      opacity:.58;
-    }
-    .card .v{
-      font-size:36px;
-      line-height:.92;
-      font-weight:900;
-      margin-top:4px;
-      letter-spacing:-.04em;
-    }
-    .card.active{
-      outline:0;
-      border-color:var(--main);
-      background:linear-gradient(180deg,#fff7f7 0%, #fff 100%);
-      box-shadow:0 0 0 2px rgba(119,5,5,.10), 0 8px 18px rgba(119,5,5,.09);
-    }
-
-    .searchbar{
-      display:grid;
-      grid-template-columns:minmax(0, 1fr) auto auto;
-      gap:8px;
       align-items:center;
-      justify-content:flex-start;
-      min-height:108px;
-      height:108px;
-      width:100%;
-      padding:12px 14px;
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:18px;
-      background:linear-gradient(180deg,#fbfbfc 0%, #f4f4f6 100%);
-      box-sizing:border-box;
+      flex-wrap:nowrap;
+      gap:8px;
+      padding:10px 12px;
+      margin:10px 12px 8px;
+      flex:0 0 auto;
+      border:1px solid rgba(119,5,5,.16);
+      border-radius:22px;
+      background:linear-gradient(180deg,#f6ebe8 0%, #efe0dc 100%);
+      box-shadow:0 10px 22px rgba(79,30,30,.08);
+      overflow-x:auto;
+      overflow-y:hidden;
     }
-    .input{
-      flex:1;
-      min-width:0;
-      height:52px;
-      padding:0 14px;
+    .controls > *{min-width:0}
+
+    .filter-pill{
+      --accent:#7b1f22;
+      appearance:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      height:var(--toolbar-control-h);
+      padding:0 10px 0 14px;
       border-radius:999px;
-      border:1px solid #ddd;
-      font-size:16px;
-      background:#fff;
+      border:1px solid rgba(119,5,5,.16);
+      background:linear-gradient(180deg,#fff 0%, #f9f2f1 100%);
+      color:#4e2b2b;
+      box-shadow:0 4px 10px rgba(0,0,0,.05);
+      cursor:pointer;
+      transition:border-color .15s ease, box-shadow .15s ease, transform .08s ease, background .18s ease, color .18s ease;
+      flex:0 0 auto;
+      font:inherit;
+      position:relative;
+      z-index:1;
     }
-    .filter-label{
+    .filter-pill:hover{
+      transform:translateY(-1px);
+      border-color:rgba(119,5,5,.24);
+      box-shadow:0 10px 20px rgba(0,0,0,.08);
+    }
+    .filter-pill:focus-visible{
+      outline:2px solid rgba(119,5,5,.28);
+      outline-offset:2px;
+    }
+    .filter-pill-label{
+      display:inline-block;
+      font-size:13px;
+      font-weight:800;
+      line-height:1;
+      white-space:nowrap;
+      letter-spacing:.01em;
+    }
+    .filter-pill-count{
+      min-width:28px;
+      height:28px;
+      padding:0 8px;
+      border-radius:999px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:52px;
-      padding:0 10px;
-      color:#6b5b5b;
-      font-size:12px;
+      font-size:14px;
       font-weight:900;
-      letter-spacing:.1em;
-      text-transform:uppercase;
-      white-space:nowrap;
+      line-height:1;
+      background:rgba(119,5,5,.09);
+      border:1px solid rgba(119,5,5,.06);
+      color:var(--accent);
+      box-sizing:border-box;
+    }
+    .filter-pill[data-filter="all"]{--accent:#7b1f22}
+    .filter-pill[data-filter="pickup_today"]{--accent:#0a7c67}
+    .filter-pill[data-filter="pickup_tomorrow"]{--accent:#2063c5}
+    .filter-pill[data-filter="pickup_future"]{--accent:#a05d00}
+    .filter-pill.active{
+      border-color:transparent;
+      background:var(--accent);
+      color:#fff;
+      box-shadow:0 0 0 2px rgba(255,255,255,.92), 0 14px 26px rgba(64,26,26,.18);
+      transform:translateY(-1px);
+    }
+    .filter-pill.active .filter-pill-count{
+      background:rgba(255,255,255,.20);
+      border-color:rgba(255,255,255,.08);
+      color:#fff;
+    }
+    .list-note{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:6px;
+      min-height:88px;
+      padding:16px 18px;
+      border:1px dashed rgba(119,5,5,.16);
+      border-radius:22px;
+      background:linear-gradient(180deg,#fff 0%, #faf7f7 100%);
+      color:#5b2b2b;
+      font-weight:800;
+      text-align:center;
+      box-sizing:border-box;
+    }
+    .list-note strong{
+      display:block;
+    }
+    .list-note small{
+      font-weight:700;
+      color:#8a6d6d;
     }
 
-    .chipbar{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid rgba(0,0,0,.06);background:#f7f7f8;border-radius:999px;box-sizing:border-box}
-    .dept-filter{padding:6px 10px;gap:6px;min-height:52px;justify-content:flex-start}
-    #chipbar-filter{cursor:default}
-    #chipbar-filter.is-filtered{background:#f1f1f2;border-color:rgba(0,0,0,.12)}
+    .input{
+      flex:0 1 210px;
+      min-width:170px;
+      max-width:230px;
+      height:var(--toolbar-control-h);
+      padding:0 16px;
+      border-radius:999px;
+      border:1px solid rgba(119,5,5,.18);
+      font-size:15px;
+      font-weight:700;
+      background:linear-gradient(180deg,#fff 0%, #fff8f6 100%);
+      color:#241616;
+      box-shadow:0 6px 14px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.92);
+      margin-left:0;
+      box-sizing:border-box;
+      position:relative;
+      z-index:1;
+    }
+    .input::placeholder{color:#8d7474;opacity:1}
+    .input:focus{
+      outline:none;
+      border-color:rgba(119,5,5,.34);
+      box-shadow:0 0 0 3px rgba(119,5,5,.12), 0 8px 18px rgba(0,0,0,.10);
+    }
+
+    .chipbar{display:flex;align-items:center;gap:6px;height:var(--toolbar-control-h);padding:0 10px;border:1px solid rgba(119,5,5,.18);background:linear-gradient(180deg,#fff 0%, #fff8ee 100%);border-radius:999px;box-sizing:border-box;box-shadow:0 4px 10px rgba(0,0,0,.06);position:relative;z-index:1}
+    .dept-filter{padding:0 10px;gap:6px;min-height:var(--toolbar-control-h);justify-content:flex-start;flex-wrap:nowrap;overflow:visible}
+    #chipbar-filter{cursor:default;flex:0 0 auto;min-width:0;width:max-content}
+    #chipbar-filter.is-filtered{border-color:rgba(119,5,5,.28);background:linear-gradient(180deg,#fff5d6 0%, #ffefbf 100%);box-shadow:0 8px 16px rgba(160,93,0,.12)}
     #chipbar-filter .filter-dept{
       appearance:none;
       border:0;
@@ -180,17 +215,28 @@
       border-radius:999px;
     }
     #chipbar-filter .filter-dept .dept-chip{
-      transition:background .14s ease, border-color .14s ease, color .14s ease, opacity .14s ease;
+      width:32px;
+      height:32px;
+      flex:0 0 32px;
+      background:#f6f1f1;
+      border-color:#e7dfdf;
+      color:#3a1919;
+      box-shadow:none;
+      transition:background .14s ease, border-color .14s ease, color .14s ease, opacity .14s ease, transform .14s ease, box-shadow .14s ease;
+    }
+    #chipbar-filter .filter-dept .dept-chip-icon{
+      font-size:14px;
     }
     #chipbar-filter.is-filtered .filter-dept.is-active .dept-chip{
-      background:#111;
-      border-color:#111;
-      color:#ffd60a;
-      box-shadow:none;
+      background:#ffd60a;
+      border-color:#ffd60a;
+      color:#241616;
+      box-shadow:0 0 0 2px rgba(255,214,10,.18);
+      transform:translateY(-1px);
     }
     #chipbar-filter.is-filtered .filter-dept:not(.is-active){opacity:.42}
     #chipbar-filter .filter-dept:focus-visible{
-      outline:2px solid #111;
+      outline:2px solid rgba(119,5,5,.34);
       outline-offset:3px;
     }
 
@@ -279,8 +325,8 @@
     }
     .order.selected{
       outline:0;
-      border-color:rgba(119,5,5,.3);
-      box-shadow:0 0 0 2px rgba(119,5,5,.09), 0 10px 22px rgba(0,0,0,.06);
+      border-color:rgba(119,5,5,.38);
+      box-shadow:0 0 0 2px rgba(119,5,5,.14), 0 10px 22px rgba(0,0,0,.06);
       background:#fffdfd;
     }
     .order.is-past{
@@ -296,8 +342,12 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
     }
     .order.is-past .pickup-badge{
-      background:#c9c2c2;
-      border-color:#aaa1a1;
+      color:#4a4343;
+    }
+    .order.is-past .pickup-badge::before{
+      background:#aaa1a1;
+    }
+    .order.is-past .pickup-value{
       color:#4a4343;
     }
     .order.is-past .dept-chip{
@@ -343,32 +393,46 @@
     .order-meta{
       display:flex;
       flex-direction:column;
-      align-items:stretch;
-      justify-content:center;
-      gap:1px;
+      align-items:flex-end;
+      justify-content:flex-end;
+      gap:4px;
       min-width:132px;
       grid-column:2;
       grid-row:1;
       align-self:center;
     }
     .pickup-badge{
+      --pickup-accent:#ffd60a;
       display:flex;
       flex-direction:column;
-      align-items:flex-start;
+      align-items:flex-end;
       justify-content:center;
-      gap:2px;
-      min-height:46px;
-      padding:6px 6px 6px 10px;
-      border-radius:16px 18px 18px 16px;
-      background:#ffd60a;
-      border:1px solid #d4af00;
-      color:#111;
+      gap:3px;
+      min-height:auto;
+      padding:3px 0 3px 12px;
+      border-radius:0;
+      background:transparent;
+      border:0;
+      color:#6b5600;
       font-size:13px;
       font-weight:900;
       line-height:1;
       letter-spacing:.03em;
       white-space:normal;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 1px 0 rgba(0,0,0,.06);
+      box-shadow:none;
+      position:relative;
+      text-align:right;
+      pointer-events:none;
+    }
+    .pickup-badge::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:3px;
+      bottom:3px;
+      width:4px;
+      border-radius:999px;
+      background:var(--pickup-accent);
     }
     .pickup-prefix{
       display:block;
@@ -377,7 +441,7 @@
       line-height:1;
       letter-spacing:.11em;
       text-transform:uppercase;
-      opacity:1;
+      opacity:.72;
     }
     .pickup-value{
       display:block;
@@ -385,25 +449,19 @@
       font-weight:900;
       line-height:1.02;
       letter-spacing:-.02em;
+      color:#111;
     }
     .pickup-badge.today{
-      background:#ffd60a;
-      border-color:#d4af00;
-      color:#111;
+      --pickup-accent:#ffd60a;
     }
     .pickup-badge.tomorrow{
-      background:#ffd60a;
-      border-color:#d4af00;
-      color:#111;
+      --pickup-accent:#ffd60a;
     }
     .pickup-badge.future{
-      background:#ffd60a;
-      border-color:#d4af00;
-      color:#111;
+      --pickup-accent:#ffd60a;
     }
     .pickup-badge.past{
-      background:#c9c2c2;
-      border-color:#aaa1a1;
+      --pickup-accent:#aaa1a1;
       color:#4a4343;
       box-shadow:none;
     }
@@ -468,17 +526,19 @@
 
     /* Responsive */
     @media (max-width:1200px){
-      .controls{grid-template-columns:1fr;align-items:stretch}
-      .flashcards{height:108px}
-      .searchbar{grid-template-columns:minmax(220px,320px) auto auto;grid-auto-flow:row;height:108px}
+      .controls{gap:8px}
+      .input{flex-basis:200px;min-width:170px;max-width:210px}
+      #chipbar-filter{flex-basis:auto;min-width:0}
     }
     @media (max-width:960px){
-      .flashcards{height:auto}
-      .card{height:auto}
-      .flashcards{grid-template-columns:repeat(2, minmax(0, 1fr))}
+      .controls{--toolbar-control-h:42px;padding:10px 12px}
+      .filter-pill{height:42px;padding:0 10px 0 12px}
+      .filter-pill-count{min-width:26px;height:26px}
+      .input{flex-basis:180px;min-width:160px;max-width:190px}
+      #chipbar-filter{flex-basis:auto;min-width:0}
     }
     @media (max-width:1100px){:root{--pw:35%;--sw:65%}}
-    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.controls{padding:12px}.list{max-height:none}.searchbar{grid-template-columns:1fr;min-height:auto;height:auto}.flashcards{grid-template-columns:1fr 1fr}}
+    @media (max-width:860px){.app{grid-template-columns:1fr}.ticket-bar{position:static}.controls{padding:10px;margin:12px 12px 4px;gap:8px}.list{max-height:none}.filter-pill{flex:0 0 auto;justify-content:flex-start}.input{flex-basis:170px;min-width:150px;max-width:180px}#chipbar-filter{flex-basis:auto;min-width:0}}
 
     /* Stampa */
     @media print{
@@ -488,22 +548,22 @@
       .app{display:block;padding:0}
       .panel{border:0;box-shadow:none;border-radius:0}
       #tkt-body{border:0;box-shadow:none;border-radius:0;width:100%;max-height:none}
-      .tkt{font:16px/1.4 Verdana, Geneva, sans-serif;text-align:center;padding:0}
+      .tkt{width:var(--ticket-width-print);max-width:100%;margin:0 auto;font:14px/1.33 Verdana, Geneva, sans-serif;text-align:center;padding:0}
       .tkt .logo{
         max-width:100% !important;
         height:auto !important;
         margin:0 auto !important;
-        transform:scale(1.28);
+        transform:scale(1.14);
         transform-origin:center;
         z-index:2;
       }
-      #tkt-name{font-size:22px !important}
-      .tkt-header .icon{transform:scale(0.9)}
-      .tkt-header .right .icon{transform:translateY(6px) scale(0.9)}
+      #tkt-name{font-size:20px !important}
+      .tkt-header .icon{transform:scale(0.84)}
+      .tkt-header .right .icon{transform:translateY(5px) scale(0.84)}
       .tkt-header .right .label{transform:translateY(0)}
       .dept-sep{border-top-color:#000 !important}
-      .barcode{font-size:92px}
-      .holiday-msg{font-size:40px;font-weight:700;color:var(--main)}
+      .barcode{font-size:82px}
+      .holiday-msg{font-size:34px;font-weight:700;color:var(--main)}
     }
     .order-main{
       min-width:0;
@@ -556,31 +616,25 @@
 
     <!-- RIGHT: Controlli (82%) -->
     <aside class="panel right">
-      <div class="controls">
-        <div class="flashcards" id="flashcards">
-          <div class="card" data-filter="all">
-            <div class="k">Totale</div>
-            <div id="fc-total" class="v">—</div>
-          </div>
-          <div class="card" data-filter="pickup_today">
-            <div class="k">Oggi</div>
-            <div id="fc-pickup-today" class="v">—</div>
-          </div>
-          <div class="card" data-filter="pickup_tomorrow">
-            <div class="k">Domani</div>
-            <div id="fc-pickup-tomorrow" class="v">—</div>
-          </div>
-          <div class="card" data-filter="pickup_future">
-            <div class="k">Futuri</div>
-            <div id="fc-pickup-future" class="v">—</div>
-          </div>
-        </div>
-
-        <div class="searchbar">
-          <input id="q" class="input" type="search" placeholder="Cerca cliente…" />
-          <span class="filter-label" aria-hidden="true">Filtro</span>
-          <div class="chipbar dept-filter" id="chipbar-filter" aria-label="Filtro reparti"></div>
-        </div>
+      <div class="controls" id="controls-bar">
+        <button type="button" class="filter-pill active" data-filter="all" aria-pressed="true">
+          <span class="filter-pill-label">Totale</span>
+          <span id="fc-total" class="filter-pill-count">—</span>
+        </button>
+        <button type="button" class="filter-pill" data-filter="pickup_today" aria-pressed="false">
+          <span class="filter-pill-label">Oggi</span>
+          <span id="fc-pickup-today" class="filter-pill-count">—</span>
+        </button>
+        <button type="button" class="filter-pill" data-filter="pickup_tomorrow" aria-pressed="false">
+          <span class="filter-pill-label">Domani</span>
+          <span id="fc-pickup-tomorrow" class="filter-pill-count">—</span>
+        </button>
+        <button type="button" class="filter-pill" data-filter="pickup_future" aria-pressed="false">
+          <span class="filter-pill-label">Futuri</span>
+          <span id="fc-pickup-future" class="filter-pill-count">—</span>
+        </button>
+        <input id="q" class="input" type="search" placeholder="Cerca cliente…" aria-label="Cerca cliente" />
+        <div class="chipbar dept-filter" id="chipbar-filter" aria-label="Filtro reparti"></div>
       </div>
       <div class="list" id="orders-list" aria-live="polite"></div>
     </aside>
@@ -661,7 +715,13 @@
     };
 
     let ORDERS=[],view=[],index=0,active='all';
+    const NAME_FIT_SCREEN={max:26,min:10};
+    const NAME_FIT_PRINT={max:20,min:7};
+    const STORAGE_KEY_ACTIVE_DEPTS='sso_active_depts';
     const FETCH_TIMEOUT_MS = 12000;
+    let loadAbortController = null;
+    let loadRequestSeq = 0;
+    let nameFitResizeRafId = null;
 
     /* ===================== Ticket ===================== */
     function buildValueLines(row){
@@ -747,18 +807,41 @@
       return pieces.join('');
     }
 
-    function fitText(el,max=26,min=10){
+    function fitText(el,max=NAME_FIT_SCREEN.max,min=NAME_FIT_SCREEN.min){
       if(!el) return;
       const p=el.parentElement||el;
       el.style.display='inline-block';
-      el.style.whiteSpace='nowrap';
       el.style.maxWidth='100%';
       el.style.overflow='hidden';
+      el.style.whiteSpace='nowrap';
+      el.style.wordBreak='break-word';
+      el.style.overflowWrap='anywhere';
+      el.style.lineHeight='1.1';
       let s=max,g=100;
       el.style.fontSize=s+'px';
       while(g--&&s>min&&el.scrollWidth>p.clientWidth-4){
         s-=.5;el.style.fontSize=s+'px';
       }
+      if(el.scrollWidth>p.clientWidth-4){
+        el.style.display='block';
+        el.style.whiteSpace='normal';
+        el.style.overflow='visible';
+        el.style.fontSize=Math.max(min-.5,7)+'px';
+        el.style.lineHeight='1.02';
+      }
+    }
+    function fitCurrentTicketName(mode='screen'){
+      const nameEl=document.getElementById('tkt-name');
+      if(!nameEl) return;
+      const cfg = mode === 'print' ? NAME_FIT_PRINT : NAME_FIT_SCREEN;
+      fitText(nameEl,cfg.max,cfg.min);
+    }
+    function scheduleTicketNameFit(){
+      if(nameFitResizeRafId) return;
+      nameFitResizeRafId=requestAnimationFrame(()=>{
+        nameFitResizeRafId=null;
+        fitCurrentTicketName('screen');
+      });
     }
 
     function pickTS(r){
@@ -862,7 +945,7 @@
           logoEl.replaceWith(dv);
         };
       }
-      const nameEl=document.getElementById('tkt-name'); if(nameEl) fitText(nameEl);
+      fitCurrentTicketName('screen');
     }
 
     /* ===================== Reparti / Filtri ===================== */
@@ -874,9 +957,14 @@
       {id:'altro',k:norm('5) ALTRO'), icon:'📦'}
     ];
     const ALL_IDS=DEPTS.map(d=>d.id);
+    function safeLocalStorageSet(key, value){
+      try{
+        localStorage.setItem(key, value);
+      }catch(_){}
+    }
     function readStoredActiveDepts(){
       try{
-        const raw = localStorage.getItem('sso_active_depts');
+        const raw = localStorage.getItem(STORAGE_KEY_ACTIVE_DEPTS);
         const parsed = raw ? JSON.parse(raw) : [];
         return Array.isArray(parsed) ? parsed : [];
       }catch(_){
@@ -886,7 +974,7 @@
     let ACTIVE=new Set(readStoredActiveDepts().filter(id => ALL_IDS.includes(id)));
     if(!ACTIVE.size){
       ACTIVE=new Set(ALL_IDS);
-      localStorage.setItem('sso_active_depts',JSON.stringify([...ACTIVE]));
+      safeLocalStorageSet(STORAGE_KEY_ACTIVE_DEPTS,JSON.stringify([...ACTIVE]));
     }
     const rowHas=(row,id)=>{
       const d=DEPTS.find(x=>x.id===id); if(!d) return false;
@@ -955,7 +1043,7 @@
       altro:'Altro'
     };
     function persistActiveDepts(){
-      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE]));
+      safeLocalStorageSet(STORAGE_KEY_ACTIVE_DEPTS, JSON.stringify([...ACTIVE]));
     }
     function toggleActiveDept(id){
       const next = new Set(ACTIVE);
@@ -992,16 +1080,22 @@
         `;
       }).join('');
     }
+    function syncFlashcards(){
+      D.qa('#controls-bar .filter-pill[data-filter]').forEach(c => {
+        const isActive = c.dataset.filter === active;
+        c.classList.toggle('active', isActive);
+        c.setAttribute('aria-pressed', String(isActive));
+      });
+    }
 
     /* ===================== Stat / Flashcards ===================== */
     function recompute(){
       const t=ORDERS.length, tdy=today(), tmr=tomorrow();
-      let pT=0,pD=0,pF=0,max=0;
+      let pT=0,pD=0,pF=0;
       for(const o of ORDERS){
         if(o.date===tdy) pT++;
         if(o.date===tmr) pD++;
         if(o.date>tdy) pF++;
-        if(typeof o.number==='number'&&!isNaN(o.number)) max=Math.max(max,o.number);
       }
       const total=t;
       const elTotal=D.q('#fc-total');
@@ -1015,8 +1109,7 @@
     }
 
     /* ===================== Lista ordini ===================== */
-    function sortByPickupDate(a,b){
-      const tdy = today();
+    function sortByPickupDate(a,b,tdy=today()){
       const rank = (iso) => {
         if (!iso) return 3;
         if (iso < tdy) return 2;
@@ -1087,11 +1180,13 @@
     }
     function renderList(list,{selectedKey=null}={}){
       const useInsertionHistory = active === 'all';
-      const sorted = [...list].sort(useInsertionHistory ? sortByInsertedDesc : sortByPickupDate);
+      const tdy = today();
+      const tmr = tomorrow();
+      const sorted = [...list].sort(useInsertionHistory ? sortByInsertedDesc : (a,b) => sortByPickupDate(a,b,tdy));
       const el     = D.q('#orders-list');
 
       if(!sorted.length){
-        el.innerHTML = '<div class="card">Nessun ordine</div>';
+        el.innerHTML = '<div class="list-note"><strong>Nessun ordine</strong></div>';
         view  = [];
         index = 0;
         renderTicket();
@@ -1108,8 +1203,8 @@
 
       let lastGroupKey = null;
       el.innerHTML = sorted.map((o,i) => {
-        const isPastPickup = !!(o.date && o.date < today());
-        const pickupTone = !o.date ? 'future' : (o.date < today() ? 'past' : o.date === today() ? 'today' : o.date === tomorrow() ? 'tomorrow' : 'future');
+        const isPastPickup = !!(o.date && o.date < tdy);
+        const pickupTone = !o.date ? 'future' : (o.date < tdy ? 'past' : o.date === tdy ? 'today' : o.date === tmr ? 'tomorrow' : 'future');
         const pickupLabel = fmtPickupBadge(o.date);
         const insertedLabel = fmtInsertedShort(o);
         const deptHtml = deptChips(o).map(dep => `
@@ -1187,7 +1282,7 @@
     }
     function setFilter(k){
       active=(k==='all')?'all':(active===k?'all':k);
-      D.qa('#flashcards .card').forEach(c=>c.classList.toggle('active',c.dataset.filter===active));
+      syncFlashcards();
       apply();
     }
 
@@ -1268,26 +1363,27 @@
       return {id:(num!=null?num:null),number:(num!=null?num:null),name,date:dateISO,time:t,zone,insertedAtRaw,insertedAtMs,src:r,__normKeys};
     }
 
-    async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS){
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try{
-        return await fetch(url, { ...options, signal: controller.signal });
-      }finally{
-        clearTimeout(timer);
-      }
-    }
-
     async function load({preserveSelection=false} = {}){
       const selectedKey = preserveSelection ? currentSelectionKey() : null;
+      const requestId = ++loadRequestSeq;
+      if(loadAbortController) loadAbortController.abort();
+      const controller = new AbortController();
+      loadAbortController = controller;
+      let didTimeout = false;
+      const timer = setTimeout(() => {
+        didTimeout = true;
+        controller.abort();
+      }, FETCH_TIMEOUT_MS);
       try{
-        const res=await fetchWithTimeout(API+'?&_ts='+Date.now(),{
+        const res=await fetch(API+'?&_ts='+Date.now(),{
           cache:'no-store',
           mode:'cors',
-          headers:{Accept:'application/json, text/plain, */*'}
+          headers:{Accept:'application/json, text/plain, */*'},
+          signal: controller.signal
         });
         const ct=(res.headers&&res.headers.get('content-type'))||'';
         const raw=await res.text();
+        if(requestId !== loadRequestSeq) return;
         if(!res.ok) throw new Error(`HTTP ${res.status}: ${raw.slice(0,200)}`);
 
         let data;
@@ -1310,29 +1406,35 @@
           if(k) rows=data[k];
         }
         if(!Array.isArray(rows)) rows=[];
+        if(requestId !== loadRequestSeq) return;
 
         ORDERS=rows.map(rowToOrder).filter(Boolean);
         recompute();
-        D.qa('#flashcards .card').forEach(c=>c.classList.toggle('active',c.dataset.filter===active));
+        syncFlashcards();
         updateFilterUI();
         apply({selectedKey});
       }catch(e){
+        if(requestId !== loadRequestSeq) return;
+        if(controller.signal.aborted && !didTimeout) return;
         console.warn('API load error',e);
         ORDERS=[];
         recompute();
         const el=D.q('#orders-list');
-        const msg = e && e.name === 'AbortError' ? 'Timeout richiesta API' : String(e.message||e);
-        if(el) el.innerHTML=`<div class="card">Errore caricamento dati API<br><small>${esc(msg).slice(0,180)}</small></div>`;
+        const msg = didTimeout || (e && e.name === 'AbortError') ? 'Timeout richiesta API' : String(e.message||e);
+        if(el) el.innerHTML=`<div class="list-note"><strong>Errore caricamento dati API</strong><small>${esc(msg).slice(0,180)}</small></div>`;
         const wrap=D.q('#tkt-body');
         if(wrap) wrap.innerHTML='<div class="tkt info-top"><b>La Bottega di Casterno</b><div style="font-weight:400;margin-top:6px">Nessun dato disponibile</div></div>';
+      }finally{
+        clearTimeout(timer);
+        if(loadAbortController === controller) loadAbortController = null;
       }
     }
 
     /* ===================== Init ===================== */
     (function init(){
       renderTicket();
-      D.q('#flashcards').addEventListener('click',e=>{
-        const card=e.target.closest('.card');
+      D.q('#controls-bar').addEventListener('click',e=>{
+        const card=e.target.closest('.filter-pill[data-filter]');
         if(card&&card.dataset.filter) setFilter(card.dataset.filter);
       });
       D.q('#q').addEventListener('input',search);
@@ -1345,17 +1447,18 @@
       D.q('#btn-next').addEventListener('click',prev); // invertiti per UX destra->sinistra
       D.q('#btn-prev').addEventListener('click',next);
       D.q('#btn-print').addEventListener('click',doPrint);
-      window.addEventListener('resize',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n);});
+      window.addEventListener('resize',scheduleTicketNameFit);
       ['pointermove','pointerdown','touchstart','wheel'].forEach(type => {
         window.addEventListener(type, () => notifyParentActivity(type !== 'pointermove'), { passive:true });
       });
       window.addEventListener('keydown', () => notifyParentActivity(true));
-      window.addEventListener('beforeprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,22,9);});
-      window.addEventListener('afterprint',()=>{const n=document.getElementById('tkt-name'); if(n) fitText(n,26,10);});
+      window.addEventListener('beforeprint',()=>{fitCurrentTicketName('print');});
+      window.addEventListener('afterprint',()=>{fitCurrentTicketName('screen');});
       window.addEventListener('message', (e) => {
         if (e.origin !== window.location.origin) return;
         if (e.data && e.data.type === 'master:refresh') load({ preserveSelection:true });
       });
+      syncFlashcards();
       updateFilterUI();
       load();
       notifyParentActivity(true);

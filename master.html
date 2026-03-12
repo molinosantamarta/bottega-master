@@ -59,7 +59,7 @@
     nav[role="tablist"]{
       position:sticky; top:0; z-index:20; background:var(--main);
       display:grid;
-      grid-template-columns:minmax(260px, 1fr) auto minmax(220px, 1fr);
+      grid-template-columns:auto minmax(0, 1fr) auto;
       align-items:center;
       padding:calc(6px + env(safe-area-inset-top)) 18px 10px; gap:14px;
       min-height:72px;
@@ -74,8 +74,9 @@
     }
     .nav-left{
       justify-self:start;
-      padding-left:76px;
+      gap:14px;
       min-height:var(--nav-btn-size);
+      flex-wrap:nowrap;
     }
     .nav-center{justify-self:center;}
     .nav-right{justify-self:end; gap:34px;}
@@ -201,6 +202,9 @@
     .app-icon:focus-visible{outline:2px solid #fff; outline-offset:2px;}
     .hud-date{
       display:block;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
       font-size:var(--date-size);
       line-height:1;
       white-space:nowrap;
@@ -256,32 +260,41 @@
       box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
     }
     .restart-btn{
-      position:absolute;
-      left:18px;
-      top:50%;
-      translate:0 -50%;
-      z-index:2;
-      width:50px;
-      height:50px;
-      border-radius:50%;
-      border:1px solid rgba(255,255,255,.35);
-      background:rgba(255,255,255,.12);
-      color:#ffd400;
-      font-size:31px;
-      line-height:1;
-      align-items:flex-start;
-      padding-top:6px;
-      box-shadow:0 10px 22px rgba(0,0,0,.16);
-      backdrop-filter:blur(5px) saturate(120%);
-      -webkit-backdrop-filter:blur(5px) saturate(120%);
-      transform:rotate(14deg);
+      width:40px;
+      height:40px;
+      padding:0;
+      gap:0;
+      border-radius:999px;
+      border:1px solid #fff;
+      background:#fff;
+      color:var(--main);
+      font-weight:800;
+      font-size:14px;
+      letter-spacing:.2px;
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 8px 18px rgba(0,0,0,.10);
+      flex:0 0 auto;
+      transition:transform .08s ease, background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .restart-btn .restart-icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      color:#3f3f44;
+      transform:none;
+    }
+    .restart-btn .restart-icon svg{
+      width:18px;
+      height:18px;
+      display:block;
     }
     .restart-btn:hover{
-      transform:rotate(14deg);
-      background:rgba(255,255,255,.18);
+      background:#fff;
+      border-color:#fff;
     }
     .restart-btn:active{
-      transform:rotate(14deg) scale(.98);
+      transform:scale(.98);
     }
     .hud-clock{
       display:flex;
@@ -360,7 +373,18 @@
     }
     .qr img{width:100%; height:100%; object-fit:contain}
     .qr-caption{font-size:var(--caption-size); opacity:.98}
-    .qr.error{font-size:12px; color:#999; padding:10px; text-align:center}
+    .qr.error{position:relative}
+    .qr.error img{display:none}
+    .qr.error::after{
+      content:attr(data-error);
+      max-width:220px;
+      padding:10px 14px;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:700;
+      color:#8d7b7b;
+      text-align:center;
+    }
 
     /* Phone preview */
     .phone-stage{width:100%; display:grid; place-items:center; margin-top:-12px;}
@@ -389,13 +413,14 @@
       .app-icon{width:52px;height:52px;border-radius:18px;}
       .app-icon img{border-radius:14px;}
       .hud-clock{font-size:36px; min-height:52px; margin-right:4px;}
-      .nav-left{padding-left:60px;}
+      .nav-left{gap:10px;}
     }
     @media (max-width:720px){
       nav[role="tablist"]{
-        grid-template-columns:1fr auto;
+        grid-template-columns:auto minmax(0, 1fr) auto;
+        gap:8px;
       }
-      .nav-left{display:none;}
+      .nav-left{display:flex;}
       .nav-center{justify-self:start;}
       .nav-right .apps-dock{display:none;}
     }
@@ -775,9 +800,15 @@
   <header></header>
 
   <nav class="tabs" role="tablist" aria-label="Navigazione viste" id="tabs-nav">
-    <button type="button" id="btn-restart" class="nav-icon-btn restart-btn" aria-label="Riavvia" title="Ricarica le schermate">↻</button>
-
     <div class="nav-left">
+      <button type="button" id="btn-restart" class="nav-icon-btn restart-btn" aria-label="Aggiorna" title="Aggiorna">
+        <span class="restart-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.9v7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M7.3 5.7A8.3 8.3 0 1 0 16.7 5.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </button>
       <div class="hud-date" id="hud-date" aria-live="polite">Lunedì, 3 Ottobre</div>
     </div>
 
@@ -951,7 +982,8 @@
       stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',    qrImg: '#qr-stoc'  },
       ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
     };
-    const HACKER_MODAL_DURATION = 12000;
+    const HACKER_REFRESH_DELAY_MS = 3000;
+    const HACKER_MODAL_DURATION = 6000;
     const HACKER_BASE_TICK = 85;
     const SCREENSAVER_IDLE_MS = 120000;
     const SCREENSAVER_DATA_REFRESH_MS = 60 * 60 * 1000;
@@ -974,8 +1006,10 @@
     let clockInterval = null;
     let dateInterval = null;
     let resizeObserver = null;
+    let layoutRefreshRafId = null;
     let hackerTimeoutId = null;
     let hackerRafId = null;
+    let hackerRefreshTimeoutId = null;
     let screensaverTimerId = null;
     let screensaverRefreshIntervalId = null;
     let screensaverActive = false;
@@ -1091,10 +1125,19 @@
 
     // === CLOCK & DATE ===
     function syncTabs(){
+      if (!dom.pill || !dom.nav) return;
       const h = dom.pill.offsetHeight;
       document.documentElement.style.setProperty('--tabs-h', h + 'px');
       const nh = dom.nav.getBoundingClientRect().height;
       document.documentElement.style.setProperty('--nav-h', nh + 'px');
+    }
+    function scheduleLayoutRefresh(){
+      if (layoutRefreshRafId) return;
+      layoutRefreshRafId = requestAnimationFrame(() => {
+        layoutRefreshRafId = null;
+        syncTabs();
+        setupShowcase();
+      });
     }
     function formatItalianDate(d){
       const fmt = new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'});
@@ -1170,14 +1213,14 @@
       const n = new Date();
       const hh = pad2(n.getHours());
       const mm = pad2(n.getMinutes());
-      $('#hh').textContent = hh;
-      $('#mm').textContent = mm;
+      if (dom.hh) dom.hh.textContent = hh;
+      if (dom.mm) dom.mm.textContent = mm;
       if (dom.screensaverHH) dom.screensaverHH.textContent = hh;
       if (dom.screensaverMM) dom.screensaverMM.textContent = mm;
     }
     function updateDate(){
       const label = formatItalianDate(new Date());
-      $('#hud-date').textContent = label;
+      if (dom.hudDate) dom.hudDate.textContent = label;
       if (dom.screensaverDate) dom.screensaverDate.textContent = label;
     }
     let blink = true; function tick(){ updateClock(); blink=!blink; $('#colon')?.classList.toggle('off', !blink); dom.screensaverSep?.classList.toggle('off', !blink); }
@@ -1389,11 +1432,28 @@
         if (img){
           const wrap = img.closest('.qr');
           const nextSrc = qrUrl(url, size);
-          if (!force && img.dataset.qrSrc === nextSrc) continue;
-          if (wrap) wrap.classList.remove('is-visible'); // reset stato
-          img.onload = () => { if (wrap) wrap.classList.add('is-visible'); };
+          const shouldRetryFailed = !!wrap?.classList.contains('error');
+          if (!force && img.dataset.qrSrc === nextSrc && !shouldRetryFailed) continue;
+          if (wrap) {
+            wrap.classList.remove('is-visible', 'error');
+            wrap.removeAttribute('data-error');
+          }
+          img.hidden = false;
+          img.onload = () => {
+            img.hidden = false;
+            if (wrap) {
+              wrap.classList.remove('error');
+              wrap.removeAttribute('data-error');
+              wrap.classList.add('is-visible');
+            }
+          };
           img.onerror = () => {
-            if (wrap){ wrap.classList.add('error'); wrap.textContent = 'QR non disponibile'; }
+            img.hidden = true;
+            if (wrap){
+              wrap.classList.remove('is-visible');
+              wrap.classList.add('error');
+              wrap.dataset.error = 'QR non disponibile';
+            }
           };
           img.dataset.qrSrc = nextSrc;
           img.src = nextSrc;
@@ -1431,8 +1491,14 @@
       const hackerModal = document.getElementById('hacker-modal');
       if (restartBtn){
         restartBtn.addEventListener('click', () => {
-          restartCurrentView();
           openHackerModal();
+          if (hackerRefreshTimeoutId) {
+            clearTimeout(hackerRefreshTimeoutId);
+          }
+          hackerRefreshTimeoutId = setTimeout(() => {
+            hackerRefreshTimeoutId = null;
+            restartCurrentView();
+          }, HACKER_REFRESH_DELAY_MS);
         });
       }
       if (hackerModal){
@@ -1449,11 +1515,11 @@
       $('#btn-home')?.addEventListener('click', handleHomeClick);
       $('#apps-dock').addEventListener('click', handleAppClick);
       window.addEventListener('hashchange', handleHashChange);
-      window.addEventListener('resize', () => { syncTabs(); setupShowcase(); }, { passive:true });
+      window.addEventListener('resize', scheduleLayoutRefresh, { passive:true });
 
       if ('ResizeObserver' in window){
         resizeObserver = new ResizeObserver(syncTabs);
-        resizeObserver.observe($('#tabs-pill'));
+        if (dom.pill) resizeObserver.observe(dom.pill);
       }
 
       console.assert(typeof window.imgFallback === 'function', 'imgFallback non definita');
