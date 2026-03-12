@@ -989,7 +989,7 @@
       stoc: { url: 'https://molinosantamarta.github.io/bottega-sso/',    qrImg: '#qr-stoc'  },
       ocapi:{ url: 'https://molinosantamarta.github.io/bottega-avicoli',  qrImg: '#qr-ocapi' }
     };
-    const HACKER_REFRESH_DELAY_MS = 3000;
+    const HACKER_REFRESH_DELAY_MS = 4000;
     const HACKER_MODAL_DURATION = 5000;
     const HACKER_BASE_TICK = 85;
     const SCREENSAVER_IDLE_MS = 120000;
@@ -1087,6 +1087,19 @@
       const panel = getActivePanel();
       if (!panel) return;
       panel.querySelectorAll('iframe').forEach(refreshFrame);
+    }
+    function restartToolbarViews(){
+      const frames = new Set();
+      const activePanel = getActivePanel();
+      const homePanel = document.getElementById('view-stampa');
+
+      if (activePanel) activePanel.querySelectorAll('iframe').forEach(frame => frames.add(frame));
+      if (homePanel) homePanel.querySelectorAll('iframe').forEach(frame => frames.add(frame));
+      loadedIframes.forEach(frame => {
+        if (frame && frame.isConnected) frames.add(frame);
+      });
+
+      frames.forEach(refreshFrame);
     }
     function activate(view, { focusTab=true, updateUrl=true } = {}){
       if (!VIEWS.includes(view)) view = 'stampa';
@@ -1504,7 +1517,7 @@
           }
           hackerRefreshTimeoutId = setTimeout(() => {
             hackerRefreshTimeoutId = null;
-            restartCurrentView();
+            restartToolbarViews();
           }, HACKER_REFRESH_DELAY_MS);
         });
       }
