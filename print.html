@@ -822,6 +822,7 @@
 
       for(const [kr,vr] of entries){
         const k=norm(kr); const val=(vr==null?'':String(vr)).trim();
+        if(k.startsWith('__')) continue;
         if(!hasV(val)) continue;
 
         // NOTE SULL'ORDINE (mostrale in fondo, se presenti)
@@ -1516,6 +1517,9 @@
       const explicitOrderNumber=ordK?normalizeOrderNumber(r[ordK]):null;
       const fallbackSheetRowNumber=normalizeOrderNumber(r.__sheetRowNumber);
       const resolvedOrderNumber=explicitOrderNumber ?? fallbackSheetRowNumber;
+      const src=Object.fromEntries(
+        Object.entries(r||{}).filter(([key])=>!String(key).startsWith('__'))
+      );
       const d=dateK?parseDate(r[dateK]):null,
             t=timeK?normalizeTimeValue(r[timeK]):'',
             zone=zoneK?String(r[zoneK]||'').trim():'',
@@ -1524,8 +1528,8 @@
             insertedAtRaw=insertedK?String(r[insertedK]||'').trim():'',
             insertedAtDate=parseTimestamp(insertedAtRaw),
             insertedAtMs=insertedAtDate?insertedAtDate.getTime():0;
-      const __normKeys=Object.fromEntries(Object.keys(r).map(k=>[k,norm(k)]));
-      return {id:(num!=null?num:null),number:(num!=null?num:null),name,date:dateISO,time:t,zone,insertedAtRaw,insertedAtMs,src:r,__normKeys};
+      const __normKeys=Object.fromEntries(Object.keys(src).map(k=>[k,norm(k)]));
+      return {id:(num!=null?num:null),number:(num!=null?num:null),name,date:dateISO,time:t,zone,insertedAtRaw,insertedAtMs,sheetRowNumber:fallbackSheetRowNumber,src,__normKeys};
     }
 
     async function load({preserveSelection=false} = {}){
