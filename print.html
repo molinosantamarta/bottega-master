@@ -202,7 +202,11 @@
     .chipbar{display:flex;align-items:center;gap:6px;height:var(--toolbar-control-h);padding:0 10px;border:1px solid rgba(119,5,5,.18);background:linear-gradient(180deg,#fff 0%, #fff8ee 100%);border-radius:999px;box-sizing:border-box;box-shadow:0 4px 10px rgba(0,0,0,.06);position:relative;z-index:1}
     .dept-filter{padding:0 10px;gap:6px;min-height:var(--toolbar-control-h);justify-content:flex-start;flex-wrap:nowrap;overflow:visible}
     #chipbar-filter{cursor:default;flex:0 0 auto;min-width:0;width:max-content}
-    #chipbar-filter.is-filtered{border-color:rgba(119,5,5,.28);background:linear-gradient(180deg,#fff5d6 0%, #ffefbf 100%);box-shadow:0 8px 16px rgba(160,93,0,.12)}
+    #chipbar-filter.is-filtered{
+      border-color:rgba(18,18,18,.24);
+      background:linear-gradient(180deg,#1f1f1f 0%, #101010 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 10px 20px rgba(0,0,0,.18);
+    }
     #chipbar-filter .filter-dept{
       appearance:none;
       border:0;
@@ -223,19 +227,32 @@
       border-color:#e7dfdf;
       color:#3a1919;
       box-shadow:none;
-      transition:background .14s ease, border-color .14s ease, color .14s ease, opacity .14s ease, transform .14s ease, box-shadow .14s ease;
+      transition:background .14s ease, border-color .14s ease, color .14s ease, opacity .14s ease, transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
     #chipbar-filter .filter-dept .dept-chip-icon{
       font-size:14px;
     }
+    #chipbar-filter.is-filtered .filter-dept .dept-chip{
+      background:rgba(255,255,255,.06);
+      border-color:rgba(255,255,255,.10);
+      color:rgba(255,255,255,.82);
+    }
     #chipbar-filter.is-filtered .filter-dept.is-active .dept-chip{
       background:#ffd60a;
       border-color:#ffd60a;
-      color:#241616;
-      box-shadow:0 0 0 2px rgba(255,214,10,.18);
+      color:#111;
+      box-shadow:0 0 0 2px rgba(255,214,10,.18), 0 8px 14px rgba(0,0,0,.22);
       transform:translateY(-1px);
     }
-    #chipbar-filter.is-filtered .filter-dept:not(.is-active){opacity:.42}
+    #chipbar-filter.is-filtered .filter-dept:not(.is-active){
+      opacity:.46;
+    }
+    #chipbar-filter.is-filtered .filter-dept:not(.is-active) .dept-chip{
+      filter:grayscale(.14);
+      background:rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.42);
+    }
     #chipbar-filter .filter-dept:focus-visible{
       outline:2px solid rgba(119,5,5,.34);
       outline-offset:3px;
