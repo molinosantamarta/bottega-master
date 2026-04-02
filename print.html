@@ -203,9 +203,9 @@
     .dept-filter{padding:0 10px;gap:6px;min-height:var(--toolbar-control-h);justify-content:flex-start;flex-wrap:nowrap;overflow:visible}
     #chipbar-filter{cursor:default;flex:0 0 auto;min-width:0;width:max-content}
     #chipbar-filter.is-filtered{
-      border-color:rgba(18,18,18,.24);
-      background:linear-gradient(180deg,#1f1f1f 0%, #101010 100%);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 10px 20px rgba(0,0,0,.18);
+      border-color:rgba(96,96,96,.32);
+      background:linear-gradient(180deg,#595959 0%, #434343 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 10px 20px rgba(0,0,0,.16);
     }
     #chipbar-filter .filter-dept{
       appearance:none;
@@ -233,9 +233,9 @@
       font-size:14px;
     }
     #chipbar-filter.is-filtered .filter-dept .dept-chip{
-      background:rgba(255,255,255,.06);
-      border-color:rgba(255,255,255,.10);
-      color:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.12);
+      border-color:rgba(255,255,255,.16);
+      color:rgba(255,255,255,.90);
     }
     #chipbar-filter.is-filtered .filter-dept.is-active .dept-chip{
       background:#ffd60a;
@@ -249,9 +249,9 @@
     }
     #chipbar-filter.is-filtered .filter-dept:not(.is-active) .dept-chip{
       filter:grayscale(.14);
-      background:rgba(255,255,255,.04);
-      border-color:rgba(255,255,255,.08);
-      color:rgba(255,255,255,.42);
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.12);
+      color:rgba(255,255,255,.56);
     }
     #chipbar-filter .filter-dept:focus-visible{
       outline:2px solid rgba(119,5,5,.34);
@@ -1460,6 +1460,11 @@
     function cacheOrderRows(rows){
       safeLocalStorageSet(ORDER_ROWS_CACHE_KEY,JSON.stringify({savedAt:Date.now(),rows}));
     }
+    function clearCachedOrderRows(){
+      try{
+        localStorage.removeItem(ORDER_ROWS_CACHE_KEY);
+      }catch(_){}
+    }
     function readCachedOrderRows(){
       try{
         const raw=localStorage.getItem(ORDER_ROWS_CACHE_KEY);
@@ -1549,8 +1554,10 @@
       return {id:(num!=null?num:null),number:(num!=null?num:null),name,date:dateISO,time:t,zone,insertedAtRaw,insertedAtMs,sheetRowNumber:fallbackSheetRowNumber,src,__normKeys};
     }
 
-    async function load({preserveSelection=false} = {}){
+    async function load({preserveSelection=false, clearCache=false} = {}){
       const selectedKey = preserveSelection ? currentSelectionKey() : null;
+      const hadOrdersBeforeLoad = Array.isArray(ORDERS) && ORDERS.length > 0;
+      if(clearCache) clearCachedOrderRows();
       const requestId = ++loadRequestSeq;
       if(loadAbortController) loadAbortController.abort();
       const controller = new AbortController();
@@ -1582,10 +1589,14 @@
         if(controller.signal.aborted && !didTimeout) return;
         console.warn('API load error',e);
         const el=D.q('#orders-list');
-        const cached=readCachedOrderRows();
+        const cached=clearCache ? null : readCachedOrderRows();
         if(cached){
           applyRows(cached.rows,{selectedKey});
           console.warn('Uso cache locale ordini',new Date(cached.savedAt).toISOString());
+          return;
+        }
+        if(clearCache && hadOrdersBeforeLoad){
+          console.warn('Refresh forzato senza cache fallito; mantengo i dati attuali a schermo');
           return;
         }
         ORDERS=[];
@@ -1626,7 +1637,9 @@
       window.addEventListener('afterprint',()=>{fitCurrentTicketName('screen');});
       window.addEventListener('message', (e) => {
         if (e.origin !== window.location.origin) return;
-        if (e.data && e.data.type === 'master:refresh') load({ preserveSelection:true });
+        if (e.data && e.data.type === 'master:refresh') {
+          load({ preserveSelection:true, clearCache: !!e.data.clearCache });
+        }
       });
       syncFlashcards();
       updateFilterUI();

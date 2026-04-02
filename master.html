@@ -1144,11 +1144,11 @@
       if (currentView) return document.getElementById('view-' + currentView);
       return document.querySelector('[data-view].active');
     }
-    function refreshFrame(frame){
+    function refreshFrame(frame,{ clearAppCache=false } = {}){
       if (!frame) return;
       if (frame.dataset.reloadStrategy === 'message' && frame.contentWindow) {
         try {
-          frame.contentWindow.postMessage({ type:'master:refresh' }, window.location.origin);
+          frame.contentWindow.postMessage({ type:'master:refresh', clearCache: !!clearAppCache }, window.location.origin);
           return;
         } catch (_) {}
       }
@@ -1168,7 +1168,7 @@
       if (!panel) return;
       panel.querySelectorAll('iframe').forEach(refreshFrame);
     }
-    function restartToolbarViews(){
+    function restartToolbarViews({ clearAppCache=false } = {}){
       const frames = new Set();
       const activePanel = getActivePanel();
       const homePanel = document.getElementById('view-stampa');
@@ -1179,7 +1179,7 @@
         if (frame && frame.isConnected) frames.add(frame);
       });
 
-      frames.forEach(refreshFrame);
+      frames.forEach(frame => refreshFrame(frame,{ clearAppCache }));
     }
     function activate(view, { focusTab=true, updateUrl=true } = {}){
       if (!VIEWS.includes(view)) view = 'stampa';
@@ -1592,7 +1592,7 @@
           }
           hackerRefreshTimeoutId = setTimeout(() => {
             hackerRefreshTimeoutId = null;
-            restartToolbarViews();
+            restartToolbarViews({ clearAppCache:true });
           }, HACKER_REFRESH_DELAY_MS);
         });
       }
