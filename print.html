@@ -187,6 +187,7 @@
       color:#241616;
       box-shadow:0 6px 14px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.92);
       margin-left:auto;
+      margin-right:auto;
       box-sizing:border-box;
       position:relative;
       z-index:1;
@@ -719,9 +720,85 @@
     const NAME_FIT_PRINT={max:20,min:7};
     const STORAGE_KEY_ACTIVE_DEPTS='sso_active_depts';
     const FETCH_TIMEOUT_MS = 12000;
+    const DEPT_FIELD_MAP={
+      [norm('1) PANE E PRODOTTI DA FORNO')]: 'pane',
+      [norm('2) BANCO GASTRONOMIA')]: 'banco',
+      [norm('3) FRUTTA E VERDURA')]: 'fruver',
+      [norm('4) CARNE')]: 'carne',
+      [norm('5) ALTRO')]: 'altro'
+    };
+    const DEPT_TEXT_LABELS={
+      pane:'PANE',
+      banco:'BANCO',
+      fruver:'FRUTTA E VERDURA',
+      carne:'CARNE',
+      altro:'ALTRO'
+    };
+    const DEPT_ORDER=['pane','banco','fruver','carne','altro'];
     let loadAbortController = null;
     let loadRequestSeq = 0;
     let nameFitResizeRafId = null;
+
+    function normDeptToken(value){
+      return norm(
+        String(value||'')
+          .replace(/[&+]/g,' e ')
+          .replace(/[\[\]"]/g,' ')
+          .replace(/\s+/g,' ')
+      ).replace(/\s+/g,' ').trim();
+    }
+    function deptIdFromToken(value){
+      const token=normDeptToken(value);
+      if(!token) return null;
+      if(token==='pane' || token.includes('prodotti da forno')) return 'pane';
+      if(token==='banco' || token.includes('gastronomia')) return 'banco';
+      if(token==='fruver' || token.includes('frutta e verdura') || token.includes('frutta verdura')) return 'fruver';
+      if(token==='carne') return 'carne';
+      if(token==='altro') return 'altro';
+      return null;
+    }
+    function parseDeptIdsFromValue(value){
+      if(value==null) return [];
+      let items=Array.isArray(value)?value:[];
+      const raw=Array.isArray(value)?'':String(value).trim();
+      if(!items.length && raw){
+        if(raw.startsWith('[') && raw.endsWith(']')){
+          try{
+            const parsed=JSON.parse(raw);
+            if(Array.isArray(parsed)) items=parsed;
+          }catch(_){}
+        }
+        if(!items.length) items=raw.split(/\r?\n|;|,|\|/);
+      }
+      const out=[];
+      for(const item of items){
+        const id=deptIdFromToken(item);
+        if(id && !out.includes(id)) out.push(id);
+      }
+      return out;
+    }
+    function hasAvicoloFlag(row){
+      for(const [k,v] of Object.entries((row&&row.src)||{})){
+        const nk=(row&&row.__normKeys&&row.__normKeys[k])||norm(k);
+        if((nk==='avicolo' || nk.includes('avicol')) && isYes(v)) return true;
+      }
+      return false;
+    }
+    function getDeptIds(row){
+      const src=(row&&row.src)||{};
+      const nkMap=(row&&row.__normKeys)||{};
+      const out=[];
+      const add=id=>{ if(id && !out.includes(id)) out.push(id); };
+      for(const [k,v] of Object.entries(src)){
+        const nk=nkMap[k]||norm(k);
+        if(DEPT_FIELD_MAP[nk] && hasV(v)) add(DEPT_FIELD_MAP[nk]);
+        if(nk==='reparto' || nk==='reparti' || nk.includes('repart')){
+          parseDeptIdsFromValue(v).forEach(add);
+        }
+      }
+      if(hasAvicoloFlag(row)) add('carne');
+      return DEPT_ORDER.filter(id=>out.includes(id));
+    }
 
     /* ===================== Ticket ===================== */
     function buildValueLines(row){
@@ -733,14 +810,6 @@
       ].map(norm);
       const AV=['anatra','anatre','oca','oche','capone','capponi','faraona','faraone','pollo','polli','gallo','galline'];
       const isAvKey=k=>AV.some(t=>k.includes(t));
-
-      const HEAD_MAP={
-        [norm('1) PANE E PRODOTTI DA FORNO')]: 'pane',
-        [norm('2) BANCO GASTRONOMIA')]: 'banco',
-        [norm('3) FRUTTA E VERDURA')]: 'fruver',
-        [norm('4) CARNE')]: 'carne',
-        [norm('5) ALTRO')]: 'altro'
-      };
 
       const groups={pane:[],banco:[],fruver:[],carne:[],altro:[]};
       let current=null; let avicoloDesc=''; let lastAviIdx=-1;
@@ -768,7 +837,7 @@
           avicoloDesc=val; continue;
         }
 
-        if(HEAD_MAP[k]){ current=HEAD_MAP[k]; pushLines(groups[current], val); continue; }
+        if(DEPT_FIELD_MAP[k]){ current=DEPT_FIELD_MAP[k]; pushLines(groups[current], val); continue; }
 
         if(DROP.some(t=>k.includes(t))) continue;
 
@@ -856,38 +925,36 @@
       }
       return '';
     }
+    function cleanPhoneNumber(value){
+      const raw=String(value==null?'':value).trim();
+      if(!raw) return '';
+      let cleaned=raw
+        .replace(/^tel:\s*/i,'')
+        .replace(/\u00a0/g,' ')
+        .replace(/^\+\s*39(?=(?:\D*\d){6,})/,'')
+        .replace(/^00\s*39(?=(?:\D*\d){6,})/,'')
+        .trim();
+      const digits=cleaned.replace(/[^\d]/g,'');
+      return digits || cleaned;
+    }
     function pickPhone(r){
       const keys=['TELEFONO','CELLULARE','TEL','PHONE','MOBILE','CONTATTO'];
       const ks=Object.keys(r.src||{});
       for(const l of keys){
         const k=ks.find(x=>norm(x)===norm(l)||norm(x).includes(norm(l)));
-        if(k&&r.src[k]) return String(r.src[k]).trim();
+        if(k&&r.src[k]){
+          const cleaned=cleanPhoneNumber(r.src[k]);
+          if(cleaned) return cleaned;
+        }
       }
       return '';
     }
 
     function deptList(r){
-      const map={
-        [norm('1) PANE E PRODOTTI DA FORNO')]: 'PANE',
-        [norm('2) BANCO GASTRONOMIA')]: 'BANCO',
-        [norm('3) FRUTTA E VERDURA')]: 'FRUTTA E VERDURA',
-        [norm('4) CARNE')]: 'CARNE',
-        [norm('5) ALTRO')]: 'ALTRO'
-      };
-      const out=[];
-      for(const [k,v] of Object.entries(r.src||{})){
-        const nk=norm(k);
-        if(map[nk]&&hasV(v)) out.push(map[nk]);
-        if(nk.includes('avicol')&&isYes(v)&&!out.includes('CARNE')) out.push('CARNE');
-      }
-      return out.join(', ');
+      return getDeptIds(r).map(id=>DEPT_TEXT_LABELS[id]||id.toUpperCase()).join(', ');
     }
 
-    const avicoloYN=r=>{
-      for(const k of Object.keys(r.src||{}))
-        if(norm(k).includes('avicol')) return isYes(r.src[k])?'SI':'NO';
-      return 'NO';
-    };
+    const avicoloYN=r=>hasAvicoloFlag(r)?'SI':'NO';
 
     function renderTicket(){
       const wrap=D.q('#tkt-body'); if(!wrap) return;
@@ -977,21 +1044,7 @@
       safeLocalStorageSet(STORAGE_KEY_ACTIVE_DEPTS,JSON.stringify([...ACTIVE]));
     }
     const rowHas=(row,id)=>{
-      const d=DEPTS.find(x=>x.id===id); if(!d) return false;
-      let head=false;
-      for(const [k,v] of Object.entries(row.src||{})){
-        const nk=row.__normKeys[k]||norm(k);
-        if(nk===d.k){head=hasV(v);break}
-      }
-      if(id==='carne'){
-        let avi=false;
-        for(const [k,v] of Object.entries(row.src||{})){
-          const nk=row.__normKeys[k]||norm(k);
-          if(nk==='avicolo'||nk.includes('avicol')){avi=isYes(v);break}
-        }
-        return head||avi;
-      }
-      return head;
+      return getDeptIds(row).includes(id);
     };
     const matchesActive=row=>{
       if(!ACTIVE.size) return false;
@@ -999,8 +1052,6 @@
       return false;
     };
     function deptChips(row){
-      const src = row.src || {};
-      const nkMap = row.__normKeys || {};
       const labels = {
         pane: 'Pane',
         banco: 'Banco',
@@ -1009,28 +1060,13 @@
         altro: 'Altro'
       };
       const chips = [];
+      const deptIds=getDeptIds(row);
 
       for (const dep of DEPTS) {
-        let present = false;
-        for (const [k, v] of Object.entries(src)) {
-          const nk = nkMap[k] || norm(k);
-          if (nk === dep.k && hasV(v)) {
-            present = true;
-            break;
-          }
-        }
-        if (present) chips.push({ icon: dep.icon, label: labels[dep.id] || dep.id });
+        if (deptIds.includes(dep.id)) chips.push({ icon: dep.icon, label: labels[dep.id] || dep.id });
       }
 
-      let hasAvicolo = false;
-      for (const [k, v] of Object.entries(src)) {
-        const nk = nkMap[k] || norm(k);
-        if (nk.includes('avicol') && isYes(v)) {
-          hasAvicolo = true;
-          break;
-        }
-      }
-      if (hasAvicolo) chips.push({ icon: '🐔', label: 'Avicoli' });
+      if (hasAvicoloFlag(row)) chips.push({ icon: '🐔', label: 'Avicoli' });
 
       return chips;
     }
@@ -1320,7 +1356,107 @@
     });
 
     /* ===================== API / Mapping ===================== */
-    const API='https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
+    const SPREADSHEET_ID = '1Z8cPY_JvFsIgt-vli10gAqPJm9EDHZTuKk_BC_wzoAQ';
+    const SHEET_NAME = 'AGGREGATO';
+    const APPS_SCRIPT_API = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
+    const SHEETS_GVIZ_API = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const ORDER_ROWS_CACHE_KEY = 'bottega_orders_rows_cache_v2';
+    const DATA_SOURCES = [
+      { name:'Google Sheets', url:SHEETS_GVIZ_API },
+      { name:'Apps Script', url:APPS_SCRIPT_API }
+    ];
+    function buildSourceUrl(base){
+      return `${base}${base.includes('?') ? '&' : '?'}_ts=${Date.now()}`;
+    }
+    function parseJsonPayload(raw,ct=''){
+      const text=String(raw||'').trim();
+      try{
+        const looksJson=ct.toLowerCase().includes('json')||text.startsWith('{')||text.startsWith('[');
+        if(looksJson) return JSON.parse(text);
+        throw new Error('payload wrapped');
+      }catch(_){
+        const marker='google.visualization.Query.setResponse(';
+        const markerIndex=text.indexOf(marker);
+        if(markerIndex!==-1){
+          const start=text.indexOf('{',markerIndex);
+          const end=text.lastIndexOf('}');
+          if(start!==-1&&end>start) return JSON.parse(text.slice(start,end+1));
+        }
+        const s=text.search(/[\[{]/),eB=text.lastIndexOf('}'),eA=text.lastIndexOf(']'),e=Math.max(eB,eA);
+        if(s!==-1&&e>s) return JSON.parse(text.slice(s,e+1));
+        throw new Error('Parse JSON fallita');
+      }
+    }
+    function gvizCellValue(cell,col){
+      if(!cell) return '';
+      const raw=cell.v;
+      const formatted=cell.f;
+      const type=(col&&col.type)||'';
+      if(type==='date'||type==='datetime'||type==='timeofday') return formatted||raw||'';
+      if(raw==null||raw==='') return formatted||'';
+      return raw;
+    }
+    function gvizTableToRows(table){
+      const cols=Array.isArray(table&&table.cols)?table.cols:[];
+      const rawRows=Array.isArray(table&&table.rows)?table.rows:[];
+      return rawRows.map((row,rowIndex)=>{
+        const cells=Array.isArray(row&&row.c)?row.c:[];
+        const out={__sheetRowNumber:rowIndex+2};
+        cols.forEach((col,i)=>{
+          const baseKey=String((col&&(col.label||col.id))||`COL_${i+1}`).trim()||`COL_${i+1}`;
+          const key=Object.prototype.hasOwnProperty.call(out,baseKey)?`${baseKey}__${i+1}`:baseKey;
+          out[key]=gvizCellValue(cells[i],col);
+        });
+        return out;
+      });
+    }
+    function extractRows(data){
+      let rows=[];
+      if(Array.isArray(data)) rows=data;
+      else if(Array.isArray(data.rows)) rows=data.rows;
+      else if(Array.isArray(data.data)) rows=data.data;
+      else if(data&&data.table&&Array.isArray(data.table.rows)) rows=gvizTableToRows(data.table);
+      else if(data&&typeof data==='object'){
+        const k=Object.keys(data).find(x=>Array.isArray(data[x])&&(data[x].length===0||typeof data[x][0]==='object'));
+        if(k) rows=data[k];
+      }
+      return Array.isArray(rows)?rows.map((row,index)=>{
+        if(!row || typeof row!=='object' || Array.isArray(row)) return row;
+        if(row.__sheetRowNumber!=null) return row;
+        return {...row,__sheetRowNumber:index+2};
+      }):[];
+    }
+    async function fetchRowsFromSource(source,{signal}={}){
+      const res=await fetch(buildSourceUrl(source.url),{
+        cache:'no-store',
+        mode:'cors',
+        headers:{Accept:'application/json, text/plain, */*'},
+        signal
+      });
+      const ct=(res.headers&&res.headers.get('content-type'))||'';
+      const raw=await res.text();
+      if(!res.ok) throw new Error(`${source.name} HTTP ${res.status}: ${raw.slice(0,200)}`);
+      const data=parseJsonPayload(raw,ct);
+      return extractRows(data);
+    }
+    function cacheOrderRows(rows){
+      safeLocalStorageSet(ORDER_ROWS_CACHE_KEY,JSON.stringify({savedAt:Date.now(),rows}));
+    }
+    function readCachedOrderRows(){
+      try{
+        const raw=localStorage.getItem(ORDER_ROWS_CACHE_KEY);
+        const parsed=raw?JSON.parse(raw):null;
+        if(parsed&&Array.isArray(parsed.rows)) return parsed;
+      }catch(_){}
+      return null;
+    }
+    function applyRows(rows,{selectedKey=null}={}){
+      ORDERS=rows.map(rowToOrder).filter(Boolean);
+      recompute();
+      syncFlashcards();
+      updateFilterUI();
+      apply({selectedKey});
+    }
     function parseDate(s){
       if(!s) return null; const str=String(s).trim();
       let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
@@ -1332,6 +1468,15 @@
       if(m) return new Date(+m[1],+m[2]-1,+m[3],12,0,0);
       const d=new Date(str); return isNaN(d.getTime())?null:d;
     }
+    function normalizeTimeValue(value){
+      const str=String(value==null?'':value).trim();
+      if(!str) return '';
+      let m=str.match(/^(\d{1,2})[:.](\d{2})(?:[:.](\d{2}))?$/);
+      if(m) return `${pad(+m[1])}:${m[2]}`;
+      m=str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])$/);
+      if(m) return `${pad(+m[1])}:${m[2]} ${m[3].toUpperCase()}`;
+      return str.replace(/^(\d{1,2}:\d{2}):\d{2}$/, '$1');
+    }
     function pickKey(obj,cands){
       const ks=Object.keys(obj||{});
       for(const c of cands){
@@ -1342,19 +1487,39 @@
       }
       return null;
     }
+    function findOrderNumberKey(obj){
+      const ks=Object.keys(obj||{});
+      const exactLabels=['NUMERO ORDINE','N° ORDINE','N ORDINE','NUM ORDINE','ORD'];
+      for(const label of exactLabels){
+        const k=ks.find(x=>norm(x)===norm(label));
+        if(k) return k;
+      }
+      return ks.find(x=>{
+        const nk=norm(x);
+        return nk==='ordine' || nk.startsWith('numero ordine') || nk.startsWith('n° ordine') || nk.startsWith('n ordine');
+      })||null;
+    }
+    function normalizeOrderNumber(value){
+      if(value==null || value==='') return null;
+      const num=Number(String(value).replace(',', '.'));
+      return Number.isFinite(num) ? Math.trunc(num) : null;
+    }
     function rowToOrder(r){
       const nameK=pickKey(r,['NOME CLIENTE','NOME','CLIENTE']),
             dateK=pickKey(r,['DATA ORDINE','DATA','GIORNO']),
             timeK=pickKey(r,['ORA','ORARIO']),
             zoneK=pickKey(r,['ZONA STOCCAGGIO','ZONA','STOCCAGGIO','UBICAZIONE']),
-            ordK =pickKey(r,['NUMERO ORDINE','ORDINE','N° ORDINE','ORD']),
+            ordK =findOrderNumberKey(r),
             insertedK =pickKey(r,['INSERIMENTO ORDINE','INSERIMENTO','TIMESTAMP','CREATED','CREATED AT','CREAZIONE','DATA INSERIMENTO','INSERTION']);
       const name=nameK?String(r[nameK]||'').trim():'';
       if(!name) return null;
+      const explicitOrderNumber=ordK?normalizeOrderNumber(r[ordK]):null;
+      const fallbackSheetRowNumber=normalizeOrderNumber(r.__sheetRowNumber);
+      const resolvedOrderNumber=explicitOrderNumber ?? fallbackSheetRowNumber;
       const d=dateK?parseDate(r[dateK]):null,
-            t=timeK?String(r[timeK]||'').trim():'',
+            t=timeK?normalizeTimeValue(r[timeK]):'',
             zone=zoneK?String(r[zoneK]||'').trim():'',
-            num=ordK?Number(r[ordK]):null,
+            num=resolvedOrderNumber,
             dateISO=d?`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`:null,
             insertedAtRaw=insertedK?String(r[insertedK]||'').trim():'',
             insertedAtDate=parseTimestamp(insertedAtRaw),
@@ -1375,51 +1540,35 @@
         controller.abort();
       }, FETCH_TIMEOUT_MS);
       try{
-        const res=await fetch(API+'?&_ts='+Date.now(),{
-          cache:'no-store',
-          mode:'cors',
-          headers:{Accept:'application/json, text/plain, */*'},
-          signal: controller.signal
-        });
-        const ct=(res.headers&&res.headers.get('content-type'))||'';
-        const raw=await res.text();
-        if(requestId !== loadRequestSeq) return;
-        if(!res.ok) throw new Error(`HTTP ${res.status}: ${raw.slice(0,200)}`);
-
-        let data;
-        try{
-          const looksJson=ct.toLowerCase().includes('json')||raw.trim().startsWith('{')||raw.trim().startsWith('[');
-          if(looksJson) data=JSON.parse(raw);
-          else throw new Error('API non JSON ('+ct+')');
-        }catch(_){
-          const s=raw.search(/[\[{]/),eB=raw.lastIndexOf('}'),eA=raw.lastIndexOf(']'),e=Math.max(eB,eA);
-          if(s!==-1&&e>s) data=JSON.parse(raw.slice(s,e+1));
-          else throw new Error('Parse JSON fallita');
+        let rows=null;
+        let lastError=null;
+        for(const source of DATA_SOURCES){
+          try{
+            rows=await fetchRowsFromSource(source,{signal:controller.signal});
+            break;
+          }catch(err){
+            lastError=err;
+            if(controller.signal.aborted) throw err;
+            console.warn(`Load source failed: ${source.name}`,err);
+          }
         }
-
-        let rows=[];
-        if(Array.isArray(data)) rows=data;
-        else if(Array.isArray(data.rows)) rows=data.rows;
-        else if(Array.isArray(data.data)) rows=data.data;
-        else if(data&&typeof data==='object'){
-          const k=Object.keys(data).find(x=>Array.isArray(data[x])&&(data[x].length===0||typeof data[x][0]==='object'));
-          if(k) rows=data[k];
-        }
-        if(!Array.isArray(rows)) rows=[];
+        if(rows==null) throw lastError || new Error('Nessuna sorgente dati disponibile');
         if(requestId !== loadRequestSeq) return;
-
-        ORDERS=rows.map(rowToOrder).filter(Boolean);
-        recompute();
-        syncFlashcards();
-        updateFilterUI();
-        apply({selectedKey});
+        cacheOrderRows(rows);
+        applyRows(rows,{selectedKey});
       }catch(e){
         if(requestId !== loadRequestSeq) return;
         if(controller.signal.aborted && !didTimeout) return;
         console.warn('API load error',e);
+        const el=D.q('#orders-list');
+        const cached=readCachedOrderRows();
+        if(cached){
+          applyRows(cached.rows,{selectedKey});
+          console.warn('Uso cache locale ordini',new Date(cached.savedAt).toISOString());
+          return;
+        }
         ORDERS=[];
         recompute();
-        const el=D.q('#orders-list');
         const msg = didTimeout || (e && e.name === 'AbortError') ? 'Timeout richiesta API' : String(e.message||e);
         if(el) el.innerHTML=`<div class="list-note"><strong>Errore caricamento dati API</strong><small>${esc(msg).slice(0,180)}</small></div>`;
         const wrap=D.q('#tkt-body');
