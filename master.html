@@ -884,6 +884,7 @@
     }
     
   </style>
+  <link rel="stylesheet" href="./screensaver-weather-icons.css">
 </head>
 <body>
   <header></header>
@@ -1075,6 +1076,7 @@
     </div>
   </div>
 
+  <script src="./screensaver-weather-icons.js"></script>
   <script>
     // === CONFIG ===
     const VIEWS = ["inserisci", "modifica", "stampa", "stoc", "ocapi"];
@@ -1277,7 +1279,11 @@
       const isDay = Number(current.is_day) === 1;
       const visual = getWeatherVisual(code, isDay);
       const roundedTemp = Number.isFinite(temp) ? Math.round(temp) : null;
-      dom.screensaverWeatherIcon.textContent = visual.icon;
+      if (window.BottegaScreensaverWeather?.render) {
+        window.BottegaScreensaverWeather.render(dom.screensaverWeatherIcon, code, isDay);
+      } else {
+        dom.screensaverWeatherIcon.textContent = visual.icon;
+      }
       dom.screensaverWeatherTemp.textContent = roundedTemp === null ? '--°' : `${roundedTemp}°`;
       dom.screensaverWeather.setAttribute('aria-label', roundedTemp === null ? visual.label : `${visual.label}, ${roundedTemp} gradi`);
       dom.screensaverWeather.hidden = false;
