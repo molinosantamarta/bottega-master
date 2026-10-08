@@ -1,6 +1,6 @@
-/* Exact Meteocons Flat artwork used in Agri-Agenda, plus matching night variants.
- * Local assets and MIT license: ./assets/weather/.
- * Animated SVGs load only while the Bottega screensaver is visible.
+/* Meteocons Flat (Agri-Agenda), with stable image transitions.
+ * Preserve the current icon until the next SVG has loaded and decoded.
+ * No weather image is reloaded when the screensaver opens or closes.
  */
 (function (global) {
   "use strict";
@@ -11,9 +11,6 @@
     "partly-cloudy-day", "partly-cloudy-night", "cloudy", "fog",
     "drizzle", "rain", "snow", "thunderstorms-rain"
   ]);
-  let container = null;
-  let screensaver = null;
-  let observing = false;
   const fallbackIcons = Object.freeze({
     "clear-day": "☀", "clear-night": "☾",
     "mostly-clear-day": "⛅", "mostly-clear-night": "☾",
@@ -21,6 +18,11 @@
     cloudy: "☁", fog: "🌫", drizzle: "🌦",
     rain: "🌧", snow: "🌨", "thunderstorms-rain": "⛈"
   });
+
+  let container = null;
+  let selectedIcon = null;
+  let pending = null;
+  let requestId = 0;
 
   function classify(code, isDay) {
     const n = Number(code);
@@ -39,52 +41,83 @@
 
   function getSrc(slug) {
     const name = available.has(slug) ? slug : "cloudy";
-    const animate = !motion?.matches && !!screensaver?.classList.contains("active");
-    return root + (animate ? "animated" : "static") + "/" + name + ".svg";
+    // Meteocons thunderstorm SVG deliberately strobes its lightning.
+    // Use the official static variant to avoid flashes in the screensaver.
+    const useStatic = Boolean(motion?.matches) || name === "thunderstorms-rain";
+    return root + (useStatic ? "static" : "animated") + "/" + name + ".svg";
   }
 
   function refresh() {
-    const img = container?.querySelector("img[data-weather-icon]");
-    if (!img) return;
-    const src = getSrc(img.dataset.weatherIcon);
-    if (img.getAttribute("src") !== src) img.setAttribute("src", src);
-  }
+    if (!container || !selectedIcon) return;
+    const target = container;
+    const name = selectedIcon;
+    const source = getSrc(name);
+    const visible = target.querySelector('img[data-weather-icon]');
+    if (visible?.getAttribute("src") === source) {
+      // The current icon is already correct: never restart its animation.
+      pending = null;
+      ++requestId;
+      return;
+    }
+    if (pending?.src === source && pending.target === target) return;
 
-  function ensureObservers() {
-    if (observing) return;
-    screensaver = global.document?.getElementById("screensaver-modal");
-    if (!screensaver) return;
-    observing = true;
-    if (global.MutationObserver) {
-      new global.MutationObserver(refresh).observe(screensaver, {
-        attributes: true, attributeFilter: ["class"]
+    const id = ++requestId;
+    pending = { src: source, target };
+    const img = global.document.createElement("img");
+    img.className = "wx-meteocon";
+    img.dataset.weatherIcon = name;
+    img.alt = "";
+    img.decoding = "async";
+    img.draggable = false;
+    img.setAttribute("aria-hidden", "true");
+
+    let finished = false;
+    function onLoad() {
+      if (finished) return;
+      finished = true;
+      // decode() ensures that the image is ready before replacing the old one.
+      const decoded = typeof img.decode === "function" ? img.decode().catch(() => {}) : Promise.resolve();
+      Promise.resolve(decoded).then(() => {
+        if (id !== requestId || container !== target) return;
+        pending = null;
+        target.replaceChildren(img);
       });
     }
-    if (motion?.addEventListener) motion.addEventListener("change", refresh);
-    else if (motion?.addListener) motion.addListener(refresh);
+    function onError() {
+      if (finished) return;
+      finished = true;
+      if (id !== requestId || container !== target) return;
+      pending = null;
+      // A failed download must never erase an existing, correctly drawn icon.
+      if (!target.querySelector('img[data-weather-icon]')) {
+        target.textContent = fallbackIcons[name] || "☁";
+      }
+    }
+
+    img.addEventListener("load", onLoad, { once: true });
+    img.addEventListener("error", onError, { once: true });
+    img.setAttribute("src", source);
+    // Handle browser memory-cache hits without requiring an extra render cycle.
+    if (img.complete && img.naturalWidth > 0) onLoad();
   }
 
   function render(target, weatherCode, isDay) {
     if (!target) return;
-    container = target;
-    ensureObservers();
-    const name = classify(weatherCode, isDay);
-    let img = target.querySelector("img[data-weather-icon]");
-    if (!img) {
-      img = global.document.createElement("img");
-      img.className = "wx-meteocon";
-      img.alt = "";
-      img.decoding = "async";
-      img.draggable = false;
-      img.setAttribute("aria-hidden", "true");
-      img.addEventListener("error", () => {
-        if (img.isConnected) target.textContent = fallbackIcons[img.dataset.weatherIcon] || "☁";
-      });
-      target.replaceChildren(img);
+    if (target !== container) {
+      container = target;
+      pending = null;
+      ++requestId;
     }
-    img.dataset.weatherIcon = name;
+    selectedIcon = classify(weatherCode, isDay);
+    if (!target.querySelector('img[data-weather-icon]')) {
+      // Avoid showing the HTML placeholder sun before the correct SVG loads.
+      target.textContent = "";
+    }
     refresh();
   }
+
+  if (motion?.addEventListener) motion.addEventListener("change", refresh);
+  else if (motion?.addListener) motion.addListener(refresh);
 
   global.BottegaScreensaverWeather = Object.freeze({ classify, getSrc, render });
 })(window);
