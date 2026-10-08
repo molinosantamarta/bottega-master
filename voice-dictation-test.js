@@ -51,13 +51,14 @@
       status.classList.toggle('is-error', isError);
     }
     function updateCopy() {
-      copy.disabled = !textarea.value.trim();
+      copy.disabled = listening || !textarea.value.trim();
     }
     function updateRecordingUI() {
       record.textContent = listening ? 'Termina dettatura' : 'Avvia dettatura';
       record.classList.toggle('is-recording', listening);
       record.setAttribute('aria-pressed', String(listening));
       textarea.readOnly = listening; // Evita sovrascritture mentre arrivano risultati intermedi.
+      updateCopy();
     }
     function stopRecognition(discard = false) {
       if (!recognition) return;
@@ -115,6 +116,7 @@
         session.onstart = () => {
           if (recognition !== session) return;
           listening = true;
+          record.disabled = false;
           updateRecordingUI();
           setStatus('Ascolto attivo. Parla chiaramente; premi Termina quando hai finito.');
         };
@@ -134,6 +136,7 @@
         session.onerror = (event) => {
           if (recognition !== session) return;
           recognitionError = true;
+          record.disabled = false;
           const messages = {
             'not-allowed': 'Microfono negato: autorizza il sito nelle impostazioni del browser.',
             'service-not-allowed': 'Servizio vocale non autorizzato nel browser.',
@@ -147,6 +150,7 @@
           if (recognition !== session) return;
           recognition = null;
           listening = false;
+          record.disabled = false;
           updateRecordingUI();
           if (!recognitionError && !panel.hidden) {
             setStatus(textarea.value.trim() ? 'Dettatura conclusa. Controlla il testo e copialo.' : 'Nessun testo riconosciuto. Riprova.');
@@ -155,7 +159,12 @@
         recognition = session;
         session.start();
         record.disabled = true; // impedisce doppio avvio mentre si attende onstart
-        setTimeout(() => { if (recognition === session) record.disabled = false; }, 750);
+        setTimeout(() => {
+          if (recognition === session && !listening) {
+            setStatus('Avvio del microfono non riuscito. Riprova.', true);
+            stopRecognition(true);
+          }
+        }, 9000);
       } catch (_) {
         recognition = null;
         listening = false;
