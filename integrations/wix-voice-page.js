@@ -60,6 +60,11 @@ $w.onReady(() => {
         }
       }
       form.setFieldValues({ [field.key]: combined });
+      // Verifica che il testo sia effettivamente presente nel form.
+      await new Promise(resolve => setTimeout(resolve, 250));
+      if (form.getFieldValues()?.[field.key] !== combined) {
+        throw new Error('Il campo non contiene la trascrizione attesa');
+      }
 
       // Nessun submit. La persona verifica il testo e clicca Invia manualmente.
       bridge.postMessage({
