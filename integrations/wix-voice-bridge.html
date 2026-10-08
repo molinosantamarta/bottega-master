@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}</style>
+</head>
+<body>
+<script>
+/* Component HTML da incorporare in Wix /ordini-bottega, ID #htmlVoiceBridge.
+   Fa solo da ponte: non legge né salva i dati del modulo. */
+(() => {
+  'use strict';
+  const CHANNEL = 'bottega:voice:v3';
+  const WIX = 'https://www.molinosantamarta.it';
+  const DASHBOARD = 'https://molinosantamarta.github.io';
+  const session = crypto.randomUUID();
+  function announce() {
+    window.parent.postMessage({ channel: CHANNEL, action: 'probe', session }, WIX);
+    if (window.top !== window.parent) {
+      window.top.postMessage({ channel: CHANNEL, action: 'hello', session }, DASHBOARD);
+    }
+  }
+  window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data || data.channel !== CHANNEL || data.session !== session) return;
+
+    if (event.source === window.top && event.origin === DASHBOARD && data.action === 'fill') {
+      const { requestId, department, text } = data;
+      if (typeof requestId !== 'string' || typeof department !== 'string' ||
+          typeof text !== 'string' || text.length > 5000) return;
+      window.parent.postMessage({
+        channel: CHANNEL, action: 'fill', session, requestId, department, text
+      }, WIX);
+    } else if (event.source === window.parent && event.origin === WIX && data.action === 'result') {
+      if (window.top !== window.parent) {
+        window.top.postMessage({
+          channel: CHANNEL, action: 'result', session,
+          requestId: data.requestId, ok: !!data.ok, error: data.error || ''
+        }, DASHBOARD);
+      }
+    }
+  });
+
+  announce();
+  setInterval(announce, 2500);
+})();
+</script>
+</body>
+</html>
