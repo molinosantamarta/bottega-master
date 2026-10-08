@@ -22,3 +22,8 @@
     height: clamp(38px, 9vw, 52px);
   }
 }
+
+/* Updating the forecast must not dim or flash the existing icon/temperature. */
+#screensaver-modal .weather.is-loading {
+  opacity: 1;
+}
